@@ -5110,7 +5110,7 @@
         `;
 
         const signaturesBlockHTML = `
-            <div style="background-color: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 10px 14px; box-sizing: border-box; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-family: 'Inter', sans-serif; margin-top: auto; margin-bottom: 25mm;">
+            <div style="background-color: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 10px 14px; box-sizing: border-box; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-family: 'Inter', sans-serif; margin-top: 10px; margin-bottom: 0;">
                 <div style="text-align: center;">
                     <div style="font-size: 9.5px; font-weight: bold; color: #0f172a; text-transform: uppercase;">ĐẠI DIỆN KHÁCH HÀNG</div>
                     <div style="font-size: 8px; color: #64748b; margin-top: 2px;">(Ký, ghi rõ họ tên & đóng dấu)</div>
@@ -5194,8 +5194,8 @@
 
         const renderImageCardsHTML = (images) => {
             return images.map(img => `
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 2mm; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 84mm; height: 76mm; box-sizing: border-box; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-                    <div style="width: 78mm; height: 62mm; display: flex; align-items: center; justify-content: center;">
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 2mm; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 84mm; height: 68mm; box-sizing: border-box; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                    <div style="width: 78mm; height: 55mm; display: flex; align-items: center; justify-content: center;">
                         <img src="${img.src}" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block;"/>
                     </div>
                     <span style="font-size: 8.5px; font-weight: 800; color: #0284c7; text-transform: uppercase; background-color: #e0f2fe; padding: 0.5mm 3mm; border-radius: 4px; margin-top: 1mm; font-family: 'Inter', sans-serif;">${img.label}</span>
