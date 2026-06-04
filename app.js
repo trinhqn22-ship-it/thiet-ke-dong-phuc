@@ -4702,6 +4702,7 @@
             });
         } else {
             // Process Men's sizes (Form Nam)
+            const maleFormLabel = state.product === 'ao-polo' ? 'Áo Polo Nam' : (state.product === 'ao-thun' ? 'Áo Thun Nam' : 'Form Nam');
             const menSizesList = ['S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL'];
             menSizesList.forEach(sz => {
                 const input = document.getElementById(`input-zalo-qty-nam-${sz}`);
@@ -4712,7 +4713,7 @@
                     const guide = sizeGuides.nam[sz];
                     sizeTableRows += `
                         <tr style="border-bottom: 1px solid #e2e8f0;">
-                            <td style="padding: 4px 6px; text-align: left; color: #0284c7; font-weight: bold;">🙋‍♂️ Form Nam</td>
+                            <td style="padding: 4px 6px; text-align: left; color: #0284c7; font-weight: bold;">🙋‍♂️ ${maleFormLabel}</td>
                             <td style="padding: 4px 6px; font-weight: bold; text-align: center; color: #1e293b;">Size ${sz}</td>
                             <td style="padding: 4px 6px; text-align: left; color: #64748b; font-size: 10px;">${guide.range}</td>
                             <td style="padding: 4px 6px; text-align: center; color: #0284c7; font-weight: bold;">${qty} chiếc</td>
@@ -4722,6 +4723,7 @@
             });
             
             // Process Women's sizes (Form Nữ)
+            const femaleFormLabel = state.product === 'ao-polo' ? 'Áo Polo Nữ' : (state.product === 'ao-thun' ? 'Áo Thun Nữ' : 'Form Nữ');
             const womenSizesList = ['S', 'M', 'L', 'XL', 'XXL', '3XL'];
             womenSizesList.forEach(sz => {
                 const input = document.getElementById(`input-zalo-qty-nu-${sz}`);
@@ -4732,7 +4734,7 @@
                     const guide = sizeGuides.nu[sz];
                     sizeTableRows += `
                         <tr style="border-bottom: 1px solid #e2e8f0;">
-                            <td style="padding: 4px 6px; text-align: left; color: #ec4899; font-weight: bold;">🙋‍♀️ Form Nữ</td>
+                            <td style="padding: 4px 6px; text-align: left; color: #ec4899; font-weight: bold;">🙋‍♀️ ${femaleFormLabel}</td>
                             <td style="padding: 4px 6px; font-weight: bold; text-align: center; color: #1e293b;">Size ${sz}</td>
                             <td style="padding: 4px 6px; text-align: left; color: #64748b; font-size: 10px;">${guide.range}</td>
                             <td style="padding: 4px 6px; text-align: center; color: #0284c7; font-weight: bold;">${qty} chiếc</td>
@@ -4931,7 +4933,7 @@
         // Technical Specs Left Column Data array
         const specs = [
             { label: 'Tên dòng áo/quần', value: productName },
-            { label: 'Phân loại Form', value: state.product === 'ao-bao-ho' ? 'Áo BHLĐ' : (state.product === 'quan-bao-ho' ? 'Quần BHLĐ' : (state.form === 'nam' ? '🙋‍♂️ Form Nam' : '🙋‍♀️ Form Nữ')) },
+            { label: 'Phân loại Form', value: state.product === 'ao-polo' ? (state.form === 'nam' ? 'Áo Polo Nam' : 'Áo Polo Nữ') : (state.product === 'ao-thun' ? (state.form === 'nam' ? 'Áo Thun Nam' : 'Áo Thun Nữ') : (state.product === 'ao-bao-ho' ? 'Áo BHLĐ' : 'Quần BHLĐ')) },
             { label: 'Chất liệu vải đề xuất', value: isWorkwear ? 'Kaki liên doanh dày dặn, bền màu' : 'Vải thun cá sấu 100% co giãn 4 chiều' },
             { label: 'Kiểu cổ áo', value: state.product === 'ao-polo' ? 'Cổ bẻ Polo dệt bo cao cấp' : (state.product === 'ao-thun' ? 'Cổ tròn bo thun dệt kim' : 'Cổ bẻ jacket khóa kéo bảo hộ') },
             { label: 'Kiểu tay áo', value: isWorkwear ? 'Tay dài đai cài nút cổ tay' : 'Tay ngắn bo thun' },
