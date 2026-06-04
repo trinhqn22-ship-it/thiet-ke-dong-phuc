@@ -774,6 +774,103 @@ input:checked + .slider-toggle::before {
     filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.45));
 }
 
+/* Canvas loading state */
+.canvas-loader {
+    position: absolute;
+    inset: 0;
+    background: rgba(11, 15, 25, 0.70);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 20;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity var(--transition-normal), visibility var(--transition-normal);
+    border-radius: var(--radius-lg);
+    pointer-events: none;
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Light mode support */
+[data-theme="light"] .canvas-loader {
+    background: rgba(237, 240, 245, 0.70);
+}
+
+.canvas-loader.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.loader-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    transform: scale(0.9);
+    transition: transform var(--transition-normal);
+}
+
+.canvas-loader.active .loader-content {
+    transform: scale(1);
+}
+
+/* Spinner Box */
+.spinner-box {
+    width: 64px;
+    height: 64px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+}
+
+/* Animated gradient ring */
+.circle-border {
+    width: 56px;
+    height: 56px;
+    padding: 3px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background: linear-gradient(0deg, rgba(56, 189, 248, 0.1) 33%, var(--accent-blue) 100%);
+    animation: canvas-spin .8s linear infinite;
+}
+
+.circle-core {
+    width: 100%;
+    height: 100%;
+    background-color: var(--bg-surface);
+    border-radius: 50%;
+}
+
+/* Text styles */
+.loader-text {
+    color: var(--text-primary);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    margin-top: 8px;
+    text-align: center;
+}
+
+.loader-subtext {
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 400;
+    text-align: center;
+}
+
+@keyframes canvas-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
 /* Floating HUD Navigation on Stage */
 .stage-hud {
     position: absolute;

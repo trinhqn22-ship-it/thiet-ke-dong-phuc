@@ -121,6 +121,7 @@
     const canvas = document.getElementById('product-canvas');
     const ctx = canvas.getContext('2d');
     const canvasWrapper = document.getElementById('div-canvas-wrapper');
+    const canvasLoader = document.getElementById('canvas-loader');
 
     // ── requestAnimationFrame scheduler ─────────────────────────────────────
     // Tránh gọi drawCanvas() trực tiếp nhiều lần liên tiếp khi kéo slider
@@ -2022,6 +2023,11 @@
         syncPatternInputsUI();
         buildColorSwatches();
 
+        // Show canvas loader
+        if (canvasLoader) {
+            canvasLoader.classList.add('active');
+        }
+
         // Show subtle floating progress inside canvas
         ctx.fillStyle = 'rgba(11, 15, 25, 0.45)';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -2029,6 +2035,10 @@
         const layers = getLayersConfig();
         preloadLayers(layers, () => {
             drawCanvas();
+            // Hide canvas loader
+            if (canvasLoader) {
+                canvasLoader.classList.remove('active');
+            }
         });
     }
 
