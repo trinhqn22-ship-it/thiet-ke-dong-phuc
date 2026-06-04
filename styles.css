@@ -1445,16 +1445,33 @@ textarea.input-field {
     
     .preview-stage-container {
         width: 100%;
-        height: 520px;
+        height: auto !important;
+        min-height: 500px;
         order: 1;
-        padding: 10px;
+        padding: 20px 10px 15px 10px !important;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        position: relative;
     }
     
-    /* Canvas Responsive sizing to prevent horizontal overflow */
+    /* Canvas Responsive sizing to prevent horizontal overflow & taller by 5% */
     .canvas-wrapper {
         width: min(85vw, 420px) !important;
-        height: min(85vw, 420px) !important;
+        height: calc(min(85vw, 420px) * 1.05) !important; /* 5% taller height */
         margin-top: 0 !important;
+    }
+
+    /* Reposition the angle controller HUD below the canvas */
+    .stage-hud {
+        position: relative !important;
+        bottom: auto !important;
+        left: auto !important;
+        transform: none !important;
+        margin-top: 12px !important;
+        margin-bottom: 8px !important;
+        z-index: 5;
     }
     
     .right-info-panel {
@@ -1515,9 +1532,12 @@ textarea.input-field {
         height: 36px;
     }
     
-    /* HUD controls */
+    /* HUD controls positioned relatively below canvas */
     .stage-hud {
-        bottom: 10px !important;
+        position: relative !important;
+        bottom: auto !important;
+        margin-top: 10px !important;
+        margin-bottom: 5px !important;
     }
     .angle-btn {
         padding: 6px 12px !important;
