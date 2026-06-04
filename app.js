@@ -388,60 +388,60 @@
         if (state.product === 'ao-polo') {
             if (state.form === 'nam') {
                 if (state.angle === 'front') {
-                    list.push({ id: 'than', name: 'Thân Áo', file: 'than-ao-polo-nam-phia-truoc.png', colorizable: true });
-                    list.push({ id: 'tay-phai', name: 'Tay Phai', file: 'tay-phai-ao-polo-nam-phia-truoc.png', colorizable: true, group: 'tay' });
-                    list.push({ id: 'tay-trai', name: 'Tay Trai', file: 'tay-trai-ao-polo-nam-phia-truoc.png', colorizable: true, group: 'tay' });
-                    list.push({ id: 'bo-tay-phai', name: 'Bo Tay Phai', file: 'bo-tay-phai-ao-polo-phia-truoc.png', colorizable: true, group: 'bo-tay' });
-                    list.push({ id: 'bo-tay-trai', name: 'Bo Tay Trai', file: 'bo-tay-trai-ao-polo-phia-truoc.png', colorizable: true, group: 'bo-tay' });
-                    list.push({ id: 'co-trong', name: 'Chân Cổ Trong', file: 'mat-trong-chan-co-ao-polo-nam.png', colorizable: true, group: 'than' });
-                    list.push({ id: 'co', name: 'Cổ Áo', file: 'co-ao-polo-nam.png', colorizable: true });
-                    list.push({ id: 'tru-co', name: 'Trụ Cổ', file: 'tru-co-ao-polo-nam.png', colorizable: true });
-                    list.push({ id: 'vien-co', name: 'Viền Cổ', file: 'vien-co-ao-polo-nam.png', colorizable: true });
-                    list.push({ id: 'nut', name: 'Khuy Nút', file: 'nut-ao-polo-nam.png', colorizable: true });
+                    list.push({ id: 'than', name: 'Thân Áo', file: 'than-ao-polo-nam-phia-truoc.webp', colorizable: true });
+                    list.push({ id: 'tay-phai', name: 'Tay Phai', file: 'tay-phai-ao-polo-nam-phia-truoc.webp', colorizable: true, group: 'tay' });
+                    list.push({ id: 'tay-trai', name: 'Tay Trai', file: 'tay-trai-ao-polo-nam-phia-truoc.webp', colorizable: true, group: 'tay' });
+                    list.push({ id: 'bo-tay-phai', name: 'Bo Tay Phai', file: 'bo-tay-phai-ao-polo-phia-truoc.webp', colorizable: true, group: 'bo-tay' });
+                    list.push({ id: 'bo-tay-trai', name: 'Bo Tay Trai', file: 'bo-tay-trai-ao-polo-phia-truoc.webp', colorizable: true, group: 'bo-tay' });
+                    list.push({ id: 'co-trong', name: 'Chân Cổ Trong', file: 'mat-trong-chan-co-ao-polo-nam.webp', colorizable: true, group: 'than' });
+                    list.push({ id: 'co', name: 'Cổ Áo', file: 'co-ao-polo-nam.webp', colorizable: true });
+                    list.push({ id: 'tru-co', name: 'Trụ Cổ', file: 'tru-co-ao-polo-nam.webp', colorizable: true });
+                    list.push({ id: 'vien-co', name: 'Viền Cổ', file: 'vien-co-ao-polo-nam.webp', colorizable: true });
+                    list.push({ id: 'nut', name: 'Khuy Nút', file: 'nut-ao-polo-nam.webp', colorizable: true });
                 } else if (state.angle === 'back') {
-                    list.push({ id: 'than', name: 'Thân Sau', file: 'than-ao-polo-nam-phia-sau.png', colorizable: true });
-                    list.push({ id: 'tay-phai', name: 'Tay Phai Sau', file: 'tay-phai-ao-polo-phia-sau.png', colorizable: true, group: 'tay' });
-                    list.push({ id: 'tay-trai', name: 'Tay Trai Sau', file: 'tay-trai-ao-polo-phia-sau.png', colorizable: true, group: 'tay' });
-                    list.push({ id: 'bo-tay-phai', name: 'Bo Tay Phai', file: 'bo-tay-phai-ao-polo-phia-sau.png', colorizable: true, group: 'bo-tay' });
-                    list.push({ id: 'bo-tay-trai', name: 'Bo Tay Trai', file: 'bo-tay-trai-ao-polo-phia-sau.png', colorizable: true, group: 'bo-tay' });
-                    list.push({ id: 'co', name: 'Cổ Áo Sau', file: 'co-ao-polo-nam-phia-sau.png', colorizable: true });
+                    list.push({ id: 'than', name: 'Thân Sau', file: 'than-ao-polo-nam-phia-sau.webp', colorizable: true });
+                    list.push({ id: 'tay-phai', name: 'Tay Phai Sau', file: 'tay-phai-ao-polo-phia-sau.webp', colorizable: true, group: 'tay' });
+                    list.push({ id: 'tay-trai', name: 'Tay Trai Sau', file: 'tay-trai-ao-polo-phia-sau.webp', colorizable: true, group: 'tay' });
+                    list.push({ id: 'bo-tay-phai', name: 'Bo Tay Phai', file: 'bo-tay-phai-ao-polo-phia-sau.webp', colorizable: true, group: 'bo-tay' });
+                    list.push({ id: 'bo-tay-trai', name: 'Bo Tay Trai', file: 'bo-tay-trai-ao-polo-phia-sau.webp', colorizable: true, group: 'bo-tay' });
+                    list.push({ id: 'co', name: 'Cổ Áo Sau', file: 'co-ao-polo-nam-phia-sau.webp', colorizable: true });
                 } else { // Left/Right nam
                     const side = state.angle === 'left' ? 'trai' : 'phai';
                     const sideName = state.angle === 'left' ? 'Trái' : 'Phải';
-                    list.push({ id: 'than', name: `Thân ${sideName}`, file: `than-ao-polo-nam-nhin-ngan-${side}.png`, colorizable: true });
-                    list.push({ id: 'tay', name: `Tay ${sideName}`, file: `tay-ao-polo-nam-nhin-ngan-${side}.png`, colorizable: true });
-                    list.push({ id: 'bo-tay', name: `Bo Tay ${sideName}`, file: `bo-tay-ao-polo-nam-nhin-ngan-${side}.png`, colorizable: true });
-                    list.push({ id: 'co', name: `Cổ Áo ${sideName}`, file: `co-ao-polo-nam-nhin-ngan-${side}.png`, colorizable: true });
-                    list.push({ id: 'tru-co', name: `Trụ Cổ ${sideName}`, file: `tru-co-ao-polo-nam-nhin-ngan-${side}.png`, colorizable: true });
-                    list.push({ id: 'nut', name: `Khuy Nút ${sideName}`, file: `nut-ao-polo-nam-nhin-ngan-${side}.png`, colorizable: true });
+                    list.push({ id: 'than', name: `Thân ${sideName}`, file: `than-ao-polo-nam-nhin-ngan-${side}.webp`, colorizable: true });
+                    list.push({ id: 'tay', name: `Tay ${sideName}`, file: `tay-ao-polo-nam-nhin-ngan-${side}.webp`, colorizable: true });
+                    list.push({ id: 'bo-tay', name: `Bo Tay ${sideName}`, file: `bo-tay-ao-polo-nam-nhin-ngan-${side}.webp`, colorizable: true });
+                    list.push({ id: 'co', name: `Cổ Áo ${sideName}`, file: `co-ao-polo-nam-nhin-ngan-${side}.webp`, colorizable: true });
+                    list.push({ id: 'tru-co', name: `Trụ Cổ ${sideName}`, file: `tru-co-ao-polo-nam-nhin-ngan-${side}.webp`, colorizable: true });
+                    list.push({ id: 'nut', name: `Khuy Nút ${sideName}`, file: `nut-ao-polo-nam-nhin-ngan-${side}.webp`, colorizable: true });
                 }
             } else { // Form Nữ Polo
                 if (state.angle === 'front') {
-                    list.push({ id: 'than', name: 'Thân Áo', file: 'than-ao-polo-nu-phia-truoc.png', colorizable: true });
-                    list.push({ id: 'tay-phai', name: 'Tay Phai', file: 'tay-phai-ao-polo-nu-phia-truoc.png', colorizable: true, group: 'tay' });
-                    list.push({ id: 'tay-trai', name: 'Tay Trai', file: 'tay-trai-ao-polo-nu-phia-truoc.png', colorizable: true, group: 'tay' });
-                    list.push({ id: 'bo-tay-phai', name: 'Bo Tay Phai', file: 'bo-tay-phai-ao-polo-nu.png', colorizable: true, group: 'bo-tay' });
-                    list.push({ id: 'bo-tay-trai', name: 'Bo Tay Trai', file: 'bo-tay-trai-ao-polo-nu.png', colorizable: true, group: 'bo-tay' });
-                    list.push({ id: 'co-trong', name: 'Chân Cổ Trong', file: 'mat-trong-chan-co-ao-polo-nu.png', colorizable: true, group: 'than' });
-                    list.push({ id: 'co', name: 'Cổ Áo', file: 'co-ao-polo-nu-phia-truoc.png', colorizable: true });
-                    list.push({ id: 'tru-co', name: 'Trụ Cổ', file: 'tru-co-ao-polo-nu.png', colorizable: true });
-                    list.push({ id: 'vien-co', name: 'Viền Cổ', file: 'vien-co-ao-polo-nu.png', colorizable: true });
-                    list.push({ id: 'nut', name: 'Khuy Nút', file: 'nut-ao-polo-nu.png', colorizable: true });
+                    list.push({ id: 'than', name: 'Thân Áo', file: 'than-ao-polo-nu-phia-truoc.webp', colorizable: true });
+                    list.push({ id: 'tay-phai', name: 'Tay Phai', file: 'tay-phai-ao-polo-nu-phia-truoc.webp', colorizable: true, group: 'tay' });
+                    list.push({ id: 'tay-trai', name: 'Tay Trai', file: 'tay-trai-ao-polo-nu-phia-truoc.webp', colorizable: true, group: 'tay' });
+                    list.push({ id: 'bo-tay-phai', name: 'Bo Tay Phai', file: 'bo-tay-phai-ao-polo-nu.webp', colorizable: true, group: 'bo-tay' });
+                    list.push({ id: 'bo-tay-trai', name: 'Bo Tay Trai', file: 'bo-tay-trai-ao-polo-nu.webp', colorizable: true, group: 'bo-tay' });
+                    list.push({ id: 'co-trong', name: 'Chân Cổ Trong', file: 'mat-trong-chan-co-ao-polo-nu.webp', colorizable: true, group: 'than' });
+                    list.push({ id: 'co', name: 'Cổ Áo', file: 'co-ao-polo-nu-phia-truoc.webp', colorizable: true });
+                    list.push({ id: 'tru-co', name: 'Trụ Cổ', file: 'tru-co-ao-polo-nu.webp', colorizable: true });
+                    list.push({ id: 'vien-co', name: 'Viền Cổ', file: 'vien-co-ao-polo-nu.webp', colorizable: true });
+                    list.push({ id: 'nut', name: 'Khuy Nút', file: 'nut-ao-polo-nu.webp', colorizable: true });
                 } else if (state.angle === 'back') {
-                    list.push({ id: 'than', name: 'Thân Sau', file: 'than-ao-polo-nu-phia-sau.png', colorizable: true });
-                    list.push({ id: 'tay-phai', name: 'Tay Phai Sau', file: 'tay-phai-ao-polo-nu-phia-sau.png', colorizable: true, group: 'tay' });
-                    list.push({ id: 'tay-trai', name: 'Tay Trai Sau', file: 'tay-trai-ao-polo-nu-phia-sau.png', colorizable: true, group: 'tay' });
-                    list.push({ id: 'bo-tay-phai', name: 'Bo Tay Phai', file: 'bo-tay-phai-ao-polo-nu-phia-sau.png', colorizable: true, group: 'bo-tay' });
-                    list.push({ id: 'bo-tay-trai', name: 'Bo Tay Trai', file: 'bo-tay-trai-ao-polo-nu-phia-sau.png', colorizable: true, group: 'bo-tay' });
-                    list.push({ id: 'co', name: 'Cổ Áo Sau', file: 'co-ao-polo-nu-phia-sau.png', colorizable: true });
+                    list.push({ id: 'than', name: 'Thân Sau', file: 'than-ao-polo-nu-phia-sau.webp', colorizable: true });
+                    list.push({ id: 'tay-phai', name: 'Tay Phai Sau', file: 'tay-phai-ao-polo-nu-phia-sau.webp', colorizable: true, group: 'tay' });
+                    list.push({ id: 'tay-trai', name: 'Tay Trai Sau', file: 'tay-trai-ao-polo-nu-phia-sau.webp', colorizable: true, group: 'tay' });
+                    list.push({ id: 'bo-tay-phai', name: 'Bo Tay Phai', file: 'bo-tay-phai-ao-polo-nu-phia-sau.webp', colorizable: true, group: 'bo-tay' });
+                    list.push({ id: 'bo-tay-trai', name: 'Bo Tay Trai', file: 'bo-tay-trai-ao-polo-nu-phia-sau.webp', colorizable: true, group: 'bo-tay' });
+                    list.push({ id: 'co', name: 'Cổ Áo Sau', file: 'co-ao-polo-nu-phia-sau.webp', colorizable: true });
                 } else { // Left/Right nu
                     const side = state.angle === 'left' ? 'trai' : 'phai';
                     const sideName = state.angle === 'left' ? 'Trái' : 'Phải';
-                    list.push({ id: 'than', name: `Thân ${sideName}`, file: `than-ao-polo-nu-nhin-ngan-${side}.png`, colorizable: true });
-                    list.push({ id: 'tay', name: `Tay ${sideName}`, file: `tay-ao-polo-nu-nhin-ngan-${side}.png`, colorizable: true });
-                    list.push({ id: 'bo-tay', name: `Bo Tay ${sideName}`, file: `bo-tay-ao-polo-nu-nhin-ngan-${side}.png`, colorizable: true });
-                    list.push({ id: 'co', name: `Cổ Áo ${sideName}`, file: `co-ao-polo-nu-nhin-ngan-${side}.png`, colorizable: true });
-                    list.push({ id: 'tru-co', name: `Trụ Cổ ${sideName}`, file: `tru-co-ao-polo-nu-nhin-ngan-${side}.png`, colorizable: true });
+                    list.push({ id: 'than', name: `Thân ${sideName}`, file: `than-ao-polo-nu-nhin-ngan-${side}.webp`, colorizable: true });
+                    list.push({ id: 'tay', name: `Tay ${sideName}`, file: `tay-ao-polo-nu-nhin-ngan-${side}.webp`, colorizable: true });
+                    list.push({ id: 'bo-tay', name: `Bo Tay ${sideName}`, file: `bo-tay-ao-polo-nu-nhin-ngan-${side}.webp`, colorizable: true });
+                    list.push({ id: 'co', name: `Cổ Áo ${sideName}`, file: `co-ao-polo-nu-nhin-ngan-${side}.webp`, colorizable: true });
+                    list.push({ id: 'tru-co', name: `Trụ Cổ ${sideName}`, file: `tru-co-ao-polo-nu-nhin-ngan-${side}.webp`, colorizable: true });
                 }
             }
         }
@@ -449,192 +449,193 @@
         if (state.product === 'ao-thun') {
             const sideSfx = state.form === 'nam' ? 'nam' : 'nu';
             if (state.angle === 'front') {
-                list.push({ id: 'than', name: 'Thân Áo', file: `than-ao-thun-${sideSfx}-phia-truoc.png`, colorizable: true });
-                list.push({ id: 'tay-phai', name: 'Tay Phai', file: `tay-ao-thun-${sideSfx}-phia-truoc-ben-phai.png`, colorizable: true, group: 'tay' });
-                list.push({ id: 'tay-trai', name: 'Tay Trai', file: `tay-ao-thun-${sideSfx}-phia-truoc-ben-trai.png`, colorizable: true, group: 'tay' });
-                list.push({ id: 'bo-tay-phai', name: 'Bo Tay Phai', file: `bo-tay-ao-thun-${sideSfx}-phia-truoc-ben-phai.png`, colorizable: true, group: 'bo-tay' });
-                list.push({ id: 'bo-tay-trai', name: 'Bo Tay Trai', file: `bo-tay-ao-thun-${sideSfx}-phia-truoc-ben-trai.png`, colorizable: true, group: 'bo-tay' });
-                list.push({ id: 'co', name: 'Bo Cổ', file: `co-ao-thun-${sideSfx}-phia-truoc.png`, colorizable: true });
-                list.push({ id: 'chan-co', name: 'Chân Cổ', file: `chan-co-ao-thun-${sideSfx}-phia-truoc.png`, colorizable: true });
+                list.push({ id: 'than', name: 'Thân Áo', file: `than-ao-thun-${sideSfx}-phia-truoc.webp`, colorizable: true });
+                list.push({ id: 'tay-phai', name: 'Tay Phai', file: `tay-ao-thun-${sideSfx}-phia-truoc-ben-phai.webp`, colorizable: true, group: 'tay' });
+                list.push({ id: 'tay-trai', name: 'Tay Trai', file: `tay-ao-thun-${sideSfx}-phia-truoc-ben-trai.webp`, colorizable: true, group: 'tay' });
+                list.push({ id: 'bo-tay-phai', name: 'Bo Tay Phai', file: `bo-tay-ao-thun-${sideSfx}-phia-truoc-ben-phai.webp`, colorizable: true, group: 'bo-tay' });
+                list.push({ id: 'bo-tay-trai', name: 'Bo Tay Trai', file: `bo-tay-ao-thun-${sideSfx}-phia-truoc-ben-trai.webp`, colorizable: true, group: 'bo-tay' });
+                list.push({ id: 'co', name: 'Bo Cổ', file: `co-ao-thun-${sideSfx}-phia-truoc.webp`, colorizable: true });
+                list.push({ id: 'chan-co', name: 'Chân Cổ', file: `chan-co-ao-thun-${sideSfx}-phia-truoc.webp`, colorizable: true });
                 if (state.form === 'nam') {
-                    list.push({ id: 'co-trong', name: 'Chân Cổ Trong', file: 'mat-trong-chan-co-ao-thun-nam.png', colorizable: true, group: 'than' });
+                    list.push({ id: 'co-trong', name: 'Chân Cổ Trong', file: 'mat-trong-chan-co-ao-thun-nam.webp', colorizable: true, group: 'than' });
                 } else {
-                    list.push({ id: 'co-trong', name: 'Chân Cổ Trong', file: 'mat-trong-chan-co-ao-thun-nu.png', colorizable: true, group: 'than' });
+                    list.push({ id: 'co-trong', name: 'Chân Cổ Trong', file: 'mat-trong-chan-co-ao-thun-nu.webp', colorizable: true, group: 'than' });
                 }
             } else if (state.angle === 'back') {
-                list.push({ id: 'than', name: 'Thân Sau', file: `than-ao-thun-${sideSfx}-phia-sau.png`, colorizable: true });
-                list.push({ id: 'tay-phai', name: 'Tay Phai Sau', file: `tay-ao-thun-${sideSfx}-phia-sau-ben-phai.png`, colorizable: true, group: 'tay' });
-                list.push({ id: 'tay-trai', name: 'Tay Trai Sau', file: `tay-ao-thun-${sideSfx}-phia-sau-ben-trai.png`, colorizable: true, group: 'tay' });
-                list.push({ id: 'bo-tay-phai', name: 'Bo Tay Phai', file: `bo-tay-ao-thun-${sideSfx}-phia-sau-ben-phai.png`, colorizable: true, group: 'bo-tay' });
-                list.push({ id: 'bo-tay-trai', name: 'Bo Tay Trai', file: `bo-tay-ao-thun-${sideSfx}-phia-sau-ben-trai.png`, colorizable: true, group: 'bo-tay' });
-                list.push({ id: 'co', name: 'Bo Cổ Sau', file: `co-ao-thun-${sideSfx}-phia-sau.png`, colorizable: true });
+                list.push({ id: 'than', name: 'Thân Sau', file: `than-ao-thun-${sideSfx}-phia-sau.webp`, colorizable: true });
+                list.push({ id: 'tay-phai', name: 'Tay Phai Sau', file: `tay-ao-thun-${sideSfx}-phia-sau-ben-phai.webp`, colorizable: true, group: 'tay' });
+                list.push({ id: 'tay-trai', name: 'Tay Trai Sau', file: `tay-ao-thun-${sideSfx}-phia-sau-ben-trai.webp`, colorizable: true, group: 'tay' });
+                list.push({ id: 'bo-tay-phai', name: 'Bo Tay Phai', file: `bo-tay-ao-thun-${sideSfx}-phia-sau-ben-phai.webp`, colorizable: true, group: 'bo-tay' });
+                list.push({ id: 'bo-tay-trai', name: 'Bo Tay Trai', file: `bo-tay-ao-thun-${sideSfx}-phia-sau-ben-trai.webp`, colorizable: true, group: 'bo-tay' });
+                list.push({ id: 'co', name: 'Bo Cổ Sau', file: `co-ao-thun-${sideSfx}-phia-sau.webp`, colorizable: true });
             } else { // Left/Right side T-shirt
                 const isLeft = state.angle === 'left';
                 const fileDir = isLeft ? 'trai' : 'phai';
                 const txt = isLeft ? 'Trái' : 'Phải';
                 
                 if (state.form === 'nam') {
-                    list.push({ id: 'than', name: `Thân ${txt}`, file: `than-ao-thun-nam-nhin-ben-${fileDir}.png`, colorizable: true });
-                    list.push({ id: 'tay', name: `Tay ${txt}`, file: isLeft ? `tay-ao-thun-nam-nhin-ben-trai.png` : `tay-ao-thun-nam-nhin-ngan-ben-phai.png`, colorizable: true });
-                    list.push({ id: 'bo-tay', name: `Bo Tay ${txt}`, file: `bo-tay-ao-thun-nam-nhin-ben-${fileDir}.png`, colorizable: true });
-                    list.push({ id: 'co', name: `Bo Cổ ${txt}`, file: `co-ao-thun-nam-nhin-ben-${fileDir}.png`, colorizable: true });
+                    list.push({ id: 'than', name: `Thân ${txt}`, file: `than-ao-thun-nam-nhin-ben-${fileDir}.webp`, colorizable: true });
+                    list.push({ id: 'tay', name: `Tay ${txt}`, file: isLeft ? `tay-ao-thun-nam-nhin-ben-trai.webp` : `tay-ao-thun-nam-nhin-ngan-ben-phai.webp`, colorizable: true });
+                    list.push({ id: 'bo-tay', name: `Bo Tay ${txt}`, file: `bo-tay-ao-thun-nam-nhin-ben-${fileDir}.webp`, colorizable: true });
+                    list.push({ id: 'co', name: `Bo Cổ ${txt}`, file: `co-ao-thun-nam-nhin-ben-${fileDir}.webp`, colorizable: true });
                 } else { // Nu Left/Right
-                    list.push({ id: 'than', name: `Thân ${txt}`, file: `than-ao-nu-nhin-ngan-${fileDir}.png`, colorizable: true });
-                    list.push({ id: 'tay', name: `Tay ${txt}`, file: `tay-ao-nu-nhin-ngan-${fileDir}.png`, colorizable: true });
-                    list.push({ id: 'bo-tay', name: `Bo Tay ${txt}`, file: `bo-tay-ao-nu-nhin-ngan-${fileDir}.png`, colorizable: true });
-                    list.push({ id: 'co', name: `Bo Cổ ${txt}`, file: `co-ao-thun-nu-nhin-ngan-${fileDir}.png`, colorizable: true });
+                    list.push({ id: 'than', name: `Thân ${txt}`, file: `than-ao-nu-nhin-ngan-${fileDir}.webp`, colorizable: true });
+                    list.push({ id: 'tay', name: `Tay ${txt}`, file: `tay-ao-nu-nhin-ngan-${fileDir}.webp`, colorizable: true });
+                    list.push({ id: 'bo-tay', name: `Bo Tay ${txt}`, file: `bo-tay-ao-nu-nhin-ngan-${fileDir}.webp`, colorizable: true });
+                    list.push({ id: 'co', name: `Bo Cổ ${txt}`, file: `co-ao-thun-nu-nhin-ngan-${fileDir}.webp`, colorizable: true });
                 }
             }
         }
 
         if (state.product === 'ao-bao-ho') {
             if (state.angle === 'front') {
-                list.push({ id: 'than-phai', name: 'Thân Phải', file: 'than-ao-bhld-phia-truoc-ben-phai.png', colorizable: true, group: 'than' });
-                list.push({ id: 'than-trai', name: 'Thân Trái', file: 'than-ao-bhld-phia-truoc-ben-trai.png', colorizable: true, group: 'than' });
-                list.push({ id: 'nguc-phai', name: 'Ngực Phải', file: 'nguc-ao-bhld-phia-truoc-ben-phai.png', colorizable: true });
-                list.push({ id: 'nguc-trai', name: 'Ngực Trái', file: 'nguc-ao-bhld-phia-truoc-ben-trai.png', colorizable: true });
-                list.push({ id: 'tay-phai', name: 'Tay Phải', file: 'tay-ao-bhld-phia-truoc-ben-phai.png', colorizable: true, group: 'tay' });
-                list.push({ id: 'tay-trai', name: 'Tay Trái', file: 'tay-ao-bhld-phia-truoc-ben-trai.png', colorizable: true, group: 'tay' });
-                list.push({ id: 'bo-tay-phai', name: 'Cổ Tay Phải', file: 'co-tay-ao-bhld-phia-truoc-ben-phai.png', colorizable: true, group: 'bo-tay' });
-                list.push({ id: 'bo-tay-trai', name: 'Cổ Tay Trái', file: 'co-tay-ao-bhld-phia-truoc-ben-trai.png', colorizable: true, group: 'bo-tay' });
-                list.push({ id: 'co', name: 'Cổ Áo', file: 'co-ao-bhld-truoc.png', colorizable: true });
-                list.push({ id: 'vien-co', name: 'Viền Cổ', file: 'vien-co-ao-bhld-truoc.png', colorizable: true });
-                list.push({ id: 'tru-co', name: 'Nẹp Áo', file: 'nep-ao-bhld-truoc.png', colorizable: true });
-                list.push({ id: 'co-ao-bhld-truoc-1', name: 'Cổ Phụ 1', file: 'ao-bhld-truoc-1.png', colorizable: true, optional: true });
-                list.push({ id: 'bo-tay', name: 'Đai Áo', file: 'dai-ao-bhld-truoc.png', colorizable: true });
+                list.push({ id: 'than-phai', name: 'Thân Phải', file: 'than-ao-bhld-phia-truoc-ben-phai.webp', colorizable: true, group: 'than' });
+                list.push({ id: 'than-trai', name: 'Thân Trái', file: 'than-ao-bhld-phia-truoc-ben-trai.webp', colorizable: true, group: 'than' });
+                list.push({ id: 'nguc-phai', name: 'Ngực Phải', file: 'nguc-ao-bhld-phia-truoc-ben-phai.webp', colorizable: true });
+                list.push({ id: 'nguc-trai', name: 'Ngực Trái', file: 'nguc-ao-bhld-phia-truoc-ben-trai.webp', colorizable: true });
+                list.push({ id: 'tay-phai', name: 'Tay Phải', file: 'tay-ao-bhld-phia-truoc-ben-phai.webp', colorizable: true, group: 'tay' });
+                list.push({ id: 'tay-trai', name: 'Tay Trái', file: 'tay-ao-bhld-phia-truoc-ben-trai.webp', colorizable: true, group: 'tay' });
+                list.push({ id: 'bo-tay-phai', name: 'Cổ Tay Phải', file: 'co-tay-ao-bhld-phia-truoc-ben-phai.webp', colorizable: true, group: 'bo-tay' });
+                list.push({ id: 'bo-tay-trai', name: 'Cổ Tay Trái', file: 'co-tay-ao-bhld-phia-truoc-ben-trai.webp', colorizable: true, group: 'bo-tay' });
+                list.push({ id: 'co', name: 'Cổ Áo', file: 'co-ao-bhld-truoc.webp', colorizable: true });
+                list.push({ id: 'vien-co', name: 'Viền Cổ', file: 'vien-co-ao-bhld-truoc.webp', colorizable: true });
+                list.push({ id: 'tru-co', name: 'Nẹp Áo', file: 'nep-ao-bhld-truoc.webp', colorizable: true });
+                list.push({ id: 'co-ao-bhld-truoc-1', name: 'Cổ Phụ 1', file: 'ao-bhld-truoc-1.webp', colorizable: true, optional: true });
+                list.push({ id: 'bo-tay', name: 'Đai Áo', file: 'dai-ao-bhld-truoc.webp', colorizable: true });
+                list.push({ id: 'vien-phan-quang', name: 'Viền Phản Quang', file: 'vien-phan-quang-ao-bhld-phia-truoc.webp', colorizable: true, group: 'phan-quang' });
                 
                 // Pockets (Toggles)
                 if (state.pockets.left) {
-                    list.push({ id: 'tui', name: 'Túi Ngực Trái', file: 'tui-ao-bhld-trai-truoc.png', colorizable: true });
+                    list.push({ id: 'tui', name: 'Túi Ngực Trái', file: 'tui-ao-bhld-trai-truoc.webp', colorizable: true });
                     if (state.pockets.flap) {
-                        list.push({ id: 'nap-tui', name: 'Nắp Túi Trái', file: 'nap-tui-ao-bhld-trai-truoc.png', colorizable: true });
-                        list.push({ id: 'nut-tui', name: 'Nút Nắp Trái', file: 'nut-nap-ao-bhld-trai-truoc.png', colorizable: true, group: 'nut' });
+                        list.push({ id: 'nap-tui', name: 'Nắp Túi Trái', file: 'nap-tui-ao-bhld-trai-truoc.webp', colorizable: true });
+                        list.push({ id: 'nut-tui', name: 'Nút Nắp Trái', file: 'nut-nap-ao-bhld-trai-truoc.webp', colorizable: true, group: 'nut' });
                     }
                 }
                 if (state.pockets.right) {
-                    list.push({ id: 'tui', name: 'Túi Ngực Phải', file: 'tui-ao-bhld-phai-truoc.png', colorizable: true });
+                    list.push({ id: 'tui', name: 'Túi Ngực Phải', file: 'tui-ao-bhld-phai-truoc.webp', colorizable: true });
                     if (state.pockets.flap) {
-                        list.push({ id: 'nap-tui', name: 'Nắp Túi Phải', file: 'nap-tui-ao-bhld-phai-truoc.png', colorizable: true });
-                        list.push({ id: 'nut-tui', name: 'Nút Nắp Phải', file: 'nut-nap-ao-bhld-phai-truoc.png', colorizable: true, group: 'nut' });
+                        list.push({ id: 'nap-tui', name: 'Nắp Túi Phải', file: 'nap-tui-ao-bhld-phai-truoc.webp', colorizable: true });
+                        list.push({ id: 'nut-tui', name: 'Nút Nắp Phải', file: 'nut-nap-ao-bhld-phai-truoc.webp', colorizable: true, group: 'nut' });
                     }
                 }
                 if (state.pockets.sleeve) {
-                    list.push({ id: 'tui-tay-phai', name: 'Túi Tay Phải', file: 'tui-tay-ao-bhld-phai-truoc.png', colorizable: true, group: 'tui' });
-                    list.push({ id: 'tui-tay-trai', name: 'Túi Tay Trái', file: 'tui-tay-ao-bhld-trai-truoc.png', colorizable: true, group: 'tui' });
+                    list.push({ id: 'tui-tay-phai', name: 'Túi Tay Phải', file: 'tui-tay-ao-bhld-phai-truoc.webp', colorizable: true, group: 'tui' });
+                    list.push({ id: 'tui-tay-trai', name: 'Túi Tay Trái', file: 'tui-tay-ao-bhld-trai-truoc.webp', colorizable: true, group: 'tui' });
                     if (state.pockets.flap) {
-                        list.push({ id: 'nap-tui-tay-phai', name: 'Nắp Túi Tay Phải', file: 'nap-tui-tay-ao-bhld-phai-truoc.png', colorizable: true, group: 'nap-tui' });
-                        list.push({ id: 'nap-tui-tay-trai', name: 'Nắp Túi Tay Trái', file: 'nap-tui-tay-ao-bhld-trai-truoc.png', colorizable: true, group: 'nap-tui' });
+                        list.push({ id: 'nap-tui-tay-phai', name: 'Nắp Túi Tay Phải', file: 'nap-tui-tay-ao-bhld-phai-truoc.webp', colorizable: true, group: 'nap-tui' });
+                        list.push({ id: 'nap-tui-tay-trai', name: 'Nắp Túi Tay Trái', file: 'nap-tui-tay-ao-bhld-trai-truoc.webp', colorizable: true, group: 'nap-tui' });
                     }
                 }
 
-                list.push({ id: 'nut', name: 'Nút Thân Áo', file: 'nut-than-ao-bhld-truoc.png', colorizable: true });
+                list.push({ id: 'nut', name: 'Nút Thân Áo', file: 'nut-than-ao-bhld-truoc.webp', colorizable: true });
                 
                 // Reflective strips (Front view)
                 if (state.reflective.chest) {
-                    list.push({ id: 'phan-quang', name: 'Dải Phản Quang Ngực', file: 'day-phan-quan-nguc-ao-bhld-truoc.png', colorizable: true });
-                    list.push({ id: 'phan-quang-dai', name: 'Dải Phản Quang Đai', file: 'day-phan-quang-dai-ao-bhld-truoc.png', colorizable: true, group: 'phan-quang' });
+                    list.push({ id: 'phan-quang', name: 'Dải Phản Quang Ngực', file: 'day-phan-quan-nguc-ao-bhld-truoc.webp', colorizable: true });
+                    list.push({ id: 'phan-quang-dai', name: 'Dải Phản Quang Đai', file: 'day-phan-quang-dai-ao-bhld-truoc.webp', colorizable: true, group: 'phan-quang' });
                 }
                 if (state.reflective.shoulders) {
-                    list.push({ id: 'phan-quang-vai-phai', name: 'Dải Phản Quang Vai Phải', file: 'day-phan-quan-vai-ao-bhld-phai-truoc.png', colorizable: true, group: 'phan-quang' });
-                    list.push({ id: 'phan-quang-vai-trai', name: 'Dải Phản Quang Vai Trái', file: 'day-phan-quan-vai-ao-bhld-trai-truoc.png', colorizable: true, group: 'phan-quang' });
+                    list.push({ id: 'phan-quang-vai-phai', name: 'Dải Phản Quang Vai Phải', file: 'day-phan-quan-vai-ao-bhld-phai-truoc.webp', colorizable: true, group: 'phan-quang' });
+                    list.push({ id: 'phan-quang-vai-trai', name: 'Dải Phản Quang Vai Trái', file: 'day-phan-quan-vai-ao-bhld-trai-truoc.webp', colorizable: true, group: 'phan-quang' });
                 }
                 if (state.reflective.sleeves) {
-                    list.push({ id: 'phan-quang-tay-phai', name: 'Dải Phản Quang Tay Phải', file: 'day-phan-quan-tay-ao-bhld-phai-truoc.png', colorizable: true, group: 'phan-quang' });
-                    list.push({ id: 'phan-quang-tay-trai', name: 'Dải Phản Quang Tay Trái', file: 'day-phan-quan-tay-ao-bhld-trai-truoc.png', colorizable: true, group: 'phan-quang' });
-                    list.push({ id: 'phan-quang-co-tay-phai', name: 'Dải Phản Quang Cổ Tay Phải', file: 'day-phan-quan-co-tay-ao-bhld-phai-truoc.png', colorizable: true, group: 'phan-quang' });
-                    list.push({ id: 'phan-quang-co-tay-trai', name: 'Dải Phản Quang Cổ Tay Trái', file: 'day-phan-quang-co-tay-ao-bhld-trai-truoc.png', colorizable: true, group: 'phan-quang' });
+                    list.push({ id: 'phan-quang-tay-phai', name: 'Dải Phản Quang Tay Phải', file: 'day-phan-quan-tay-ao-bhld-phai-truoc.webp', colorizable: true, group: 'phan-quang' });
+                    list.push({ id: 'phan-quang-tay-trai', name: 'Dải Phản Quang Tay Trái', file: 'day-phan-quan-tay-ao-bhld-trai-truoc.webp', colorizable: true, group: 'phan-quang' });
+                    list.push({ id: 'phan-quang-co-tay-phai', name: 'Dải Phản Quang Cổ Tay Phải', file: 'day-phan-quan-co-tay-ao-bhld-phai-truoc.webp', colorizable: true, group: 'phan-quang' });
+                    list.push({ id: 'phan-quang-co-tay-trai', name: 'Dải Phản Quang Cổ Tay Trái', file: 'day-phan-quang-co-tay-ao-bhld-trai-truoc.webp', colorizable: true, group: 'phan-quang' });
                 }
 
             } else if (state.angle === 'back') {
-                list.push({ id: 'than-duoi', name: 'Lưng Dưới', file: 'lung-duoi-ao-bhld-phia-sau.png', colorizable: true, group: 'than' });
-                list.push({ id: 'than-tren', name: 'Lưng Trên', file: 'lung-tren-ao-bhld-phia-sau.png', colorizable: true, group: 'than' });
-                list.push({ id: 'tay-phai', name: 'Tay Phải', file: 'tay-ao-bhld-phai-sau.png', colorizable: true, group: 'tay' });
-                list.push({ id: 'tay-trai', name: 'Tay Trái', file: 'tay-ao-bhld-trai-sau.png', colorizable: true, group: 'tay' });
-                list.push({ id: 'bo-tay-phai', name: 'Cổ Tay Phải', file: 'co-tay-ao-bhld-phai-sau.png', colorizable: true, group: 'bo-tay' });
-                list.push({ id: 'bo-tay-trai', name: 'Cổ Tay Trái', file: 'co-tay-ao-bhld-trai-sau.png', colorizable: true, group: 'bo-tay' });
-                list.push({ id: 'co', name: 'Cổ Áo Sau', file: 'co-ao-bhld-phia-sau.png', colorizable: true });
-                list.push({ id: 'bo-tay', name: 'Đai Áo Sau', file: 'dai-ao-bhld-sau.png', colorizable: true });
-                list.push({ id: 'vien-sau', name: 'Viền Sau', file: 'vien-ao-bhld-phia-sau.png', colorizable: true });
+                list.push({ id: 'than-duoi', name: 'Lưng Dưới', file: 'lung-duoi-ao-bhld-phia-sau.webp', colorizable: true, group: 'than' });
+                list.push({ id: 'than-tren', name: 'Lưng Trên', file: 'lung-tren-ao-bhld-phia-sau.webp', colorizable: true, group: 'than' });
+                list.push({ id: 'tay-phai', name: 'Tay Phải', file: 'tay-ao-bhld-phai-sau.webp', colorizable: true, group: 'tay' });
+                list.push({ id: 'tay-trai', name: 'Tay Trái', file: 'tay-ao-bhld-trai-sau.webp', colorizable: true, group: 'tay' });
+                list.push({ id: 'bo-tay-phai', name: 'Cổ Tay Phải', file: 'co-tay-ao-bhld-phai-sau.webp', colorizable: true, group: 'bo-tay' });
+                list.push({ id: 'bo-tay-trai', name: 'Cổ Tay Trái', file: 'co-tay-ao-bhld-trai-sau.webp', colorizable: true, group: 'bo-tay' });
+                list.push({ id: 'co', name: 'Cổ Áo Sau', file: 'co-ao-bhld-phia-sau.webp', colorizable: true });
+                list.push({ id: 'bo-tay', name: 'Đai Áo Sau', file: 'dai-ao-bhld-sau.webp', colorizable: true });
+                list.push({ id: 'vien-sau', name: 'Viền Sau', file: 'vien-ao-bhld-phia-sau.webp', colorizable: true });
                 
                 if (state.pockets.sleeve) {
-                    list.push({ id: 'tui-tay-phai', name: 'Túi Tay Phải', file: 'tui-tay-ao-bhld-phai-sau.png', colorizable: true, group: 'tui' });
-                    list.push({ id: 'tui-tay-trai', name: 'Túi Tay Trái', file: 'tui-tay-ao-bhld-trai-sau.png', colorizable: true, group: 'tui' });
+                    list.push({ id: 'tui-tay-phai', name: 'Túi Tay Phải', file: 'tui-tay-ao-bhld-phai-sau.webp', colorizable: true, group: 'tui' });
+                    list.push({ id: 'tui-tay-trai', name: 'Túi Tay Trái', file: 'tui-tay-ao-bhld-trai-sau.webp', colorizable: true, group: 'tui' });
                     if (state.pockets.flap) {
-                        list.push({ id: 'nap-tui-tay-phai', name: 'Nắp Túi Tay Phải', file: 'nap-tui-tay-ao-bhld-phai-sau.png', colorizable: true, group: 'nap-tui' });
-                        list.push({ id: 'nap-tui-tay-trai', name: 'Nắp Túi Tay Trái', file: 'nap-tui-tay-ao-bhld-trai-sau.png', colorizable: true, group: 'nap-tui' });
+                        list.push({ id: 'nap-tui-tay-phai', name: 'Nắp Túi Tay Phải', file: 'nap-tui-tay-ao-bhld-phai-sau.webp', colorizable: true, group: 'nap-tui' });
+                        list.push({ id: 'nap-tui-tay-trai', name: 'Nắp Túi Tay Trái', file: 'nap-tui-tay-ao-bhld-trai-sau.webp', colorizable: true, group: 'nap-tui' });
                     }
                 }
 
                 // Cuff buttons (Back view)
-                list.push({ id: 'nut-co-tay', name: 'Nút Cổ Tay Áo', file: 'nut-co-tay-ao-bhld-sau.png', colorizable: true, group: 'nut' });
+                list.push({ id: 'nut-co-tay', name: 'Nút Cổ Tay Áo', file: 'nut-co-tay-ao-bhld-sau.webp', colorizable: true, group: 'nut' });
 
                 // Reflective strips (Back view)
                 if (state.reflective.chest) {
-                    list.push({ id: 'phan-quang', name: 'Dải Phản Quang Lưng', file: 'day-phan-quang-lung-ao-bhld-sau.png', colorizable: true });
-                    list.push({ id: 'phan-quang-dai', name: 'Dải Phản Quang Đai Sau', file: 'day-phan-quang-dai-ao-bhld-sau.png', colorizable: true, group: 'phan-quang' });
+                    list.push({ id: 'phan-quang', name: 'Dải Phản Quang Lưng', file: 'day-phan-quang-lung-ao-bhld-sau.webp', colorizable: true });
+                    list.push({ id: 'phan-quang-dai', name: 'Dải Phản Quang Đai Sau', file: 'day-phan-quang-dai-ao-bhld-sau.webp', colorizable: true, group: 'phan-quang' });
                 }
                 if (state.reflective.shoulders) {
-                    list.push({ id: 'phan-quang-vai-phai', name: 'Dải Phản Quang Vai Phải', file: 'day-phan-quang-vai-ao-bhld-phai-sau.png', colorizable: true, group: 'phan-quang' });
-                    list.push({ id: 'phan-quang-vai-trai', name: 'Dải Phản Quang Vai Trái', file: 'day-phan-quang-vai-ao-bhld-trai-sau.png', colorizable: true, group: 'phan-quang' });
+                    list.push({ id: 'phan-quang-vai-phai', name: 'Dải Phản Quang Vai Phải', file: 'day-phan-quang-vai-ao-bhld-phai-sau.webp', colorizable: true, group: 'phan-quang' });
+                    list.push({ id: 'phan-quang-vai-trai', name: 'Dải Phản Quang Vai Trái', file: 'day-phan-quang-vai-ao-bhld-trai-sau.webp', colorizable: true, group: 'phan-quang' });
                 }
                 if (state.reflective.sleeves) {
-                    list.push({ id: 'phan-quang-tay-phai', name: 'Dải Phản Quang Tay Phải', file: 'day-phan-quang-tay-ao-bhld-phai-sau.png', colorizable: true, group: 'phan-quang' });
-                    list.push({ id: 'phan-quang-tay-trai', name: 'Dải Phản Quang Tay Trái', file: 'day-phan-quang-tay-ao-bhld-trai-sau.png', colorizable: true, group: 'phan-quang' });
-                    list.push({ id: 'phan-quang-co-tay-phai', name: 'Dải Phản Quang Cổ Tay Phải', file: 'day-phan-quang-co-tay-ao-bhld-phia-sau-ben-phai.png', colorizable: true, group: 'phan-quang' });
-                    list.push({ id: 'phan-quang-co-tay-trai', name: 'Dải Phản Quang Cổ Tay Trái', file: 'day-phan-quang-co-tay-ao-bhld-phia-sau-ben-trai.png', colorizable: true, group: 'phan-quang' });
+                    list.push({ id: 'phan-quang-tay-phai', name: 'Dải Phản Quang Tay Phải', file: 'day-phan-quang-tay-ao-bhld-phai-sau.webp', colorizable: true, group: 'phan-quang' });
+                    list.push({ id: 'phan-quang-tay-trai', name: 'Dải Phản Quang Tay Trái', file: 'day-phan-quang-tay-ao-bhld-trai-sau.webp', colorizable: true, group: 'phan-quang' });
+                    list.push({ id: 'phan-quang-co-tay-phai', name: 'Dải Phản Quang Cổ Tay Phải', file: 'day-phan-quang-co-tay-ao-bhld-phia-sau-ben-phai.webp', colorizable: true, group: 'phan-quang' });
+                    list.push({ id: 'phan-quang-co-tay-trai', name: 'Dải Phản Quang Cổ Tay Trái', file: 'day-phan-quang-co-tay-ao-bhld-phia-sau-ben-trai.webp', colorizable: true, group: 'phan-quang' });
                 }
             } else { // Left/Right Workwear Jacket
                 const isLeft = state.angle === 'left';
                 const s = isLeft ? 'trai' : 'phai';
                 const sTxt = isLeft ? 'Trái' : 'Phải';
                 
-                list.push({ id: 'than-truoc', name: `Thân Trước ${sTxt}`, file: 'than-truoc-ao-bhld-nhin-ngan.png', colorizable: true, group: 'than' });
-                list.push({ id: 'than-duoi', name: `Lưng Dưới ${sTxt}`, file: `lung-duoi-ao-bhld-nhin-ngan-${s}.png`, colorizable: true, group: 'than' });
-                list.push({ id: 'than-tren', name: `Lưng Trên ${sTxt}`, file: `lung-tren-ao-bhld-nhin-ngan-${s}.png`, colorizable: true, group: 'than' });
-                list.push({ id: `nguc-${s}`, name: `Ngực ${sTxt}`, file: `nguc-ao-bhld-nhin-ngan-${s}.png`, colorizable: true });
-                list.push({ id: 'tay', name: `Tay ${sTxt}`, file: `tay-ao-bhld-nhin-ngan-${s}.png`, colorizable: true });
-                list.push({ id: 'bo-tay', name: `Cổ Tay ${sTxt}`, file: `co-tay-ao-bhld-nhin-ngan-${s}.png`, colorizable: true });
-                list.push({ id: 'co', name: `Cổ Áo ${sTxt}`, file: `co-ao-bhld-${s}.png`, colorizable: true });
-                list.push({ id: 'dai-ao', name: `Đai Áo ${sTxt}`, file: `dai-lung-duoi-ao-bhld-nhin-ngan-${s}.png`, colorizable: true, group: 'bo-tay' });
-                list.push({ id: 'vien-lung', name: `Viền Lưng ${sTxt}`, file: `vien-lung-ao-bhld-nhin-ngan-${s}.png`, colorizable: true });
+                list.push({ id: 'than-truoc', name: `Thân Trước ${sTxt}`, file: 'than-truoc-ao-bhld-nhin-ngan.webp', colorizable: true, group: 'than' });
+                list.push({ id: 'than-duoi', name: `Lưng Dưới ${sTxt}`, file: `lung-duoi-ao-bhld-nhin-ngan-${s}.webp`, colorizable: true, group: 'than' });
+                list.push({ id: 'than-tren', name: `Lưng Trên ${sTxt}`, file: `lung-tren-ao-bhld-nhin-ngan-${s}.webp`, colorizable: true, group: 'than' });
+                list.push({ id: `nguc-${s}`, name: `Ngực ${sTxt}`, file: `nguc-ao-bhld-nhin-ngan-${s}.webp`, colorizable: true });
+                list.push({ id: 'tay', name: `Tay ${sTxt}`, file: `tay-ao-bhld-nhin-ngan-${s}.webp`, colorizable: true });
+                list.push({ id: 'bo-tay', name: `Cổ Tay ${sTxt}`, file: `co-tay-ao-bhld-nhin-ngan-${s}.webp`, colorizable: true });
+                list.push({ id: 'co', name: `Cổ Áo ${sTxt}`, file: `co-ao-bhld-${s}.webp`, colorizable: true });
+                list.push({ id: 'dai-ao', name: `Đai Áo ${sTxt}`, file: `dai-lung-duoi-ao-bhld-nhin-ngan-${s}.webp`, colorizable: true, group: 'bo-tay' });
+                list.push({ id: 'vien-lung', name: `Viền Lưng ${sTxt}`, file: `vien-lung-ao-bhld-nhin-ngan-${s}.webp`, colorizable: true });
 
                 if (isLeft && state.pockets.left) {
-                    list.push({ id: 'tui', name: 'Túi Ngực Trái', file: 'tui-ao-bhld-nhin-ngan-trai.png', colorizable: true });
+                    list.push({ id: 'tui', name: 'Túi Ngực Trái', file: 'tui-ao-bhld-nhin-ngan-trai.webp', colorizable: true });
                     if (state.pockets.flap) {
-                        list.push({ id: 'nap-tui', name: 'Nắp Túi Trái', file: 'nap-tui-ao-nhin-ngan-trai.png', colorizable: true });
-                        list.push({ id: 'nut-tui', name: 'Cúc Nắp Trái', file: 'nut-nap-ao-bhld-nhin-ngan-trai.png', colorizable: true, group: 'nut' });
+                        list.push({ id: 'nap-tui', name: 'Nắp Túi Trái', file: 'nap-tui-ao-nhin-ngan-trai.webp', colorizable: true });
+                        list.push({ id: 'nut-tui', name: 'Cúc Nắp Trái', file: 'nut-nap-ao-bhld-nhin-ngan-trai.webp', colorizable: true, group: 'nut' });
                     }
                 } else if (!isLeft && state.pockets.right) {
-                    list.push({ id: 'tui', name: 'Túi Ngực Phải', file: 'tui-ao-bhld-nhin-ngan-phai.png', colorizable: true });
+                    list.push({ id: 'tui', name: 'Túi Ngực Phải', file: 'tui-ao-bhld-nhin-ngan-phai.webp', colorizable: true });
                     if (state.pockets.flap) {
-                        list.push({ id: 'nap-tui', name: 'Nắp Túi Phải', file: 'nap-tui-ao-nhin-ngan-phai.png', colorizable: true });
-                        list.push({ id: 'nut-tui', name: 'Cúc Nắp Phải', file: 'nut-nap-ao-bhld-nhin-ngan-phai.png', colorizable: true, group: 'nut' });
+                        list.push({ id: 'nap-tui', name: 'Nắp Túi Phải', file: 'nap-tui-ao-nhin-ngan-phai.webp', colorizable: true });
+                        list.push({ id: 'nut-tui', name: 'Cúc Nắp Phải', file: 'nut-nap-ao-bhld-nhin-ngan-phai.webp', colorizable: true, group: 'nut' });
                     }
                 }
 
                 if (state.pockets.sleeve) {
-                    list.push({ id: 'tui-tay', name: `Túi Tay ${sTxt}`, file: `tui-tay-ao-bhld-ngan-${s}.png`, colorizable: true, group: 'tui' });
+                    list.push({ id: 'tui-tay', name: `Túi Tay ${sTxt}`, file: `tui-tay-ao-bhld-ngan-${s}.webp`, colorizable: true, group: 'tui' });
                     if (state.pockets.flap) {
-                        list.push({ id: 'nap-tui-tay', name: `Nắp Túi Tay ${sTxt}`, file: `nap-tui-tay-ao-bhld-ngan-${s}.png`, colorizable: true, group: 'nap-tui' });
+                        list.push({ id: 'nap-tui-tay', name: `Nắp Túi Tay ${sTxt}`, file: `nap-tui-tay-ao-bhld-ngan-${s}.webp`, colorizable: true, group: 'nap-tui' });
                     }
                 }
 
-                list.push({ id: 'nut-dai', name: 'Cúc Đai Áo', file: `nut-dai-lung-duoi-ao-bhld-nhin-ngan-${s}.png`, colorizable: false });
+                list.push({ id: 'nut-dai', name: 'Cúc Đai Áo', file: `nut-dai-lung-duoi-ao-bhld-nhin-ngan-${s}.webp`, colorizable: false });
 
                 // Cuff button (Side views)
-                list.push({ id: 'nut-co-tay', name: 'Nút Cổ Tay Áo', file: `nut-co-tay-ao-bhld-nhin-ngan-${s}.png`, colorizable: true, group: 'nut' });
+                list.push({ id: 'nut-co-tay', name: 'Nút Cổ Tay Áo', file: `nut-co-tay-ao-bhld-nhin-ngan-${s}.webp`, colorizable: true, group: 'nut' });
 
                 // Reflective strips (Side views)
                 if (state.reflective.chest) {
-                    list.push({ id: 'phan-quang', name: `Dải Phản Quang Lưng ${sTxt}`, file: `day-phan-quang-lung-ao-bhld-nhin-ngan-${s}.png`, colorizable: true });
-                    list.push({ id: 'phan-quang-dai', name: `Dải Phản Quang Đai ${sTxt}`, file: `day-phan-quang-dai-lung-duoi-ao-bhld-nhin-ngan-${s}.png`, colorizable: true, group: 'phan-quang' });
+                    list.push({ id: 'phan-quang', name: `Dải Phản Quang Lưng ${sTxt}`, file: `day-phan-quang-lung-ao-bhld-nhin-ngan-${s}.webp`, colorizable: true });
+                    list.push({ id: 'phan-quang-dai', name: `Dải Phản Quang Đai ${sTxt}`, file: `day-phan-quang-dai-lung-duoi-ao-bhld-nhin-ngan-${s}.webp`, colorizable: true, group: 'phan-quang' });
                 }
                 if (state.reflective.shoulders) {
-                    list.push({ id: 'phan-quang-vai', name: `Dải Phản Quang Vai ${sTxt}`, file: `day-phan-quang-vai-ao-bhld-ngan-${s}.png`, colorizable: true, group: 'phan-quang' });
+                    list.push({ id: 'phan-quang-vai', name: `Dải Phản Quang Vai ${sTxt}`, file: `day-phan-quang-vai-ao-bhld-ngan-${s}.webp`, colorizable: true, group: 'phan-quang' });
                 }
                 if (state.reflective.sleeves) {
-                    list.push({ id: 'phan-quang-tay', name: `Dải Phản Quang Tay ${sTxt}`, file: `day-phan-quang-tay-ao-bhld-ngan-${s}.png`, colorizable: true, group: 'phan-quang' });
-                    list.push({ id: 'phan-quang-co-tay', name: `Dải Phản Quang Cổ Tay ${sTxt}`, file: `day-phan-quang-co-tay-ao-bhld-ngan-${s}.png`, colorizable: true, group: 'phan-quang' });
+                    list.push({ id: 'phan-quang-tay', name: `Dải Phản Quang Tay ${sTxt}`, file: `day-phan-quang-tay-ao-bhld-ngan-${s}.webp`, colorizable: true, group: 'phan-quang' });
+                    list.push({ id: 'phan-quang-co-tay', name: `Dải Phản Quang Cổ Tay ${sTxt}`, file: `day-phan-quang-co-tay-ao-bhld-ngan-${s}.webp`, colorizable: true, group: 'phan-quang' });
                 }
             }
         }
@@ -643,83 +644,83 @@
             const side = state.angle;
             
             if (side === 'front') {
-                list.push({ id: 'than', name: 'Thân Quần', file: 'quan-bhld-khong-tui-phia-truoc.png', colorizable: true });
-                list.push({ id: 'nut', name: 'Nút Quần', file: 'nut-quan-bhld-truoc.png', colorizable: true });
+                list.push({ id: 'than', name: 'Thân Quần', file: 'quan-bhld-khong-tui-phia-truoc.webp', colorizable: true });
+                list.push({ id: 'nut', name: 'Nút Quần', file: 'nut-quan-bhld-truoc.webp', colorizable: true });
                 
                 if (state.pockets.left) {
-                    list.push({ id: 'tui-trai-1', name: 'Túi Trái Trên', file: 'tui1-quan-bhld-phia-truoc-ben-trai.png', colorizable: true, group: 'tui' });
+                    list.push({ id: 'tui-trai-1', name: 'Túi Trái Trên', file: 'tui1-quan-bhld-phia-truoc-ben-trai.webp', colorizable: true, group: 'tui' });
                     if (state.pockets.flap) {
-                        list.push({ id: 'nap-trai-1', name: 'Nắp Túi Trái Trên', file: 'nap1-tui-quan-bhld-truoc-ben-trai.png', colorizable: true, group: 'nap-tui' });
-                        list.push({ id: 'nut-trai-1', name: 'Cúc Túi Trái Trên', file: 'nut1-tui-quan-bhld-truoc-ben-trai.png', colorizable: true, group: 'nut' });
+                        list.push({ id: 'nap-trai-1', name: 'Nắp Túi Trái Trên', file: 'nap1-tui-quan-bhld-truoc-ben-trai.webp', colorizable: true, group: 'nap-tui' });
+                        list.push({ id: 'nut-trai-1', name: 'Cúc Túi Trái Trên', file: 'nut1-tui-quan-bhld-truoc-ben-trai.webp', colorizable: true, group: 'nut' });
                     }
                 }
                 if (state.pockets.right) {
-                    list.push({ id: 'tui-phai-1', name: 'Túi Phải Trên', file: 'tui1-quan-bhld-phia-truoc-ben-phai.png', colorizable: true, group: 'tui' });
+                    list.push({ id: 'tui-phai-1', name: 'Túi Phải Trên', file: 'tui1-quan-bhld-phia-truoc-ben-phai.webp', colorizable: true, group: 'tui' });
                     if (state.pockets.flap) {
-                        list.push({ id: 'nap-phai-1', name: 'Nắp Túi Phải Trên', file: 'nap1-tui-quan-bhld-truoc-ben-phai.png', colorizable: true, group: 'nap-tui' });
-                        list.push({ id: 'nut-phai-1', name: 'Cúc Túi Phải Trên', file: 'nut1-tui-quan-bhld-truoc-ben-phai.png', colorizable: true, group: 'nut' });
+                        list.push({ id: 'nap-phai-1', name: 'Nắp Túi Phải Trên', file: 'nap1-tui-quan-bhld-truoc-ben-phai.webp', colorizable: true, group: 'nap-tui' });
+                        list.push({ id: 'nut-phai-1', name: 'Cúc Túi Phải Trên', file: 'nut1-tui-quan-bhld-truoc-ben-phai.webp', colorizable: true, group: 'nut' });
                     }
                 }
                 if (state.pockets.sleeve) { // Map to lower left thigh pocket
-                    list.push({ id: 'tui-trai-2', name: 'Túi Hộp Trái Đùi', file: 'tui2-quan-bhld-phia-truoc-ben-trai.png', colorizable: true, group: 'tui' });
+                    list.push({ id: 'tui-trai-2', name: 'Túi Hộp Trái Đùi', file: 'tui2-quan-bhld-phia-truoc-ben-trai.webp', colorizable: true, group: 'tui' });
                     if (state.pockets.flap) {
-                        list.push({ id: 'nap-trai-2', name: 'Nắp Túi Trái Đùi', file: 'nap2-tui-quan-bhld-truoc-ben-trai.png', colorizable: true, group: 'nap-tui' });
+                        list.push({ id: 'nap-trai-2', name: 'Nắp Túi Trái Đùi', file: 'nap2-tui-quan-bhld-truoc-ben-trai.webp', colorizable: true, group: 'nap-tui' });
                     }
                 }
                 if (state.pockets.sleeveRight) { // Map to lower right thigh pocket
-                    list.push({ id: 'tui-phai-2', name: 'Túi Hộp Phải Đùi', file: 'tui2-quan-bhld-phia-truoc-ben-phai.png', colorizable: true, group: 'tui' });
+                    list.push({ id: 'tui-phai-2', name: 'Túi Hộp Phải Đùi', file: 'tui2-quan-bhld-phia-truoc-ben-phai.webp', colorizable: true, group: 'tui' });
                     if (state.pockets.flap) {
-                        list.push({ id: 'nap-phai-2', name: 'Nắp Túi Phải Đùi', file: 'nap2-tui-quan-bhld-truoc-ben-phai.png', colorizable: true, group: 'nap-tui' });
+                        list.push({ id: 'nap-phai-2', name: 'Nắp Túi Phải Đùi', file: 'nap2-tui-quan-bhld-truoc-ben-phai.webp', colorizable: true, group: 'nap-tui' });
                     }
                 }
             } else if (side === 'back') {
-                list.push({ id: 'than', name: 'Thân Quần Sau', file: 'quan-bhld-phia-sau.png', colorizable: true });
-                list.push({ id: 'tui-mac-dinh-sau', name: 'Túi Mông Mặc Định', file: 'tui-quan-bhld-phia-sau.png', colorizable: true, group: 'tui' });
-                list.push({ id: 'nap-tui-mac-dinh-sau', name: 'Nắp Túi Mông Mặc Định', file: 'nap-tui-quan-bhld-phia-sau.png', colorizable: true, group: 'nap-tui' });
+                list.push({ id: 'than', name: 'Thân Quần Sau', file: 'quan-bhld-phia-sau.webp', colorizable: true });
+                list.push({ id: 'tui-mac-dinh-sau', name: 'Túi Mông Mặc Định', file: 'tui-quan-bhld-phia-sau.webp', colorizable: true, group: 'tui' });
+                list.push({ id: 'nap-tui-mac-dinh-sau', name: 'Nắp Túi Mông Mặc Định', file: 'nap-tui-quan-bhld-phia-sau.webp', colorizable: true, group: 'nap-tui' });
                 
                 if (state.pockets.left) {
-                    list.push({ id: 'tui-trai-1', name: 'Túi Mông Trái', file: 'tui1-quan-bhld-phia-sau-trai.png', colorizable: true, group: 'tui' });
+                    list.push({ id: 'tui-trai-1', name: 'Túi Mông Trái', file: 'tui1-quan-bhld-phia-sau-trai.webp', colorizable: true, group: 'tui' });
                     if (state.pockets.flap) {
-                        list.push({ id: 'nap-trai-1', name: 'Nắp Túi Mông Trái', file: 'nap1-tui-quan-bhld-phia-sau-trai.png', colorizable: true, group: 'nap-tui' });
-                        list.push({ id: 'nut-trai-1', name: 'Nút Nắp Trái', file: 'nut-tui-quan-bhld-phia-sau-trai.png', colorizable: true, group: 'nut' });
+                        list.push({ id: 'nap-trai-1', name: 'Nắp Túi Mông Trái', file: 'nap1-tui-quan-bhld-phia-sau-trai.webp', colorizable: true, group: 'nap-tui' });
+                        list.push({ id: 'nut-trai-1', name: 'Nút Nắp Trái', file: 'nut-tui-quan-bhld-phia-sau-trai.webp', colorizable: true, group: 'nut' });
                     }
                 }
                 if (state.pockets.right) {
-                    list.push({ id: 'tui-phai-1', name: 'Túi Mông Phải', file: 'tui1-quan-bhld-phia-sau-phai.png', colorizable: true, group: 'tui' });
+                    list.push({ id: 'tui-phai-1', name: 'Túi Mông Phải', file: 'tui1-quan-bhld-phia-sau-phai.webp', colorizable: true, group: 'tui' });
                     if (state.pockets.flap) {
-                        list.push({ id: 'nap-phai-1', name: 'Nắp Túi Mông Phải', file: 'nap1-tui-quan-bhld-phia-sau-phai.png', colorizable: true, group: 'nap-tui' });
+                        list.push({ id: 'nap-phai-1', name: 'Nắp Túi Mông Phải', file: 'nap1-tui-quan-bhld-phia-sau-phai.webp', colorizable: true, group: 'nap-tui' });
                     }
                 }
                 if (state.pockets.sleeve) {
-                    list.push({ id: 'tui-trai-2', name: 'Túi Hộp Trái Đùi Sau', file: 'tui2-quan-bhld-phia-sau-trai.png', colorizable: true, group: 'tui' });
+                    list.push({ id: 'tui-trai-2', name: 'Túi Hộp Trái Đùi Sau', file: 'tui2-quan-bhld-phia-sau-trai.webp', colorizable: true, group: 'tui' });
                     if (state.pockets.flap) {
-                        list.push({ id: 'nap-trai-2', name: 'Nắp Đùi Trái Sau', file: 'nap2-tui-quan-bhld-phia-sau-trai.png', colorizable: true, group: 'nap-tui' });
+                        list.push({ id: 'nap-trai-2', name: 'Nắp Đùi Trái Sau', file: 'nap2-tui-quan-bhld-phia-sau-trai.webp', colorizable: true, group: 'nap-tui' });
                     }
                 }
                 if (state.pockets.sleeveRight) {
-                    list.push({ id: 'tui-phai-2', name: 'Túi Hộp Phải Đùi Sau', file: 'tui2-quan-bhld-phia-sau-phai.png', colorizable: true, group: 'tui' });
+                    list.push({ id: 'tui-phai-2', name: 'Túi Hộp Phải Đùi Sau', file: 'tui2-quan-bhld-phia-sau-phai.webp', colorizable: true, group: 'tui' });
                     if (state.pockets.flap) {
-                        list.push({ id: 'nap-phai-2', name: 'Nắp Đùi Phải Sau', file: 'nap2-tui-quan-bhld-phia-sau-phai.png', colorizable: true, group: 'nap-tui' });
+                        list.push({ id: 'nap-phai-2', name: 'Nắp Đùi Phải Sau', file: 'nap2-tui-quan-bhld-phia-sau-phai.webp', colorizable: true, group: 'nap-tui' });
                     }
                 }
             } else { // Left/Right side pants
                 const isL = side === 'left';
                 const sideText = isL ? 'trai' : 'phai';
-                list.push({ id: 'than', name: `Thân Quần ${isL ? 'Trái' : 'Phải'}`, file: `quan-bhld-nhin-ngan-${sideText}.png`, colorizable: true });
+                list.push({ id: 'than', name: `Thân Quần ${isL ? 'Trái' : 'Phải'}`, file: `quan-bhld-nhin-ngan-${sideText}.webp`, colorizable: true });
                 
                 // 1. Dải túi mặc định phía sau quần nhìn nghiêng (hiển thị mặc định)
-                list.push({ id: 'tui-mac-dinh-suon', name: 'Túi Mông Mặc Định', file: `tui-quan-bhld-nhin-ngan-${sideText}.png`, colorizable: true, group: 'tui' });
-                list.push({ id: 'nap-tui-mac-dinh-suon', name: 'Nắp Túi Mông Mặc Định', file: `nap-tui-quan-bhld-nhin-ngan-${sideText}.png`, colorizable: true, group: 'nap-tui' });
-                const defaultButtonFile = isL ? 'nut-tui-quan-bhld-nhin-ngan-trai.png' : 'nut-nap-tui-quan-bhld-nhin-ngan-phai.png';
+                list.push({ id: 'tui-mac-dinh-suon', name: 'Túi Mông Mặc Định', file: `tui-quan-bhld-nhin-ngan-${sideText}.webp`, colorizable: true, group: 'tui' });
+                list.push({ id: 'nap-tui-mac-dinh-suon', name: 'Nắp Túi Mông Mặc Định', file: `nap-tui-quan-bhld-nhin-ngan-${sideText}.webp`, colorizable: true, group: 'nap-tui' });
+                const defaultButtonFile = isL ? 'nut-tui-quan-bhld-nhin-ngan-trai.webp' : 'nut-nap-tui-quan-bhld-nhin-ngan-phai.webp';
                 list.push({ id: 'nut-tui-mac-dinh-suon', name: 'Cúc Túi Mông Mặc Định', file: defaultButtonFile, colorizable: true, group: 'nut' });
 
                 // 2. Túi Trực Quan Trên (Túi Trái Trên hoặc Túi Phải Trên)
                 const showUpperPocket = isL ? state.pockets.left : state.pockets.right;
                 if (showUpperPocket) {
-                    list.push({ id: 'tui-tren-suon', name: 'Túi Trên Sườn', file: `tui1-quan-bhld-nhin-ngan-${sideText}.png`, colorizable: true, group: 'tui' });
+                    list.push({ id: 'tui-tren-suon', name: 'Túi Trên Sườn', file: `tui1-quan-bhld-nhin-ngan-${sideText}.webp`, colorizable: true, group: 'tui' });
                     if (state.pockets.flap) {
-                        list.push({ id: 'nap-tui-tren-suon', name: 'Nắp Túi Trên Sườn', file: `nap1-tui-quan-bhld-nhin-ngan-${sideText}.png`, colorizable: true, group: 'nap-tui' });
-                        const buttonFile = isL ? 'nut1-tui-quan-bhld-nhin-ngan-trai.png' : 'nut1-nap-tui-quan-bhld-nhin-ngan-phai.png';
+                        list.push({ id: 'nap-tui-tren-suon', name: 'Nắp Túi Trên Sườn', file: `nap1-tui-quan-bhld-nhin-ngan-${sideText}.webp`, colorizable: true, group: 'nap-tui' });
+                        const buttonFile = isL ? 'nut1-tui-quan-bhld-nhin-ngan-trai.webp' : 'nut1-nap-tui-quan-bhld-nhin-ngan-phai.webp';
                         list.push({ id: 'nut-tui-tren-suon', name: 'Cúc Túi Trên Sườn', file: buttonFile, colorizable: true, group: 'nut' });
                     }
                 }
@@ -727,9 +728,9 @@
                 // 3. Túi Trực Quan Dưới (Túi Trái Dưới hoặc Túi Phải Dưới)
                 const showLowerPocket = isL ? state.pockets.sleeve : state.pockets.sleeveRight;
                 if (showLowerPocket) {
-                    list.push({ id: 'tui-duoi-suon', name: 'Túi Dưới Sườn', file: `tui2-quan-bhld-nhin-ngan-${sideText}.png`, colorizable: true, group: 'tui' });
+                    list.push({ id: 'tui-duoi-suon', name: 'Túi Dưới Sườn', file: `tui2-quan-bhld-nhin-ngan-${sideText}.webp`, colorizable: true, group: 'tui' });
                     if (state.pockets.flap) {
-                        list.push({ id: 'nap-tui-duoi-suon', name: 'Nắp Túi Dưới Sườn', file: `nap2-tui-quan-bhld-nhin-ngan-${sideText}.png`, colorizable: true, group: 'nap-tui' });
+                        list.push({ id: 'nap-tui-duoi-suon', name: 'Nắp Túi Dưới Sườn', file: `nap2-tui-quan-bhld-nhin-ngan-${sideText}.webp`, colorizable: true, group: 'nap-tui' });
                     }
                 }
             }
@@ -742,8 +743,24 @@
         }));
     }
 
+    // Track active image requests so we can cancel them when switching views/products
+    let activeImageRequests = [];
+    
+    function cancelActiveRequests() {
+        activeImageRequests.forEach(img => {
+            img.onload = null;
+            img.onerror = null;
+            img.src = ''; // Abort request in browser
+        });
+        activeImageRequests = [];
+        _isPreloading = false; // Reset preloading state
+    }
+
     // Preload required layer images
     function preloadLayers(layers, callback) {
+        // Cancel any pending preloads first
+        cancelActiveRequests();
+
         let loaded = 0;
         const total = layers.length;
         
@@ -761,19 +778,101 @@
             }
 
             const img = new Image();
-            img.src = url;
+            activeImageRequests.push(img);
+
             img.onload = () => {
+                const idx = activeImageRequests.indexOf(img);
+                if (idx > -1) activeImageRequests.splice(idx, 1);
+
                 imgCache[url] = img;
                 loaded++;
                 if (loaded === total) callback();
             };
             img.onerror = () => {
-                // If it fails, fallback gracefully by increasing count
+                const idx = activeImageRequests.indexOf(img);
+                if (idx > -1) activeImageRequests.splice(idx, 1);
+
                 console.error(`Failed to load asset: ${url}`);
                 loaded++;
                 if (loaded === total) callback();
             };
+            img.src = url;
         });
+    }
+
+    // Helper to get layers configuration for another angle without mutating global state permanently
+    function getLayersConfigForAngle(angle) {
+        const originalAngle = state.angle;
+        state.angle = angle;
+        const config = getLayersConfig();
+        state.angle = originalAngle;
+        return config;
+    }
+
+    // Background preloader for other angles to ensure smooth 360-degree rotation
+    let _preloaderTimer = null;
+    let _preloadQueue = [];
+    let _isPreloading = false;
+
+    function processPreloadQueue() {
+        if (_preloadQueue.length === 0) {
+            _isPreloading = false;
+            return;
+        }
+        _isPreloading = true;
+        const url = _preloadQueue.shift();
+        
+        if (imgCache[url]) {
+            // Already cached, process next immediately
+            processPreloadQueue();
+            return;
+        }
+
+        const img = new Image();
+        activeImageRequests.push(img);
+
+        img.onload = () => {
+            const idx = activeImageRequests.indexOf(img);
+            if (idx > -1) activeImageRequests.splice(idx, 1);
+
+            imgCache[url] = img;
+            // 50ms pause to yield control to the user's active network requests
+            setTimeout(processPreloadQueue, 50);
+        };
+        img.onerror = () => {
+            const idx = activeImageRequests.indexOf(img);
+            if (idx > -1) activeImageRequests.splice(idx, 1);
+
+            console.warn(`Failed to preload background asset: ${url}`);
+            setTimeout(processPreloadQueue, 50);
+        };
+        img.src = url;
+    }
+
+    function preloadAllAnglesInBackground() {
+        clearTimeout(_preloaderTimer);
+        _preloadQueue = []; // Reset the queue
+        
+        _preloaderTimer = setTimeout(() => {
+            const angles = ['front', 'left', 'back', 'right'];
+            const activeAngle = state.angle;
+            
+            angles.forEach(angle => {
+                if (angle === activeAngle) return;
+                
+                const layers = getLayersConfigForAngle(angle);
+                layers.forEach(layer => {
+                    const url = layer.path;
+                    if (!imgCache[url] && !_preloadQueue.includes(url)) {
+                        _preloadQueue.push(url);
+                    }
+                });
+            });
+
+            if (_preloadQueue.length > 0 && !_isPreloading) {
+                processPreloadQueue();
+            }
+        }, 600); // 600ms delay to prioritize active canvas drawing and UI responsiveness
     }
 
     let piquePattern = null;
@@ -1618,42 +1717,42 @@
                     </thead>
                     <tbody>
                         <tr style="border-bottom: 1px solid var(--border-color);">
-                            <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: bold; color: var(--accent-teal);">S</td>
+                            <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: bold; color: var(--accent-highlight);">S</td>
                             <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: 500;">150 - 160</td>
                             <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: 500;">45 - 54</td>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border-color); background: ${rowBgAlt};">
-                            <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: bold; color: var(--accent-teal);">M</td>
+                            <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: bold; color: var(--accent-highlight);">M</td>
                             <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: 500;">160 - 170</td>
                             <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: 500;">55 - 64</td>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border-color);">
-                            <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: bold; color: var(--accent-teal);">L</td>
+                            <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: bold; color: var(--accent-highlight);">L</td>
                             <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: 500;">170 - 174</td>
                             <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: 500;">65 - 69</td>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border-color); background: ${rowBgAlt};">
-                            <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: bold; color: var(--accent-teal);">XL</td>
+                            <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: bold; color: var(--accent-highlight);">XL</td>
                             <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: 500;">175 - 177</td>
                             <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: 500;">70 - 75</td>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border-color);">
-                            <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: bold; color: var(--accent-teal);">XXL</td>
+                            <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: bold; color: var(--accent-highlight);">XXL</td>
                             <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: 500;">175 - 180</td>
                             <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: 500;">75 - 85</td>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border-color); background: ${rowBgAlt};">
-                            <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: bold; color: var(--accent-teal);">3XL</td>
+                            <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: bold; color: var(--accent-highlight);">3XL</td>
                             <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: 500;">175 - 180</td>
                             <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: 500;">85 - 95</td>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border-color);">
-                            <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: bold; color: var(--accent-teal);">4XL</td>
+                            <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: bold; color: var(--accent-highlight);">4XL</td>
                             <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: 500;">175 - 180</td>
                             <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: 500;">95 - 110</td>
                         </tr>
                         <tr style="background: ${rowBgAlt};">
-                            <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: bold; color: var(--accent-teal);">5XL</td>
+                            <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: bold; color: var(--accent-highlight);">5XL</td>
                             <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: 500;">175 - 180</td>
                             <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: 500;">110 - 130</td>
                         </tr>
@@ -1683,27 +1782,27 @@
                     </thead>
                     <tbody>
                         <tr style="border-bottom: 1px solid var(--border-color);">
-                            <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: bold; color: var(--accent-teal);">S</td>
+                            <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: bold; color: var(--accent-highlight);">S</td>
                             <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: 500;">145 - 155</td>
                             <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: 500;">40 - 44 <span style="font-size: 11px; display: block; color: var(--text-muted); font-style: italic; margin-top: 2px;">(V1 &lt;82cm)</span></td>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border-color); background: ${rowBgAlt};">
-                            <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: bold; color: var(--accent-teal);">M</td>
+                            <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: bold; color: var(--accent-highlight);">M</td>
                             <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: 500;">150 - 165</td>
                             <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: 500;">45 - 48 <span style="font-size: 11px; display: block; color: var(--text-muted); font-style: italic; margin-top: 2px;">(V1 &lt;87cm)</span></td>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border-color);">
-                            <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: bold; color: var(--accent-teal);">L</td>
+                            <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: bold; color: var(--accent-highlight);">L</td>
                             <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: 500;">166 - 170</td>
                             <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: 500;">49 - 55 <span style="font-size: 11px; display: block; color: var(--text-muted); font-style: italic; margin-top: 2px;">(V1 &lt;95cm)</span></td>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border-color); background: ${rowBgAlt};">
-                            <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: bold; color: var(--accent-teal);">XL</td>
+                            <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: bold; color: var(--accent-highlight);">XL</td>
                             <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: 500;">165 - 174</td>
                             <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: 500;">56 - 60 <span style="font-size: 11px; display: block; color: var(--text-muted); font-style: italic; margin-top: 2px;">(V1 &lt;100cm)</span></td>
                         </tr>
                         <tr style="border-bottom: 1px solid var(--border-color);">
-                            <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: bold; color: var(--accent-teal);">XXL</td>
+                            <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: bold; color: var(--accent-highlight);">XXL</td>
                             <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: 500;">165 - 174</td>
                             <td style="padding: 10px; border: 1px solid var(--border-color); font-weight: 500;">61 - 65 <span style="font-size: 11px; display: block; color: var(--text-muted); font-style: italic; margin-top: 2px;">(V1 &lt;105cm)</span></td>
                         </tr>
@@ -2039,6 +2138,8 @@
             if (canvasLoader) {
                 canvasLoader.classList.remove('active');
             }
+            // Start background preloading for other angles
+            preloadAllAnglesInBackground();
         });
     }
 
@@ -4583,7 +4684,7 @@
             // --- Women's sizes section ---
             const womenTitle = document.createElement('div');
             womenTitle.className = 'zalo-section-title';
-            womenTitle.style.cssText = 'font-size: 13px; font-weight: 700; color: var(--accent-teal); margin-top: 14px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;';
+            womenTitle.style.cssText = 'font-size: 13px; font-weight: 700; color: var(--accent-highlight); margin-top: 14px; margin-bottom: 6px; display: flex; align-items: center; gap: 6px;';
             womenTitle.innerHTML = '🙋‍♀️ Form Nữ Chuẩn (S - 3XL)';
             container.appendChild(womenTitle);
             
@@ -5236,7 +5337,7 @@
             <div class="pdf-page" style="position: relative;">
                 <!-- Watermark Logo Overlay -->
                 <div style="position: absolute; top: 55%; left: 50%; transform: translate(-50%, -50%); width: 140mm; height: 140mm; opacity: 0.06; pointer-events: none; z-index: 99; display: flex; align-items: center; justify-content: center;">
-                    <img src="public/logo.png" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
+                    <img src="public/logo.webp" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
                 </div>
 
                 <!-- Top Header Banner -->

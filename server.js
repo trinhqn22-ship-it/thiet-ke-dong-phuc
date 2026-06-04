@@ -9,6 +9,7 @@ const MIME_TYPES = {
     '.css': 'text/css',
     '.js': 'text/javascript',
     '.png': 'image/png',
+    '.webp': 'image/webp',
     '.jpg': 'image/jpeg',
     '.jpeg': 'image/jpeg',
     '.gif': 'image/gif',
@@ -45,11 +46,13 @@ const server = http.createServer((req, res) => {
                 res.end(`500: Server Error: ${error.code}`);
             }
         } else {
+            // Apply caching for images to speed up local testing on mobile
+            const isImage = ['.png', '.webp', '.jpg', '.jpeg', '.gif', '.svg', '.ico'].includes(extname.toLowerCase());
             res.writeHead(200, { 
                 'Content-Type': contentType,
-                'Cache-Control': 'no-cache, no-store, must-revalidate',
-                'Pragma': 'no-cache',
-                'Expires': '0'
+                'Cache-Control': isImage ? 'public, max-age=3600' : 'no-cache, no-store, must-revalidate',
+                'Pragma': isImage ? 'public' : 'no-cache',
+                'Expires': isImage ? new Date(Date.now() + 3600000).toUTCString() : '0'
             });
             res.end(content, 'utf-8');
         }
