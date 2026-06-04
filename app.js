@@ -22,6 +22,7 @@
             'bo-tay': '#1e293b',   // cuffs color
             'tru-co': '#1e293b',   // placket/button stands
             'vien-co': '#fbbf24',  // collar trim/edge
+            'vien-nguc': '#fbbf24', // chest trim color
             tui: '#0f172a',        // pocket color
             'nap-tui': '#1e293b',  // pocket flap color
             'phan-quang': '#2dd4bf', // reflective tape tint
@@ -35,6 +36,7 @@
             'bo-tay': false,
             'tru-co': false,
             'vien-co': false,
+            'vien-nguc': false,
             tui: false,
             'nap-tui': false,
             'phan-quang': false,
@@ -502,7 +504,7 @@
                 list.push({ id: 'tru-co', name: 'Nẹp Áo', file: 'nep-ao-bhld-truoc.webp', colorizable: true });
                 list.push({ id: 'co-ao-bhld-truoc-1', name: 'Cổ Phụ 1', file: 'ao-bhld-truoc-1.webp', colorizable: true, optional: true });
                 list.push({ id: 'bo-tay', name: 'Đai Áo', file: 'dai-ao-bhld-truoc.webp', colorizable: true });
-                list.push({ id: 'vien-phan-quang', name: 'Viền Phản Quang', file: 'vien-phan-quang-ao-bhld-phia-truoc.webp', colorizable: true, group: 'phan-quang' });
+                list.push({ id: 'vien-nguc', name: 'Viền Ngực Áo', file: 'vien-nguc-ao-bhld-phia-truoc.webp', colorizable: true });
                 
                 // Pockets (Toggles)
                 if (state.pockets.left) {
@@ -1547,6 +1549,7 @@
                     <option value="tay">Tay Áo (Sleeves)</option>
                     <option value="co">Cổ Áo (Collar)</option>
                     <option value="vien-co">Viền Cổ Áo (Collar Trim)</option>
+                    <option value="vien-nguc">Viền Ngực Áo (Chest Trim)</option>
                     <option value="tru-co">Nẹp Áo (Placket)</option>
                     <option value="bo-tay">Đai Áo (Waistband)</option>
                     <option value="tui">Túi Áo (Pockets)</option>
@@ -3085,6 +3088,7 @@
             'bo-tay': '#1e293b',
             'tru-co': '#1e293b',
             'vien-co': '#fbbf24',
+            'vien-nguc': '#fbbf24',
             tui: '#0f172a',
             'nap-tui': '#1e293b',
             'phan-quang': '#2dd4bf',
@@ -3102,6 +3106,7 @@
             'bo-tay': defaultTex,
             'tru-co': defaultTex,
             'vien-co': defaultTex,
+            'vien-nguc': defaultTex,
             tui: defaultTex,
             'nap-tui': defaultTex,
             'phan-quang': false,
@@ -4962,6 +4967,15 @@
                         </span>
                         <span>${getColorName(state.colors.co || state.colors.than, 'co')}</span>
                     </div>
+                    ${state.product === 'ao-bao-ho' ? `
+                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 3px;">
+                        <span style="display: inline-flex; align-items: center; gap: 6px;">
+                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${state.colors['vien-nguc'] || state.colors.than}; border: 1px solid #cbd5e1;"></span>
+                            <strong>Viền ngực áo:</strong>
+                        </span>
+                        <span>${getColorName(state.colors['vien-nguc'] || state.colors.than, 'vien-nguc')}</span>
+                    </div>
+                    ` : ''}
                     <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 3px;">
                         <span style="display: inline-flex; align-items: center; gap: 6px;">
                             <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${state.colors.tui || state.colors.than}; border: 1px solid #cbd5e1;"></span>
