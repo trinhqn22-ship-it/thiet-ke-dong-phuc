@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thiết Kế Đồng Phục 3D Online - MRS LINH | Studio May Đo Cao Cấp Quy Nhơn</title>
+    
+    <!-- SEO Metadata -->
+    <meta name="description" content="Nền tảng tự thiết kế đồng phục 3D trực tuyến chuyên nghiệp tại Quy Nhơn. Tùy chỉnh màu sắc áo polo, áo thun, đồ bảo hộ lao động, thêm logo, dải phản quang và nhận báo giá xưởng may đo cực nhanh.">
+    <meta name="keywords" content="đặt may áo thun, xưởng may áo thun, đồng phục công ty, áo bảo hộ lao động, may áo thun theo yêu cầu, đồng phục Quy Nhơn, xưởng may đồng phục, thiết kế áo thun online, thiết kế polo 3d">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Đồng Phục Mrs Linh">
+    <link rel="icon" type="image/svg+xml" href="public/favicon.svg">
+    
+    <!-- Google Fonts — Non-blocking via <link> (faster than @import in CSS) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Client-Side HTML to PDF Engine -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+</head>
+<body>
+
+    <!-- Main Header -->
+    <header>
+        <div class="logo-container">
+            <img src="public/logo.png" alt="Mrs Linh Uniform Logo" style="height: 42px; width: auto; object-fit: contain; display: block; border-radius: 4px;">
+            <div class="logo-text">
+                <h1 style="font-size: 18px;">MRS LINH UNIFORM</h1>
+                <p>Nền tảng Thiết Kế 3D</p>
+            </div>
+        </div>
+        
+        <div class="header-actions">
+            <button class="theme-toggle" id="btn-theme-toggle" title="Đổi giao diện Sáng/Tối">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m11.314 11.314l.707.707M12 5a7 7 0 100 14 7 7 0 000-14z"></path></svg>
+            </button>
+            <button class="btn btn-secondary" id="btn-save-draft" title="Lưu mẫu thiết kế hiện tại">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
+                Lưu Mẫu
+            </button>
+            <button class="btn btn-secondary" id="btn-download-png" title="Tải ảnh thiết kế độ phân giải cao">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                Tải PNG
+            </button>
+            <button class="btn btn-primary" id="btn-open-quote" title="Gửi yêu cầu báo giá cho xưởng">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 19v-8.93a2 2 0 01.89-1.664l8-5.333a2 2 0 012.22 0l8 5.333A2 2 0 0121 10.07V19M3 19a2 2 0 002 2h14a2 2 0 002-2M3 19l6.75-4.5M21 19l-6.75-4.5m0 0l-2.25-1.5a2 2 0 00-2.22 0l-2.25 1.5M12 11.25V21"></path></svg>
+                Gửi Báo Giá
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Workspace Container -->
+    <main class="app-container">
+        
+        <!-- Left Toolbar (Icons only) -->
+        <nav class="left-sidebar">
+            <button class="toolbar-tab active" data-panel="panel-templates" id="tab-templates">
+                <div class="tab-icon">👕</div>
+                <span>Mẫu</span>
+            </button>
+            <button class="toolbar-tab" data-panel="panel-colors" id="tab-colors">
+                <div class="tab-icon">🎨</div>
+                <span>Màu sắc</span>
+            </button>
+            <button class="toolbar-tab" data-panel="panel-pockets" id="tab-pockets">
+                <div class="tab-icon">👜</div>
+                <span>Túi áo</span>
+            </button>
+            <button class="toolbar-tab" data-panel="panel-reflective" id="tab-reflective">
+                <div class="tab-icon">🧵</div>
+                <span>Phản quang</span>
+            </button>
+            <button class="toolbar-tab" data-panel="panel-logo" id="tab-logo">
+                <div class="tab-icon">🖼</div>
+                <span>Logo</span>
+            </button>
+            <button class="toolbar-tab" data-panel="panel-patterns" id="tab-patterns">
+                <div class="tab-icon">✨</div>
+                <span>Họa tiết</span>
+            </button>
+            <button class="toolbar-tab" data-panel="panel-sizes" id="tab-sizes">
+                <div class="tab-icon">📏</div>
+                <span>Size</span>
+            </button>
+            <button class="toolbar-tab" data-panel="panel-export" id="tab-export">
+                <div class="tab-icon">📦</div>
+                <span>Xuất file</span>
+            </button>
+        </nav>
+
+        <!-- Tool Sliding Panel (Expanded content based on active tab) -->
+        <aside class="tool-panel" id="main-tool-panel">
+            <div class="panel-header">
+                <h2 id="panel-title">Mẫu Đồng Phục</h2>
+                <button class="panel-close" id="btn-panel-close" title="Đóng bảng">✕</button>
+            </div>
+            <div class="panel-body">
+                
+                <!-- Panel 1: Templates -->
+                <div class="panel-content" id="panel-templates">
+                    <div class="control-group">
+                        <label class="control-label">Chọn Loại Đồng Phục</label>
+                        <div class="card-grid">
+                            <div class="product-card active" data-product="ao-polo">
+                                <span class="product-icon">👕</span>
+                                <h3>Áo Polo</h3>
+                                <p>Cổ bẻ lịch lãm</p>
+                            </div>
+                            <div class="product-card" data-product="ao-thun">
+                                <span class="product-icon">🎽</span>
+                                <h3>Áo Thun</h3>
+                                <p>Cổ tròn năng động</p>
+                            </div>
+                            <div class="product-card" data-product="ao-bao-ho">
+                                <span class="product-icon">👷</span>
+                                <h3>Áo Bảo Hộ</h3>
+                                <p>Dành cho kỹ sư</p>
+                            </div>
+                            <div class="product-card" data-product="quan-bao-ho">
+                                <span class="product-icon">👖</span>
+                                <h3>Quần Bảo Hộ</h3>
+                                <p>Bền bỉ, co giãn</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+
+
+                    <div class="control-group">
+                        <label class="control-label">Chọn Form Dáng</label>
+                        <div class="segmented-control">
+                            <button class="segment-btn active" id="form-nam">Form Nam</button>
+                            <button class="segment-btn" id="form-nu">Form Nữ</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel 2: Colors (Dynamic depending on product) -->
+                <div class="panel-content hidden" id="panel-colors">
+                    <div class="control-group">
+                        <label class="control-label">Bộ Phận Cần Đổi Màu</label>
+                        <select class="input-field" id="select-color-part">
+                            <option value="than">Thân Áo (Body)</option>
+                            <option value="tay">Tay Áo (Sleeves)</option>
+                            <option value="co">Cổ Áo (Collar)</option>
+                            <option value="bo-tay">Bo Tay Áo (Cuffs)</option>
+                            <option value="tru-co">Trụ Cổ (Placket)</option>
+                            <option value="vien-co">Viền Cổ Áo (Collar Trim)</option>
+                            <option value="nut">Khuy Nút Áo (Buttons)</option>
+                            <option value="chan-co">Chân Cổ Áo (Collar Stand)</option>
+                        </select>
+                    </div>
+
+                    <!-- Nhóm 1: Bảng màu trơn (Áo thun) -->
+                    <div class="control-group" id="group-standard-colors">
+                        <h4 class="color-group-title">Bảng Màu Lựa Chọn</h4>
+                        <div class="color-grid" id="grid-corporate-colors">
+                            <!-- Corporate colors dynamically rendered in JS -->
+                        </div>
+                    </div>
+
+                    <!-- Nhóm 2: Bảng màu có vân pique (Áo polo) -->
+                    <div class="control-group" id="group-textured-colors" style="display: none;">
+                        <h4 class="color-group-title">Bảng Màu Có Vân (Vải Cá Sấu/Pique)</h4>
+                        <div class="color-grid" id="grid-textured-colors">
+                            <!-- Textured colors dynamically rendered in JS -->
+                        </div>
+                    </div>
+
+                    <!-- Nhóm 3: Bảng màu bảo hộ Kaki (Đồ bảo hộ) -->
+                    <div class="control-group" id="group-workwear-colors" style="display: none;">
+                        <h4 class="color-group-title">Bảng Màu Bảo Hộ (Vải Kaki 65/35)</h4>
+                        <div class="color-grid" id="grid-workwear-colors">
+                            <!-- Workwear colors dynamically rendered in JS -->
+                        </div>
+                    </div>
+
+                    <!-- Nhóm 4: Bảng màu khuy nút (Áo Polo khuy nút) -->
+                    <div class="control-group" id="group-button-colors" style="display: none;">
+                        <h4 class="color-group-title">Bảng Màu Khuy Nút Áo</h4>
+                        <div class="color-grid" id="grid-button-colors">
+                            <!-- Button colors dynamically rendered in JS -->
+                        </div>
+                    </div>
+
+                    <!-- Nhóm 5: Bảng màu khuy nút bảo hộ (áo/quần bảo hộ) -->
+                    <div class="control-group" id="group-workwear-button-colors" style="display: none;">
+                        <h4 class="color-group-title">Bảng Màu Khuy Nút Bảo Hộ</h4>
+                        <div style="font-size: 11px; font-weight: bold; color: var(--text-secondary); margin: 8px 0 4px 0;">Khuy Nút Nhựa</div>
+                        <div class="color-grid" id="grid-workwear-plastic-buttons">
+                            <!-- Plastic buttons dynamically rendered in JS -->
+                        </div>
+                        <div style="font-size: 11px; font-weight: bold; color: var(--text-secondary); margin: 12px 0 4px 0;">Khuy Nút Kim Loại</div>
+                        <div class="color-grid" id="grid-workwear-metal-buttons">
+                            <!-- Metal buttons dynamically rendered in JS -->
+                        </div>
+                    </div>
+
+                    <!-- Elements to prevent JS errors -->
+                    <div class="color-grid" id="grid-sporty-colors" style="display: none !important;"></div>
+                </div>
+
+                <!-- Panel 3: Pockets -->
+                <div class="panel-content hidden" id="panel-pockets">
+                    <div class="control-group">
+                        <label class="control-label">Thiết lập túi áo</label>
+                        <div class="control-group" style="gap: 12px;">
+                            <div class="checkbox-card" id="chk-pocket-left">
+                                <span>Túi ngực trái</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="input-pocket-left">
+                                    <span class="slider-toggle"></span>
+                                </label>
+                            </div>
+                            <div class="checkbox-card" id="chk-pocket-right">
+                                <span>Túi ngực phải</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="input-pocket-right">
+                                    <span class="slider-toggle"></span>
+                                </label>
+                            </div>
+                            <div class="checkbox-card" id="chk-pocket-sleeve">
+                                <span>Túi hộp tay áo</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="input-pocket-sleeve">
+                                    <span class="slider-toggle"></span>
+                                </label>
+                            </div>
+                            <div class="checkbox-card" id="chk-pocket-sleeve-right">
+                                <span>Túi phải dưới</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="input-pocket-sleeve-right">
+                                    <span class="slider-toggle"></span>
+                                </label>
+                            </div>
+                            <div class="checkbox-card" id="chk-pocket-flap">
+                                <span>Nắp túi</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="input-pocket-flap">
+                                    <span class="slider-toggle"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group" id="pocket-color-group">
+                        <label class="control-label">Màu sắc của Túi</label>
+                        <div class="color-grid" id="grid-pocket-colors">
+                            <!-- Dynamic colors for pocket matching selection -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel 4: Reflective Strips -->
+                <div class="panel-content hidden" id="panel-reflective">
+                    <div class="control-group">
+                        <label class="control-label">Dải Phản Quang Bảo Hộ</label>
+                        <div class="checkbox-card" id="chk-reflective-chest">
+                            <span>Vị trí ngang ngực</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="input-reflective-chest">
+                                <span class="slider-toggle"></span>
+                            </label>
+                        </div>
+                        <br>
+                        <div class="checkbox-card" id="chk-reflective-shoulders">
+                            <span>Vị trí qua vai</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="input-reflective-shoulders">
+                                <span class="slider-toggle"></span>
+                            </label>
+                        </div>
+                        <br>
+                        <div class="checkbox-card" id="chk-reflective-sleeves">
+                            <span>Vị trí quanh bắp tay</span>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="input-reflective-sleeves">
+                                <span class="slider-toggle"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="control-group">
+                        <label class="control-label">Màu Dải Phản Quang</label>
+                        <div class="color-grid" id="grid-reflective-colors">
+                            <!-- Dynamic reflective colors -->
+                        </div>
+                    </div>
+
+                    <div class="control-group" id="group-reflective-height" style="margin-top: 12px;">
+                        <label class="control-label">Vị trí cao/thấp dây ngực <span class="value-badge" id="lbl-reflective-height">Mặc định</span></label>
+                        <input type="range" class="custom-range" id="input-reflective-height" min="-80" max="80" value="0">
+                    </div>
+                </div>
+
+                <!-- Panel 5: Logo Upload & Placements -->
+                <div class="panel-content hidden" id="panel-logo">
+                    <div class="control-group">
+                        <label class="control-label">Tải lên Logo Thương Hiệu</label>
+                        <div class="upload-zone" id="logo-upload-zone">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <span>Chọn tệp hoặc Kéo logo vào đây</span>
+                            <p>Định dạng hỗ trợ: PNG, JPG (Khuyến khích nền trong suốt)</p>
+                            <input type="file" id="input-logo-file" accept="image/png, image/jpeg" style="display:none;">
+                        </div>
+                    </div>
+
+                    <!-- Container for Multi-Logos Management List -->
+                    <div class="control-group" id="group-logos-manager" style="margin-top: 16px;">
+                        <label class="control-label" style="font-weight: 700; color: var(--accent-blue);">Danh Sách Logo Đã Thêm</label>
+                        <div id="div-logos-list" style="display: flex; flex-direction: column; gap: 14px; margin-top: 8px;">
+                            <div class="text-muted" id="lbl-no-logos" style="font-size: 12px; font-style: italic; text-align: center; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px dashed var(--border-color);">
+                                Chưa có logo nào được tải lên. Tải ảnh lên ở trên để bắt đầu!
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel 6: Patterns (Custom print zones) -->
+                <div class="panel-content hidden" id="panel-patterns">
+                    <div class="control-group">
+                        <label class="control-label" style="font-weight: 700;">Họa Tiết In Lớn Theo Mặt Áo</label>
+                        <div class="upload-zone" id="pattern-upload-zone">
+                            <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <span>Tải hình in lớn lên áo</span>
+                            <p>Định dạng hỗ trợ: PNG, JPG, SVG</p>
+                            <input type="file" id="input-pattern-file" accept="image/png, image/jpeg, image/svg+xml" style="display:none;">
+                        </div>
+                    </div>
+
+                    <div class="uploaded-logo-preview hidden" id="div-pattern-preview" style="padding: 12px; background: rgba(19, 27, 46, 0.5); border: 1px solid var(--border-color); border-radius: 8px; display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+                            <img id="img-pattern-preview" src="" alt="Pattern Preview" style="max-height: 48px; max-width: 100px; object-fit: contain; background: white; padding: 2px; border-radius: 4px;">
+                            <div style="flex: 1; display: flex; flex-direction: column;">
+                                <span style="font-size: 11px; font-weight: 700; color: var(--accent-blue);" id="lbl-pattern-view-badge">Mặt Trước</span>
+                                <span style="font-size: 9px; color: var(--text-muted);">🖱 Kéo thả, resize và xoay trực tiếp</span>
+                            </div>
+                            <div style="display: flex; gap: 6px;">
+                                <button class="btn btn-secondary" style="padding: 2px 6px; font-size: 9px;" id="btn-reset-pattern" title="Khôi phục vị trí mặc định">🎯 Reset</button>
+                                <button class="btn btn-danger" style="padding: 2px 6px; font-size: 9px;" id="btn-remove-pattern">Xóa</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Size slider -->
+                    <div class="control-group">
+                        <label class="control-label">
+                            Kích thước họa tiết 
+                            <span class="value-badge" id="lbl-pattern-scale-container" style="padding: 2px 4px; display: inline-flex; align-items: center; gap: 1px;">
+                                <input type="number" id="input-pattern-scale-num" min="10" max="300" value="100">%
+                            </span>
+                        </label>
+                        <input type="range" class="custom-range" id="input-pattern-scale" min="10" max="300" value="100">
+                    </div>
+
+                    <!-- Rotate slider -->
+                    <div class="control-group">
+                        <label class="control-label">
+                            Góc xoay hình in 
+                            <span class="value-badge" id="lbl-pattern-rotate-container" style="padding: 2px 4px; display: inline-flex; align-items: center; gap: 1px;">
+                                <input type="number" id="input-pattern-rotate-num" min="-180" max="180" value="0">°
+                            </span>
+                        </label>
+                        <input type="range" class="custom-range" id="input-pattern-rotate" min="-180" max="180" value="0">
+                    </div>
+
+                    <!-- Scope of coverage -->
+                    <div class="control-group">
+                        <label class="control-label">Phủ họa tiết lên các bộ phận</label>
+                        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+                            <div class="checkbox-card checked" id="chk-cov-than" style="padding: 10px 14px;">
+                                <span style="font-size: 13px; font-weight: 500;">Thân áo / Thân quần</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="input-cov-than" checked>
+                                    <span class="slider-toggle"></span>
+                                </label>
+                            </div>
+                            <div class="checkbox-card" id="chk-cov-tay" style="padding: 10px 14px;">
+                                <span style="font-size: 13px; font-weight: 500;">Tay áo / Cánh tay</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="input-cov-tay">
+                                    <span class="slider-toggle"></span>
+                                </label>
+                            </div>
+                            <div class="checkbox-card" id="chk-cov-co" style="padding: 10px 14px;">
+                                <span style="font-size: 13px; font-weight: 500;">Cổ áo / Bo cổ</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="input-cov-co">
+                                    <span class="slider-toggle"></span>
+                                </label>
+                            </div>
+                            <div class="checkbox-card" id="chk-cov-tui" style="padding: 10px 14px;">
+                                <span style="font-size: 13px; font-weight: 500;">Túi áo / Túi quần / Chi tiết phụ</span>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="input-cov-tui">
+                                    <span class="slider-toggle"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Opacity (Advanced / Pro Mode only) -->
+                    <div class="control-group logo-pro-control hidden">
+                        <label class="control-label">Độ mờ / Độ trong suốt <span class="value-badge" id="lbl-pattern-opacity">95%</span></label>
+                        <input type="range" class="custom-range" id="input-pattern-opacity" min="10" max="100" value="95">
+                    </div>
+
+                    <!-- Coordinates X and Y -->
+                    <div class="control-group logo-pro-control hidden">
+                        <label class="control-label">Tọa độ Ngang X <span class="value-badge" id="lbl-pattern-x">0px</span></label>
+                        <input type="range" class="custom-range" id="input-pattern-x" min="-300" max="300" value="0">
+                    </div>
+                    
+                    <div class="control-group logo-pro-control hidden">
+                        <label class="control-label">Tọa độ Dọc Y <span class="value-badge" id="lbl-pattern-y">0px</span></label>
+                        <input type="range" class="custom-range" id="input-pattern-y" min="-300" max="300" value="0">
+                    </div>
+
+                    <!-- Realistic shading level (Advanced / Pro Mode only) -->
+                    <div class="control-group logo-pro-control hidden">
+                        <label class="control-label">Độ chân thật sớ vải <span class="value-badge" id="lbl-pattern-realism">85%</span></label>
+                        <input type="range" class="custom-range" id="input-pattern-realism" min="0" max="100" value="85">
+                    </div>
+
+                    <!-- Blend Mode Dropdown (Advanced / Pro Mode only) -->
+                    <div class="control-group logo-pro-control hidden">
+                        <label class="control-label">Chế độ hòa trộn màu</label>
+                        <select class="input-field" id="select-pattern-blend" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px;">
+                            <option value="normal" selected>Normal (In nhiệt sắc nét, rõ màu - Khuyên dùng)</option>
+                            <option value="multiply">Multiply (Hòa trộn tối, chìm màu vào áo)</option>
+                            <option value="soft-light">Soft Light (Chìm nhẹ tự nhiên vào thớ vải)</option>
+                            <option value="overlay">Overlay (Tương phản sáng tối cực mạnh)</option>
+                        </select>
+                    </div>
+
+                    <!-- Print Type Selector -->
+                    <div class="control-group logo-pro-control hidden" style="display: none !important;">
+                        <label class="control-label">Công nghệ in đề xuất</label>
+                        <select class="input-field" id="select-pattern-print" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px;">
+                            <option value="chuyen-nhiet">In Chuyển Nhiệt (Mịn màng bám sớ vải)</option>
+                            <option value="lua">In Lụa (Màu lì, nổi vân thớ nhẹ)</option>
+                            <option value="pet">In PET kỹ thuật số (Màu tươi, viền sắc cạnh)</option>
+                            <option value="theu">Thêu vi tính (Dày dặn, tơ chỉ nổi 3D)</option>
+                        </select>
+                    </div>
+
+                    <!-- Chế độ Thiết Kế — đặt ở đây để liền mạch với Họa Tiết -->
+                    <div class="control-group" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--border-color);">
+                        <div class="mode-banner">
+                            <div class="mode-banner-text">
+                                <h4>Chế độ Thiết Kế</h4>
+                                <p id="lbl-design-mode-desc">Chế độ Cơ Bản cho khách đặt hàng</p>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="input-mode-toggle">
+                                <span class="slider-toggle"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Panel 7: Sizes & Specs -->
+                <div class="panel-content hidden" id="panel-sizes">
+                    <div id="size-specs-table-container" style="margin-top: 8px;">
+                        <!-- Populated dynamically based on active product/gender -->
+                    </div>
+                </div>
+
+                <!-- Panel 8: Exports & Actions -->
+                <div class="panel-content hidden" id="panel-export">
+                    <div class="control-group">
+                        <label class="control-label">Xuất Bản Mẫu Thiết Kế</label>
+                        <button class="btn btn-secondary" style="width: 100%; justify-content: flex-start;" id="btn-export-png-panel">
+                            <span>📥 Tải Ảnh PNG Trong Suốt (Chỉ Áo)</span>
+                        </button>
+                        <br>
+                        <button class="btn btn-primary" style="width: 100%; justify-content: flex-start; margin-top: 8px;" id="btn-zalo-share">
+                            <span>💬 Gửi Mẫu Thiết Kế Qua Zalo</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </aside>
+
+        <!-- Preview Stage (Central Column) -->
+        <section class="preview-stage-container">
+            <div class="spotlight"></div>
+            
+            <div class="canvas-wrapper" id="div-canvas-wrapper">
+                <canvas id="product-canvas" width="800" height="800"></canvas>
+                <div class="canvas-drag-overlay"></div>
+            </div>
+
+            <!-- Angle selection HUD controller -->
+            <div class="stage-hud">
+                <div class="angle-controller">
+                    <button class="angle-btn active" data-angle="front">FRONT</button>
+                    <button class="angle-btn" data-angle="left">LEFT</button>
+                    <button class="angle-btn" data-angle="back">BACK</button>
+                    <button class="angle-btn" data-angle="right">RIGHT</button>
+                </div>
+                <div class="hud-help">
+                    <span>🖱 Kéo thả chuột hoặc vuốt màn hình để xoay 360°</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Right Info & Specification Panel -->
+        <section class="right-info-panel">
+            
+            <div class="product-title-block">
+                <span class="product-tag" id="lbl-uniform-type">ĐỒNG PHỤC MRS LINH</span>
+                <h2 id="lbl-product-display-name">Áo Thun Polo Nam</h2>
+                <a href="https://zalo.me/0934975913" target="_blank" rel="noopener"
+                   class="price-tag" id="lbl-product-price"
+                   style="display:inline-flex; align-items:center; gap:6px; text-decoration:none; cursor:pointer;"
+                   title="Nhấn để nhắn Zalo — 0934 975 913">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0;opacity:0.8;"><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.955 9.955 0 0012 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18a7.948 7.948 0 01-4.062-1.11l-.292-.174-3.024.899.899-3.024-.174-.292A7.948 7.948 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/></svg>
+                    Liên hệ xưởng báo giá gốc
+                </a>
+            </div>
+
+            <div class="panel-section">
+                <!-- AI Smart Design — Natural Language Input -->
+                <div class="ai-box">
+                    <div class="ai-header">
+                        <span>☯ Gợi Ý Thiết Kế Theo Phong Thủy</span>
+                    </div>
+
+                    <!-- Natural language prompt area -->
+                    <div class="ai-prompt-area">
+                        <textarea
+                            id="ai-input-text"
+                            class="ai-textarea"
+                            placeholder="Mô tả thông tin của bạn, ví dụ:&#10;Nam, 1986, ngành xây dựng, màu chủ đạo xanh và đỏ..."
+                            rows="3"
+                            spellcheck="false"
+                        ></textarea>
+                        <div class="ai-prompt-hints">
+                            <span class="ai-hint-chip" data-text="Nam, 1990, xây dựng, màu xanh đỏ">🏗️ Xây dựng</span>
+                            <span class="ai-hint-chip" data-text="Nam, 1985, cơ khí, màu xám cam">⚙️ Cơ khí</span>
+                            <span class="ai-hint-chip" data-text="Nữ, 1992, nhà hàng, màu đỏ vàng">🍽️ Nhà hàng</span>
+                            <span class="ai-hint-chip" data-text="Nam, 1988, thể thao, màu xanh trắng">⚽ Thể thao</span>
+                            <span class="ai-hint-chip" data-text="Nữ, 1989, may mặc, màu hồng trắng">👗 May mặc</span>
+                            <span class="ai-hint-chip" data-text="Nam, 1987, du lịch, màu xanh da trời vàng">✈️ Du lịch</span>
+                            <span class="ai-hint-chip" data-text="Nam, 1980, gỗ nội thất, màu nâu vàng">🪵 Gỗ</span>
+                            <span class="ai-hint-chip" data-text="Nữ, 1986, nông sản, màu xanh lá vàng">🌾 Nông sản</span>
+                            <span class="ai-hint-chip" data-text="Nam, 1991, thủy sản, màu xanh biển trắng">🐟 Thủy sản</span>
+                        </div>
+                        <button class="btn btn-primary" id="btn-ai-suggest"
+                            style="width: 100%; justify-content: center; margin-top: 8px; padding: 10px; font-size: 13px;">
+                            ✨ Gợi Ý Màu Áo
+                        </button>
+                    </div>
+
+                    <!-- AI result display -->
+                    <div class="ai-body" id="ai-result-body" style="display:none;">
+                        <p class="typing-effect" id="ai-suggestion-text"></p>
+                    </div>
+
+                    <div class="ai-match-tags hidden" id="ai-suggested-palettes">
+                        <!-- AI color recommendations badges -->
+                    </div>
+                </div>
+
+                <!-- Hidden selects kept for JS compatibility -->
+                <select id="select-ai-industry" style="display:none;"></select>
+                <input type="number" id="input-birth-year" style="display:none;">
+                <select id="select-gender-feng" style="display:none;"><option value="nam">Nam</option><option value="nu">Nữ</option></select>
+                <input type="color" id="input-brand-color" style="display:none;" value="#1e3a8a">
+                <input type="text" id="input-brand-hex" style="display:none;">
+                <select id="select-brand-mood" style="display:none;"><option value="trust">trust</option></select>
+            </div>
+
+
+            <!-- Debug Layers Toggle -->
+            <div class="panel-section" id="div-debug-toggle-section">
+                <button class="btn btn-secondary" id="btn-toggle-debug-layers"
+                    style="width: 100%; justify-content: space-between; font-size: 11px; padding: 7px 12px; opacity: 0.6;">
+                    <span>🔍 Quản Lý Layers Hoạt Động</span>
+                    <span id="lbl-debug-toggle">Hiện ▼</span>
+                </button>
+                <div class="hidden" id="div-pro-layers" style="margin-top: 8px;">
+                    <div class="layer-list" id="list-active-layers">
+                        <!-- Layer list dynamic content -->
+                    </div>
+                </div>
+            </div>
+
+            <div class="panel-section" style="border-bottom: none; margin-top: auto;">
+                <div style="display: flex; flex-direction: column; gap: 8px;">
+                    <!-- Button 1: Zalo -->
+                    <a href="https://zalo.me/0934975913" target="_blank" rel="noopener"
+                       class="btn btn-primary"
+                       style="width: 100%; padding: 12px; font-size: 14px; justify-content: center; text-decoration: none; display: flex; align-items: center; gap: 8px;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.67A2 2 0 012 0h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 14.92v2z"/></svg>
+                        💬 Liên Hệ Xưởng Báo Giá Gốc
+                    </a>
+                    <!-- Button 2: Form liên hệ -->
+                    <a href="https://www.inaodongphucmrslinh.com/p/lien-he.html" target="_blank" rel="noopener"
+                       class="btn btn-secondary"
+                       style="width: 100%; padding: 12px; font-size: 14px; justify-content: center; text-decoration: none; display: flex; align-items: center; gap: 8px; border-color: var(--accent-amber); color: var(--accent-amber);">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>
+                        🚀 Yêu Cầu Xưởng Liên Hệ Ngay
+                    </a>
+                </div>
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- SEO rich & detailed Expandable Footer Section -->
+    <footer class="seo-footer">
+        <div class="seo-footer-container">
+            <div class="seo-footer-brand">
+                <h4>CÔNG TY TNHH DV TM ĐT ĐỒNG PHỤC MRS LINH</h4>
+                <p style="margin-bottom: 12px; line-height: 1.7;">
+                    Mrs Linh tự hào là đơn vị uy tín hàng đầu chuyên cung cấp giải pháp <strong>may áo thun theo yêu cầu</strong>, <strong>đồng phục công ty</strong>, và các dòng <strong>áo bảo hộ lao động</strong> chất lượng cao. Với nền tảng thiết kế 3D trực quan, chúng tôi hỗ trợ các công ty, đội nhóm, và xưởng cơ khí tự do sáng tạo màu sắc riêng mà không sợ sai lệch kỹ thuật.
+                </p>
+                <p>📍 Địa chỉ xưởng: 16/6 Lưu Trọng Lư, Quy Nhơn, Gia Lai</p>
+                <p>📞 SĐT/Zalo: 0934.975.913 (Mrs Linh tư vấn)</p>
+                <p>✉️ Email: mrslinh@inaodongphucmrslinh.com</p>
+            </div>
+            
+            <div class="seo-footer-links">
+                <h5>DỊCH VỤ CỦA CHÚNG TÔI</h5>
+                <ul>
+                    <li><a href="#thiet-ke-ao-polo">Đặt may áo thun polo công ty</a></li>
+                    <li><a href="#thiet-ke-ao-thun">Xưởng may áo thun sự kiện Quy Nhơn</a></li>
+                    <li><a href="#thiet-ke-ao-bao-ho">May áo bảo hộ lao động kỹ sư</a></li>
+                    <li><a href="#thiet-ke-quan-bao-ho">Quần túi hộp công trình cơ khí</a></li>
+                    <li><a href="#bao-gia">Đồng phục Quy Nhơn giá gốc xưởng</a></li>
+                </ul>
+            </div>
+
+            <div class="seo-footer-links">
+                <h5>TỪ KHÓA TÌM KIẾM NHIỀU</h5>
+                <ul>
+                    <li><a href="#dat-may-ao-thun">Đặt may áo thun Quy Nhơn</a></li>
+                    <li><a href="#xuong-may-ao-thun">Xưởng may áo thun uy tín</a></li>
+                    <li><a href="#dong-phuc-cong-ty">May đồng phục công ty tại Quy Nhơn</a></li>
+                    <li><a href="#ao-bao-ho-lao-dong">Quần áo bảo hộ lao động cao cấp</a></li>
+                    <li><a href="#may-ao-thun-theo-yeu-cau">May áo thun theo yêu cầu lấy nhanh</a></li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="seo-footer-bottom">
+            <span>© 2026 Xưởng may Đồng Phục Mrs Linh. All rights reserved. Nền tảng thiết kế 3D thuộc bản quyền thương hiệu Mrs Linh.</span>
+            <span>Mã số doanh nghiệp: 41H80XXXXX</span>
+        </div>
+    </footer>
+
+    <!-- Quotation / Lead capture Modal Window -->
+    <div class="modal-overlay" id="modal-lead-form">
+        <div class="modal-container">
+            <div class="modal-header">
+                <h3>Yêu Cầu Báo Giá Đồng Phục</h3>
+                <button class="panel-close" id="btn-close-lead-modal">✕</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 13px; color: var(--text-secondary);">
+                    Vui lòng điền thông tin của bạn. Xưởng may Mrs Linh Quy Nhơn sẽ nhận được toàn bộ bản thiết kế 3D (phối màu, logo, túi) của bạn và liên hệ báo giá gốc tận xưởng trong vòng 10 phút.
+                </p>
+                <div class="control-group">
+                    <label class="control-label" for="form-fullname" id="lbl-lead-fullname">Họ và Tên <span style="color: var(--accent-rose);">*</span></label>
+                    <input type="text" class="input-field" id="form-fullname" placeholder="Nguyễn Văn A" required>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="form-phone" id="lbl-lead-phone">Số điện thoại / Zalo <span style="color: var(--accent-rose);">*</span></label>
+                    <input type="tel" class="input-field" id="form-phone" placeholder="0905123456" required>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="form-quantity" id="lbl-lead-quantity">Số lượng áo dự kiến <span style="color: var(--accent-rose);">*</span></label>
+                    <input type="number" class="input-field" id="form-quantity" min="10" value="30">
+                </div>
+                <div class="control-group">
+                    <label class="control-label">Yêu cầu đặc biệt về chất vải hoặc in ấn</label>
+                    <textarea class="input-field" id="form-notes" placeholder="Ví dụ: Vải thun cá sấu dày dặn, thêu logo trước ngực, in nổi sau lưng áo..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="btn-cancel-lead">Hủy</button>
+                <button class="btn btn-primary" id="btn-submit-lead">Gửi Yêu Cầu Cho Mrs Linh</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Model Switch Confirmation Modal -->
+    <div class="modal-overlay" id="modal-switch-confirm">
+        <div class="modal-container" style="max-width: 450px; background: rgba(15, 23, 42, 0.95); border: 1px solid var(--border-color); backdrop-filter: blur(16px); border-radius: 16px; padding: 6px;">
+            <div class="modal-header" style="border-bottom: 1px solid rgba(255,255,255,0.06); padding: 14px 20px;">
+                <h3 style="font-family: 'Outfit', sans-serif; font-size: 16px; font-weight: 600; color: var(--text-primary);">Xác Nhận Thay Đổi Mẫu</h3>
+                <button class="panel-close" id="btn-close-switch-modal" style="font-size: 14px; background: none; border: none; color: var(--text-muted); cursor: pointer;">✕</button>
+            </div>
+            <div class="modal-body" style="text-align: center; padding: 28px 24px;">
+                <div style="font-size: 42px; margin-bottom: 16px;">⚠️</div>
+                <p style="font-size: 15px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">
+                    Bạn đang thực hiện điều chỉnh ở mẫu này!
+                </p>
+                <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.6; margin: 0;">
+                    Nếu chuyển sang mẫu khác, các thiết kế và phối màu hiện tại của bạn sẽ bị xóa. Bạn muốn làm gì tiếp theo?
+                </p>
+            </div>
+            <div class="modal-footer" style="display: flex; gap: 14px; justify-content: center; padding: 14px 20px; border-top: 1px solid rgba(255,255,255,0.06);">
+                <button class="btn btn-secondary" id="btn-switch-continue" style="flex: 1; justify-content: center; padding: 10px; font-size: 13px; font-weight: 600;">
+                    Hoàn thiện mẫu
+                </button>
+                <button class="btn btn-primary" id="btn-switch-new" style="flex: 1; justify-content: center; padding: 10px; font-size: 13px; font-weight: 600; background: var(--accent-rose);">
+                    Tạo mẫu mới
+                </button>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+    <!-- Zalo Share & PDF Info Modal Window -->
+    <div class="modal-overlay" id="modal-zalo-share">
+        <div class="modal-container" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>Gửi Thiết Kế & Tạo Báo Giá PDF</h3>
+                <button class="panel-close" id="btn-close-zalo-modal">✕</button>
+            </div>
+            <div class="modal-body">
+                <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
+                    Vui lòng cung cấp thông tin liên hệ và số lượng chi tiết cho từng size áo. Hệ thống sẽ tự động tổng hợp, xuất file PDF Catalog 3D chuyên nghiệp và kết nối tới Zalo của Mrs Linh.
+                </p>
+                <div class="control-group">
+                    <label class="control-label">Họ và Tên Khách Hàng <span style="color: var(--accent-rose);">*</span></label>
+                    <input type="text" class="input-field" id="zalo-fullname" placeholder="Nguyễn Văn A" required>
+                </div>
+                <div class="control-group">
+                    <label class="control-label">Số điện thoại / Zalo nhận mẫu <span style="color: var(--accent-rose);">*</span></label>
+                    <input type="tel" class="input-field" id="zalo-phone" placeholder="0905123456" required>
+                </div>
+                <div class="control-group">
+                    <label class="control-label">Số Lượng Đặt Hàng Chi Tiết Theo Size</label>
+                    <div id="zalo-size-inputs-container">
+                        <!-- Populated dynamically in JavaScript based on active product/gender -->
+                    </div>
+                </div>
+                <div class="control-group" style="margin-top: 15px;">
+                    <label class="control-label">Ghi Chú Đặc Biệt Cho Khách Hàng (Tạo Trang 3)</label>
+                    <textarea class="input-field" id="zalo-notes" placeholder="Nhập ghi chú đặc biệt cho đơn hàng (ví dụ: thêu tay tỉ mỉ bằng chỉ nổi chất lượng cao, thiết kế thêm khuy cổ dự phòng...). Nếu để trống sẽ không sinh Trang 3." style="min-height: 80px; resize: none;"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="btn-cancel-zalo">Hủy</button>
+                <button class="btn btn-primary" id="btn-submit-zalo" style="background: var(--accent-gradient);">Tải PDF & Gửi Zalo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dynamic JavaScript Logic -->
+    <script src="app.js?v=1.1.3"></script>
+</body>
+</html>
