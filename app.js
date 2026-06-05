@@ -45,6 +45,7 @@
         form: 'nam',            // nam, nu
         angle: 'front',         // front, left, back, right
         isProMode: false,
+        hasUserCustomizedColors: false,
         
         // Colors for each customizable component (defaults to dark interface theme colors: milky white)
         colors: { ...DARK_THEME_GARMENT_COLORS },
@@ -2268,6 +2269,7 @@
                 state.colors[activePart] = item.hex;
                 state.textures[activePart] = item.textureType || false;
                 state.isDirty = true;
+                state.hasUserCustomizedColors = true;
                 
                 // Pocket color matching logic
                 if (activePart === 'than') {
@@ -2330,6 +2332,7 @@
                 swatch.addEventListener('click', () => {
                     state.colors['phan-quang'] = item.hex;
                     state.isDirty = true;
+                    state.hasUserCustomizedColors = true;
                     
                     reflGrid.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
                     swatch.classList.add('active');
@@ -2511,6 +2514,7 @@
         // Apply config states
         state.colors = { ...state.colors, ...presetColors };
         state.hasViewedBack = (state.angle === 'back');
+        state.hasUserCustomizedColors = true;
         
         // Sync Pocket Inputs UI
         document.getElementById('input-pocket-left').checked = state.pockets.left;
@@ -2649,6 +2653,7 @@
                     state.colors[p.part] = p.hex;
                     state.colors.tui = p.part === 'than' ? p.hex : state.colors.tui;
                     state.isDirty = true;
+                    state.hasUserCustomizedColors = true;
                     scheduleColorRedraw();
                     showToast(`✅ Đã áp dụng ${p.name} (${p.role || ""}) lên ${p.part}`, 'success', 3000);
                 });
@@ -2813,6 +2818,7 @@
                     state.colors[p.part] = p.hex;
                     if (p.part === 'than') state.colors.tui = p.hex;
                     state.isDirty = true;
+                    state.hasUserCustomizedColors = true;
                     scheduleColorRedraw();
                     showToast(`✅ Áp dụng ${p.name} lên ${p.part}`, 'success', 2500);
                 });
@@ -3065,6 +3071,7 @@
                     state.colors[p.part] = p.hex;
                     if (p.part === 'than') state.colors.tui = p.hex;
                     state.isDirty = true;
+                    state.hasUserCustomizedColors = true;
                     scheduleColorRedraw();
                     showToast(`✅ Áp dụng ${p.name} → ${p.hex}`, 'success', 2500);
                 });
@@ -3116,6 +3123,7 @@
         state.isDirty = false;
         state.logos = [];
         state.hasViewedBack = false;
+        state.hasUserCustomizedColors = false;
         clearTintCache();
         
         // Reset colors
@@ -3199,6 +3207,7 @@
         state.product = targetProduct;
         state.hasViewedBack = (state.angle === 'back');
         clearTintCache();
+        state.hasUserCustomizedColors = false;
         
         // Reset all texture flags based on product type
         if (state.textures) {
@@ -4525,12 +4534,14 @@
             state.theme = newTheme;
             
             // Toggle default garment colors for contrast if they are still defaults
-            const fromColors = oldTheme === 'light' ? LIGHT_THEME_GARMENT_COLORS : DARK_THEME_GARMENT_COLORS;
-            const toColors = newTheme === 'light' ? LIGHT_THEME_GARMENT_COLORS : DARK_THEME_GARMENT_COLORS;
-            
-            for (const part in state.colors) {
-                if (state.colors[part] === fromColors[part]) {
-                    state.colors[part] = toColors[part];
+            if (!state.hasUserCustomizedColors) {
+                const fromColors = oldTheme === 'light' ? LIGHT_THEME_GARMENT_COLORS : DARK_THEME_GARMENT_COLORS;
+                const toColors = newTheme === 'light' ? LIGHT_THEME_GARMENT_COLORS : DARK_THEME_GARMENT_COLORS;
+                
+                for (const part in state.colors) {
+                    if (state.colors[part] === fromColors[part]) {
+                        state.colors[part] = toColors[part];
+                    }
                 }
             }
 
@@ -5637,6 +5648,7 @@
                 state.product = parsed.product || state.product;
                 state.form = parsed.form || state.form;
                 state.colors = { ...state.colors, ...parsed.colors };
+                state.hasUserCustomizedColors = true;
                 state.pockets = { ...state.pockets, ...parsed.pockets };
                 state.reflective = { ...state.reflective, ...parsed.reflective };
                 state.size = parsed.size || state.size;
