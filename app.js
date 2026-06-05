@@ -5,6 +5,38 @@
 
 (function () {
     'use strict';
+    
+    // Default garment colors for each interface theme to optimize contrast
+    const DARK_THEME_GARMENT_COLORS = {
+        than: '#f1f5f9',       // milky white/greyish white body
+        tay: '#f1f5f9',        // sleeves
+        co: '#e2e8f0',         // collar
+        'bo-tay': '#e2e8f0',   // cuffs
+        'tru-co': '#e2e8f0',   // placket
+        'vien-co': '#fbbf24',  // collar trim
+        'vien-nguc': '#fbbf24', // chest trim
+        tui: '#f1f5f9',        // pocket
+        'nap-tui': '#e2e8f0',  // pocket flap
+        'phan-quang': '#2dd4bf', // reflective tape tint
+        nut: '#ffffff',        // button color
+        'chan-co': '#e2e8f0'   // collar stand
+    };
+
+    const LIGHT_THEME_GARMENT_COLORS = {
+        than: '#0f172a',       // dark slate body
+        tay: '#0f172a',        // sleeves
+        co: '#1e293b',         // collar
+        'bo-tay': '#1e293b',   // cuffs
+        'tru-co': '#1e293b',   // placket
+        'vien-co': '#fbbf24',  // collar trim
+        'vien-nguc': '#fbbf24', // chest trim
+        tui: '#0f172a',        // pocket
+        'nap-tui': '#1e293b',  // pocket flap
+        'phan-quang': '#2dd4bf', // reflective tape tint
+        nut: '#ffffff',        // button color
+        'chan-co': '#1e293b'   // collar stand
+    };
+
     // UI State Management
     const state = {
         theme: 'dark',
@@ -14,21 +46,8 @@
         angle: 'front',         // front, left, back, right
         isProMode: false,
         
-        // Colors for each customizable component
-        colors: {
-            than: '#0f172a',       // body color
-            tay: '#0f172a',        // sleeves color
-            co: '#1e293b',         // collar color
-            'bo-tay': '#1e293b',   // cuffs color
-            'tru-co': '#1e293b',   // placket/button stands
-            'vien-co': '#fbbf24',  // collar trim/edge
-            'vien-nguc': '#fbbf24', // chest trim color
-            tui: '#0f172a',        // pocket color
-            'nap-tui': '#1e293b',  // pocket flap color
-            'phan-quang': '#2dd4bf', // reflective tape tint
-            nut: '#ffffff',         // button color
-            'chan-co': '#1e293b'   // collar stand color
-        },
+        // Colors for each customizable component (defaults to dark interface theme colors: milky white)
+        colors: { ...DARK_THEME_GARMENT_COLORS },
         textures: {
             than: false,
             tay: false,
@@ -3081,20 +3100,8 @@
         clearTintCache();
         
         // Reset colors
-        state.colors = {
-            than: '#0f172a',
-            tay: '#0f172a',
-            co: '#1e293b',
-            'bo-tay': '#1e293b',
-            'tru-co': '#1e293b',
-            'vien-co': '#fbbf24',
-            'vien-nguc': '#fbbf24',
-            tui: '#0f172a',
-            'nap-tui': '#1e293b',
-            'phan-quang': '#2dd4bf',
-            nut: '#ffffff',
-            'chan-co': '#1e293b'
-        };
+        const currentThemeColors = state.theme === 'light' ? LIGHT_THEME_GARMENT_COLORS : DARK_THEME_GARMENT_COLORS;
+        state.colors = { ...currentThemeColors };
         
         // Reset textures based on product type
         const defaultTex = (state.product === 'ao-polo') ? 'pique' : 
@@ -4487,13 +4494,27 @@
         // Theme Switch Sáng / Tối
         document.getElementById('btn-theme-toggle').addEventListener('click', () => {
             const body = document.body;
+            const oldTheme = state.theme;
+            let newTheme = 'dark';
             if (body.getAttribute('data-theme') === 'light') {
                 body.removeAttribute('data-theme');
-                state.theme = 'dark';
+                newTheme = 'dark';
             } else {
                 body.setAttribute('data-theme', 'light');
-                state.theme = 'light';
+                newTheme = 'light';
             }
+            state.theme = newTheme;
+            
+            // Toggle default garment colors for contrast if they are still defaults
+            const fromColors = oldTheme === 'light' ? LIGHT_THEME_GARMENT_COLORS : DARK_THEME_GARMENT_COLORS;
+            const toColors = newTheme === 'light' ? LIGHT_THEME_GARMENT_COLORS : DARK_THEME_GARMENT_COLORS;
+            
+            for (const part in state.colors) {
+                if (state.colors[part] === fromColors[part]) {
+                    state.colors[part] = toColors[part];
+                }
+            }
+
             updateThemeUI();
             loadAndRender();
         });
