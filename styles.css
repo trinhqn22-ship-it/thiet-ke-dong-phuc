@@ -237,17 +237,34 @@ header .header-actions {
     width: 42px;
     height: 42px;
     border-radius: var(--radius-md);
-    border: 1px solid var(--border-color);
+    border: 1px solid rgba(245, 158, 11, 0.4);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: var(--text-secondary);
+    color: #fbbf24; /* Bright yellow/amber for sun icon */
+    background-color: rgba(245, 158, 11, 0.08); /* Subtle amber glow */
     transition: all var(--transition-fast);
+    box-shadow: 0 0 10px rgba(245, 158, 11, 0.05);
 }
 .theme-toggle:hover {
-    background-color: var(--bg-surface-hover);
-    color: var(--text-primary);
+    background-color: rgba(245, 158, 11, 0.18);
+    color: #fbbf24;
+    border-color: rgba(245, 158, 11, 0.7);
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.2);
+}
+
+/* Light mode overrides for theme toggle */
+[data-theme="light"] .theme-toggle {
+    color: #475569; /* Slate grey moon icon representing turning off light */
+    background-color: rgba(100, 116, 139, 0.08);
+    border-color: rgba(100, 116, 139, 0.25);
+    box-shadow: none;
+}
+[data-theme="light"] .theme-toggle:hover {
+    background-color: rgba(100, 116, 139, 0.18);
+    color: #0f172a; /* Dark slate */
+    border-color: rgba(100, 116, 139, 0.45);
 }
 
 /* App Main Layout */
