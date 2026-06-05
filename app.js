@@ -50,6 +50,7 @@
         colors: { ...DARK_THEME_GARMENT_COLORS },
         textures: {
             than: false,
+            'nguc-ao': false,
             tay: false,
             co: false,
             'bo-tay': false,
@@ -512,8 +513,8 @@
             if (state.angle === 'front') {
                 list.push({ id: 'than-phai', name: 'Thân Phải', file: 'than-ao-bhld-phia-truoc-ben-phai.webp', colorizable: true, group: 'than' });
                 list.push({ id: 'than-trai', name: 'Thân Trái', file: 'than-ao-bhld-phia-truoc-ben-trai.webp', colorizable: true, group: 'than' });
-                list.push({ id: 'nguc-phai', name: 'Ngực Phải', file: 'nguc-ao-bhld-phia-truoc-ben-phai.webp', colorizable: true });
-                list.push({ id: 'nguc-trai', name: 'Ngực Trái', file: 'nguc-ao-bhld-phia-truoc-ben-trai.webp', colorizable: true });
+                list.push({ id: 'nguc-phai', name: 'Ngực Phải', file: 'nguc-ao-bhld-phia-truoc-ben-phai.webp', colorizable: true, group: 'nguc-ao' });
+                list.push({ id: 'nguc-trai', name: 'Ngực Trái', file: 'nguc-ao-bhld-phia-truoc-ben-trai.webp', colorizable: true, group: 'nguc-ao' });
                 list.push({ id: 'tay-phai', name: 'Tay Phải', file: 'tay-ao-bhld-phia-truoc-ben-phai.webp', colorizable: true, group: 'tay' });
                 list.push({ id: 'tay-trai', name: 'Tay Trái', file: 'tay-ao-bhld-phia-truoc-ben-trai.webp', colorizable: true, group: 'tay' });
                 list.push({ id: 'bo-tay-phai', name: 'Cổ Tay Phải', file: 'co-tay-ao-bhld-phia-truoc-ben-phai.webp', colorizable: true, group: 'bo-tay' });
@@ -613,7 +614,7 @@
                 list.push({ id: 'than-truoc', name: `Thân Trước ${sTxt}`, file: 'than-truoc-ao-bhld-nhin-ngan.webp', colorizable: true, group: 'than' });
                 list.push({ id: 'than-duoi', name: `Lưng Dưới ${sTxt}`, file: `lung-duoi-ao-bhld-nhin-ngan-${s}.webp`, colorizable: true, group: 'than' });
                 list.push({ id: 'than-tren', name: `Lưng Trên ${sTxt}`, file: `lung-tren-ao-bhld-nhin-ngan-${s}.webp`, colorizable: true, group: 'than' });
-                list.push({ id: `nguc-${s}`, name: `Ngực ${sTxt}`, file: `nguc-ao-bhld-nhin-ngan-${s}.webp`, colorizable: true });
+                list.push({ id: `nguc-${s}`, name: `Ngực ${sTxt}`, file: `nguc-ao-bhld-nhin-ngan-${s}.webp`, colorizable: true, group: 'nguc-ao' });
                 list.push({ id: 'tay', name: `Tay ${sTxt}`, file: `tay-ao-bhld-nhin-ngan-${s}.webp`, colorizable: true });
                 list.push({ id: 'bo-tay', name: `Cổ Tay ${sTxt}`, file: `co-tay-ao-bhld-nhin-ngan-${s}.webp`, colorizable: true });
                 list.push({ id: 'co', name: `Cổ Áo ${sTxt}`, file: `co-ao-bhld-${s}.webp`, colorizable: true });
@@ -1565,6 +1566,7 @@
             } else if (state.product === 'ao-bao-ho') {
                 optionsHTML = `
                     <option value="than">Thân Áo (Body)</option>
+                    <option value="nguc-ao">Ngực Áo (Chest)</option>
                     <option value="tay">Tay Áo (Sleeves)</option>
                     <option value="co">Cổ Áo (Collar)</option>
                     <option value="vien-co">Viền Cổ Áo (Collar Trim)</option>
@@ -5006,6 +5008,13 @@
                         <span>${getColorName(state.colors.co || state.colors.than, 'co')}</span>
                     </div>
                     ${state.product === 'ao-bao-ho' ? `
+                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 3px;">
+                        <span style="display: inline-flex; align-items: center; gap: 6px;">
+                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${state.colors['nguc-ao'] || state.colors.than}; border: 1px solid #cbd5e1;"></span>
+                            <strong>Ngực áo:</strong>
+                        </span>
+                        <span>${getColorName(state.colors['nguc-ao'] || state.colors.than, 'nguc-ao')}</span>
+                    </div>
                     <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 3px;">
                         <span style="display: inline-flex; align-items: center; gap: 6px;">
                             <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${state.colors['vien-nguc'] || state.colors.than}; border: 1px solid #cbd5e1;"></span>
