@@ -51,6 +51,7 @@
         textures: {
             than: false,
             'nguc-ao': false,
+            'lung-tren': false,
             tay: false,
             co: false,
             'bo-tay': false,
@@ -127,6 +128,22 @@
     function clearTintCache() {
         for (const key in tintCache) delete tintCache[key];
         tintCacheKeys.length = 0;
+    }
+
+    function getLayerColor(groupKey) {
+        if (groupKey === 'lung-tren') {
+            return state.colors['lung-tren'] || state.colors['nguc-ao'] || state.colors['than'];
+        }
+        return state.colors[groupKey] || state.colors['than'];
+    }
+
+    function getLayerTexture(groupKey) {
+        if (groupKey === 'lung-tren') {
+            if (state.colors['lung-tren']) return state.textures['lung-tren'] || false;
+            if (state.colors['nguc-ao']) return state.textures['nguc-ao'] || false;
+            return state.textures['than'] || false;
+        }
+        return state.textures[groupKey] || false;
     }
 
     function setTintCache(key, value) {
@@ -570,7 +587,7 @@
 
             } else if (state.angle === 'back') {
                 list.push({ id: 'than-duoi', name: 'Lưng Dưới', file: 'lung-duoi-ao-bhld-phia-sau.webp', colorizable: true, group: 'than' });
-                list.push({ id: 'than-tren', name: 'Lưng Trên', file: 'lung-tren-ao-bhld-phia-sau.webp', colorizable: true, group: 'than' });
+                list.push({ id: 'than-tren', name: 'Lưng Trên', file: 'lung-tren-ao-bhld-phia-sau.webp', colorizable: true, group: 'lung-tren' });
                 list.push({ id: 'tay-phai', name: 'Tay Phải', file: 'tay-ao-bhld-phai-sau.webp', colorizable: true, group: 'tay' });
                 list.push({ id: 'tay-trai', name: 'Tay Trái', file: 'tay-ao-bhld-trai-sau.webp', colorizable: true, group: 'tay' });
                 list.push({ id: 'bo-tay-phai', name: 'Cổ Tay Phải', file: 'co-tay-ao-bhld-phai-sau.webp', colorizable: true, group: 'bo-tay' });
@@ -613,7 +630,7 @@
                 
                 list.push({ id: 'than-truoc', name: `Thân Trước ${sTxt}`, file: 'than-truoc-ao-bhld-nhin-ngan.webp', colorizable: true, group: 'than' });
                 list.push({ id: 'than-duoi', name: `Lưng Dưới ${sTxt}`, file: `lung-duoi-ao-bhld-nhin-ngan-${s}.webp`, colorizable: true, group: 'than' });
-                list.push({ id: 'than-tren', name: `Lưng Trên ${sTxt}`, file: `lung-tren-ao-bhld-nhin-ngan-${s}.webp`, colorizable: true, group: 'than' });
+                list.push({ id: 'than-tren', name: `Lưng Trên ${sTxt}`, file: `lung-tren-ao-bhld-nhin-ngan-${s}.webp`, colorizable: true, group: 'lung-tren' });
                 list.push({ id: `nguc-${s}`, name: `Ngực ${sTxt}`, file: `nguc-ao-bhld-nhin-ngan-${s}.webp`, colorizable: true, group: 'nguc-ao' });
                 list.push({ id: 'tay', name: `Tay ${sTxt}`, file: `tay-ao-bhld-nhin-ngan-${s}.webp`, colorizable: true });
                 list.push({ id: 'bo-tay', name: `Cổ Tay ${sTxt}`, file: `co-tay-ao-bhld-nhin-ngan-${s}.webp`, colorizable: true });
@@ -1033,10 +1050,9 @@
             let color = null;
             let textureType = false;
             if (layer.colorizable) {
-                // Map color group keys (e.g. bo-tay-phai maps to bo-tay)
                 const groupKey = layer.group || layer.id;
-                color = state.colors[groupKey] || state.colors['than'];
-                textureType = state.textures[groupKey] || false;
+                color = getLayerColor(groupKey);
+                textureType = getLayerTexture(groupKey);
             }
             
             // Render tinted layer
@@ -1163,7 +1179,7 @@
             item.className = 'layer-item';
             
             const groupKey = layer.group || layer.id;
-            const col = layer.colorizable ? (state.colors[groupKey] || state.colors['than']) : '#777777';
+            const col = layer.colorizable ? getLayerColor(groupKey) : '#777777';
             
             item.innerHTML = `
                 <span class="layer-name">${layer.id}</span>
@@ -1567,6 +1583,7 @@
                 optionsHTML = `
                     <option value="than">Thân Áo (Body)</option>
                     <option value="nguc-ao">Ngực Áo (Chest)</option>
+                    <option value="lung-tren">Lưng Trên Áo (Upper Back)</option>
                     <option value="tay">Tay Áo (Sleeves)</option>
                     <option value="co">Cổ Áo (Collar)</option>
                     <option value="vien-co">Viền Cổ Áo (Collar Trim)</option>
@@ -2214,12 +2231,12 @@
             workwearButtonGroup.style.display = isWorkwearButtons ? 'block' : 'none';
         }
 
-        const currentSelectedColor = state.colors[activePart] || state.colors['than'];
+        const currentSelectedColor = getLayerColor(activePart);
 
         function createSwatch(item, container) {
             const swatch = document.createElement('div');
             const isSelected = (currentSelectedColor.toLowerCase() === item.hex.toLowerCase()) && 
-                               (state.textures[activePart] === (item.textureType || false));
+                               (getLayerTexture(activePart) === (item.textureType || false));
             
             swatch.className = `color-swatch ${isSelected ? 'active' : ''}`;
             swatch.style.backgroundColor = item.hex;
@@ -4544,8 +4561,8 @@
             let textureType = false;
             if (layer.colorizable) {
                 const groupKey = layer.group || layer.id;
-                color = state.colors[groupKey] || state.colors['than'];
-                textureType = state.textures[groupKey] || false;
+                color = getLayerColor(groupKey);
+                textureType = getLayerTexture(groupKey);
             }
             
             // Render tinted layer
@@ -5010,17 +5027,24 @@
                     ${state.product === 'ao-bao-ho' ? `
                     <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 3px;">
                         <span style="display: inline-flex; align-items: center; gap: 6px;">
-                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${state.colors['nguc-ao'] || state.colors.than}; border: 1px solid #cbd5e1;"></span>
+                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${getLayerColor('nguc-ao')}; border: 1px solid #cbd5e1;"></span>
                             <strong>Ngực áo:</strong>
                         </span>
-                        <span>${getColorName(state.colors['nguc-ao'] || state.colors.than, 'nguc-ao')}</span>
+                        <span>${getColorName(getLayerColor('nguc-ao'), 'nguc-ao')}</span>
                     </div>
                     <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 3px;">
                         <span style="display: inline-flex; align-items: center; gap: 6px;">
-                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${state.colors['vien-nguc'] || state.colors.than}; border: 1px solid #cbd5e1;"></span>
+                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${getLayerColor('lung-tren')}; border: 1px solid #cbd5e1;"></span>
+                            <strong>Lưng trên áo:</strong>
+                        </span>
+                        <span>${getColorName(getLayerColor('lung-tren'), 'lung-tren')}</span>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 3px;">
+                        <span style="display: inline-flex; align-items: center; gap: 6px;">
+                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${getLayerColor('vien-nguc')}; border: 1px solid #cbd5e1;"></span>
                             <strong>Viền ngực áo:</strong>
                         </span>
-                        <span>${getColorName(state.colors['vien-nguc'] || state.colors.than, 'vien-nguc')}</span>
+                        <span>${getColorName(getLayerColor('vien-nguc'), 'vien-nguc')}</span>
                     </div>
                     ` : ''}
                     <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 3px;">
@@ -5512,8 +5536,8 @@
             let textureType = false;
             if (layer.colorizable) {
                 const groupKey = layer.group || layer.id;
-                color = state.colors[groupKey] || state.colors['than'];
-                textureType = state.textures[groupKey] || false;
+                color = getLayerColor(groupKey);
+                textureType = getLayerTexture(groupKey);
             }
             
             const renderedImg = getTintedLayer(img, color, textureType);
