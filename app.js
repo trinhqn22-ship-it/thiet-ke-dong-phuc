@@ -4831,7 +4831,6 @@
             return;
         }
         
-        // 1. Gather size breakdown and compute total quantity
         const isWorkwear = (state.product === 'ao-bao-ho' || state.product === 'quan-bao-ho');
         const sizeGuides = {
             unisex: {
@@ -4860,9 +4859,8 @@
             }
         };
 
-        let sizeTableRows = '';
+        const activeSizes = [];
         let totalQty = 0;
-        let sizeRowsCount = 0;
         
         if (isWorkwear) {
             const formLabel = state.product === 'ao-bao-ho' ? 'Áo BHLĐ' : (state.product === 'quan-bao-ho' ? 'Quần BHLĐ' : 'Unisex Bảo Hộ');
@@ -4872,16 +4870,13 @@
                 const qty = input ? parseInt(input.value) || 0 : 0;
                 if (qty > 0) {
                     totalQty += qty;
-                    sizeRowsCount++;
                     const guide = sizeGuides.unisex[sz];
-                    sizeTableRows += `
-                        <tr style="border-bottom: 1px solid #e2e8f0;">
-                            <td style="padding: 4px 6px; text-align: left; color: #475569; font-weight: 500;">${formLabel}</td>
-                            <td style="padding: 4px 6px; font-weight: bold; text-align: center; color: #1e293b;">${guide.display}</td>
-                            <td style="padding: 4px 6px; text-align: left; color: #64748b; font-size: 10px;">${guide.range}</td>
-                            <td style="padding: 4px 6px; text-align: center; color: #0284c7; font-weight: bold;">${qty} chiếc</td>
-                        </tr>
-                    `;
+                    activeSizes.push({
+                        form: formLabel,
+                        size: guide.display,
+                        guide: guide.range,
+                        qty: qty
+                    });
                 }
             });
         } else {
@@ -4893,16 +4888,13 @@
                 const qty = input ? parseInt(input.value) || 0 : 0;
                 if (qty > 0) {
                     totalQty += qty;
-                    sizeRowsCount++;
                     const guide = sizeGuides.nam[sz];
-                    sizeTableRows += `
-                        <tr style="border-bottom: 1px solid #e2e8f0;">
-                            <td style="padding: 4px 6px; text-align: left; color: #0284c7; font-weight: bold;">🙋‍♂️ ${maleFormLabel}</td>
-                            <td style="padding: 4px 6px; font-weight: bold; text-align: center; color: #1e293b;">Size ${sz}</td>
-                            <td style="padding: 4px 6px; text-align: left; color: #64748b; font-size: 10px;">${guide.range}</td>
-                            <td style="padding: 4px 6px; text-align: center; color: #0284c7; font-weight: bold;">${qty} chiếc</td>
-                        </tr>
-                    `;
+                    activeSizes.push({
+                        form: `🙋‍♂️ ${maleFormLabel}`,
+                        size: `Size ${sz}`,
+                        guide: guide.range,
+                        qty: qty
+                    });
                 }
             });
             
@@ -4914,16 +4906,13 @@
                 const qty = input ? parseInt(input.value) || 0 : 0;
                 if (qty > 0) {
                     totalQty += qty;
-                    sizeRowsCount++;
                     const guide = sizeGuides.nu[sz];
-                    sizeTableRows += `
-                        <tr style="border-bottom: 1px solid #e2e8f0;">
-                            <td style="padding: 4px 6px; text-align: left; color: #ec4899; font-weight: bold;">🙋‍♀️ ${femaleFormLabel}</td>
-                            <td style="padding: 4px 6px; font-weight: bold; text-align: center; color: #1e293b;">Size ${sz}</td>
-                            <td style="padding: 4px 6px; text-align: left; color: #64748b; font-size: 10px;">${guide.range}</td>
-                            <td style="padding: 4px 6px; text-align: center; color: #0284c7; font-weight: bold;">${qty} chiếc</td>
-                        </tr>
-                    `;
+                    activeSizes.push({
+                        form: `🙋‍♀️ ${femaleFormLabel}`,
+                        size: `Size ${sz}`,
+                        guide: guide.range,
+                        qty: qty
+                    });
                 }
             });
         }
@@ -4932,14 +4921,12 @@
             showToast('Vui lòng nhập số lượng đặt hàng (> 0) cho ít nhất 1 size!', 'warning');
             return;
         }
-        
-        // 2. Fetch high-res base64 images for all 4 angles from offscreen canvas
+
+        // Fetch front/back canvases
         const imgFront = getTransparentShirtCanvas('front').toDataURL('image/png');
         const imgBack = getTransparentShirtCanvas('back').toDataURL('image/png');
-        const imgLeft = getTransparentShirtCanvas('left').toDataURL('image/png');
-        const imgRight = getTransparentShirtCanvas('right').toDataURL('image/png');
         
-        // 3. Format product color details into clean labels
+        // Product name
         const productNames = {
             'ao-polo': 'Áo Thun Polo Premium (Form Nam & Nữ Chuẩn)',
             'ao-thun': 'Áo Thun Cổ Tròn Năng Động (Form Nam & Nữ Chuẩn)',
@@ -4947,7 +4934,7 @@
             'quan-bao-ho': 'Quần Bảo Hộ Lao Động Kỹ Sư Công Trình'
         };
         const productName = productNames[state.product] || 'Đồng Phục Cao Cấp Mrs Linh';
-        
+
         const getColorName = (hex, partKey) => {
             const hasTex = partKey ? !!state.textures[partKey] : false;
             const allColors = [...CORPORATE_COLORS, ...SPORTY_COLORS, ...WORKWEAR_COLORS, ...TEXTURED_COLORS, ...POLO_BUTTON_COLORS, ...WORKWEAR_PLASTIC_BUTTONS, ...WORKWEAR_METAL_BUTTONS];
@@ -4955,570 +4942,119 @@
             return found ? found.name : hex;
         };
 
-        // Render colors spec list dynamically based on product type
-        let colorSpecsHTML = '';
+        const activeColors = [];
         if (state.product === 'ao-polo' || state.product === 'ao-thun') {
-            colorSpecsHTML += `
-                <div style="display: flex; flex-direction: column; gap: 4px; font-size: 10px; color: #475569; font-family: 'Inter', sans-serif;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 3px;">
-                        <span style="display: inline-flex; align-items: center; gap: 6px;">
-                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${state.colors.than}; border: 1px solid #cbd5e1;"></span>
-                            <strong>Thân áo (Body):</strong>
-                        </span>
-                        <span>${getColorName(state.colors.than, 'than')}</span>
-                    </div>
-                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 3px;">
-                        <span style="display: inline-flex; align-items: center; gap: 6px;">
-                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${state.colors.tay}; border: 1px solid #cbd5e1;"></span>
-                            <strong>Tay áo (Sleeves):</strong>
-                        </span>
-                        <span>${getColorName(state.colors.tay, 'tay')}</span>
-                    </div>
-                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 3px;">
-                        <span style="display: inline-flex; align-items: center; gap: 6px;">
-                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${state.colors.co}; border: 1px solid #cbd5e1;"></span>
-                            <strong>Cổ áo (Collar):</strong>
-                        </span>
-                        <span>${getColorName(state.colors.co, 'co')}</span>
-                    </div>
-                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 3px;">
-                        <span style="display: inline-flex; align-items: center; gap: 6px;">
-                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${state.colors['bo-tay']}; border: 1px solid #cbd5e1;"></span>
-                            <strong>Bo tay (Cuffs):</strong>
-                        </span>
-                        <span>${getColorName(state.colors['bo-tay'], 'bo-tay')}</span>
-                    </div>
-                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 3px;">
-                        <span style="display: inline-flex; align-items: center; gap: 6px;">
-                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${state.colors['tru-co']}; border: 1px solid #cbd5e1;"></span>
-                            <strong>Trụ cổ (Placket):</strong>
-                        </span>
-                        <span>${getColorName(state.colors['tru-co'], 'tru-co')}</span>
-                    </div>
-                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 3px;">
-                        <span style="display: inline-flex; align-items: center; gap: 6px;">
-                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${state.colors['vien-co']}; border: 1px solid #cbd5e1;"></span>
-                            <strong>Viền cổ (Trim):</strong>
-                        </span>
-                        <span>${getColorName(state.colors['vien-co'], 'vien-co')}</span>
-                    </div>
-                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 3px;">
-                        <span style="display: inline-flex; align-items: center; gap: 6px;">
-                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${state.colors['chan-co'] || state.colors.co}; border: 1px solid #cbd5e1;"></span>
-                            <strong>Chân cổ trong:</strong>
-                        </span>
-                        <span>${getColorName(state.colors['chan-co'] || state.colors.co, 'chan-co')}</span>
-                    </div>
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 3px;">
-                        <span style="display: inline-flex; align-items: center; gap: 6px;">
-                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${state.colors.nut || '#ffffff'}; border: 1px solid #cbd5e1;"></span>
-                            <strong>Màu khuy nút:</strong>
-                        </span>
-                        <span>${getColorName(state.colors.nut || '#ffffff', 'nut')}</span>
-                    </div>
-                </div>
-            `;
+            activeColors.push({ label: 'Thân áo (Body)', colorHex: state.colors.than, value: getColorName(state.colors.than, 'than') });
+            activeColors.push({ label: 'Tay áo (Sleeves)', colorHex: state.colors.tay, value: getColorName(state.colors.tay, 'tay') });
+            activeColors.push({ label: 'Cổ áo (Collar)', colorHex: state.colors.co, value: getColorName(state.colors.co, 'co') });
+            activeColors.push({ label: 'Bo tay (Cuffs)', colorHex: state.colors['bo-tay'], value: getColorName(state.colors['bo-tay'], 'bo-tay') });
+            activeColors.push({ label: 'Trụ cổ (Placket)', colorHex: state.colors['tru-co'], value: getColorName(state.colors['tru-co'], 'tru-co') });
+            activeColors.push({ label: 'Viền cổ (Trim)', colorHex: state.colors['vien-co'], value: getColorName(state.colors['vien-co'], 'vien-co') });
+            activeColors.push({ label: 'Chân cổ trong', colorHex: state.colors['chan-co'] || state.colors.co, value: getColorName(state.colors['chan-co'] || state.colors.co, 'chan-co') });
+            activeColors.push({ label: 'Màu khuy nút', colorHex: state.colors.nut || '#ffffff', value: getColorName(state.colors.nut || '#ffffff', 'nut') });
         } else {
-            colorSpecsHTML += `
-                <div style="display: flex; flex-direction: column; gap: 4px; font-size: 10px; color: #475569; font-family: 'Inter', sans-serif;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 3px;">
-                        <span style="display: inline-flex; align-items: center; gap: 6px;">
-                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${state.colors.than}; border: 1px solid #cbd5e1;"></span>
-                            <strong>Vải chính (Main):</strong>
-                        </span>
-                        <span>${getColorName(state.colors.than, 'than')}</span>
-                    </div>
-                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 3px;">
-                        <span style="display: inline-flex; align-items: center; gap: 6px;">
-                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${state.colors.co || state.colors.than}; border: 1px solid #cbd5e1;"></span>
-                            <strong>Chi tiết phối (Accents):</strong>
-                        </span>
-                        <span>${getColorName(state.colors.co || state.colors.than, 'co')}</span>
-                    </div>
-                    ${state.product === 'ao-bao-ho' ? `
-                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 3px;">
-                        <span style="display: inline-flex; align-items: center; gap: 6px;">
-                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${getLayerColor('nguc-ao')}; border: 1px solid #cbd5e1;"></span>
-                            <strong>Ngực áo:</strong>
-                        </span>
-                        <span>${getColorName(getLayerColor('nguc-ao'), 'nguc-ao')}</span>
-                    </div>
-                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 3px;">
-                        <span style="display: inline-flex; align-items: center; gap: 6px;">
-                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${getLayerColor('lung-tren')}; border: 1px solid #cbd5e1;"></span>
-                            <strong>Lưng trên áo:</strong>
-                        </span>
-                        <span>${getColorName(getLayerColor('lung-tren'), 'lung-tren')}</span>
-                    </div>
-                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 3px;">
-                        <span style="display: inline-flex; align-items: center; gap: 6px;">
-                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${getLayerColor('vien-nguc')}; border: 1px solid #cbd5e1;"></span>
-                            <strong>Viền ngực áo:</strong>
-                        </span>
-                        <span>${getColorName(getLayerColor('vien-nguc'), 'vien-nguc')}</span>
-                    </div>
-                    ` : ''}
-                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 3px;">
-                        <span style="display: inline-flex; align-items: center; gap: 6px;">
-                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${state.colors.tui || state.colors.than}; border: 1px solid #cbd5e1;"></span>
-                            <strong>Thân túi bảo hộ:</strong>
-                        </span>
-                        <span>${getColorName(state.colors.tui || state.colors.than, 'tui')}</span>
-                    </div>
-                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 3px;">
-                        <span style="display: inline-flex; align-items: center; gap: 6px;">
-                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${state.colors['nap-tui'] || state.colors.than}; border: 1px solid #cbd5e1;"></span>
-                            <strong>Nắp đậy túi:</strong>
-                        </span>
-                        <span>${getColorName(state.colors['nap-tui'] || state.colors.than, 'nap-tui')}</span>
-                    </div>
-                    <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding-bottom: 3px;">
-                        <span style="display: inline-flex; align-items: center; gap: 6px;">
-                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${state.colors['phan-quang'] || '#2dd4bf'}; border: 1px solid #cbd5e1;"></span>
-                            <strong>Phản quang:</strong>
-                        </span>
-                        <span>${getColorName(state.colors['phan-quang'] || '#2dd4bf', 'phan-quang')}</span>
-                    </div>
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding-bottom: 3px;">
-                        <span style="display: inline-flex; align-items: center; gap: 6px;">
-                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${state.colors.nut || '#ffffff'}; border: 1px solid #cbd5e1;"></span>
-                            <strong>Khuy nút (Buttons):</strong>
-                        </span>
-                        <span>${getColorName(state.colors.nut || '#ffffff', 'nut')}</span>
-                    </div>
-                </div>
-            `;
+            activeColors.push({ label: 'Vải chính (Main)', colorHex: state.colors.than, value: getColorName(state.colors.than, 'than') });
+            activeColors.push({ label: 'Chi tiết phối (Accents)', colorHex: state.colors.co || state.colors.than, value: getColorName(state.colors.co || state.colors.than, 'co') });
+            if (state.product === 'ao-bao-ho') {
+                activeColors.push({ label: 'Ngực áo', colorHex: getLayerColor('nguc-ao'), value: getColorName(getLayerColor('nguc-ao'), 'nguc-ao') });
+                activeColors.push({ label: 'Lưng trên áo', colorHex: getLayerColor('lung-tren'), value: getColorName(getLayerColor('lung-tren'), 'lung-tren') });
+                activeColors.push({ label: 'Viền ngực áo', colorHex: getLayerColor('vien-nguc'), value: getColorName(getLayerColor('vien-nguc'), 'vien-nguc') });
+            }
+            activeColors.push({ label: 'Thân túi bảo hộ', colorHex: state.colors.tui || state.colors.than, value: getColorName(state.colors.tui || state.colors.than, 'tui') });
+            activeColors.push({ label: 'Nắp đậy túi', colorHex: state.colors['nap-tui'] || state.colors.than, value: getColorName(state.colors['nap-tui'] || state.colors.than, 'nap-tui') });
+            activeColors.push({ label: 'Phản quang', colorHex: state.colors['phan-quang'] || '#2dd4bf', value: getColorName(state.colors['phan-quang'] || '#2dd4bf', 'phan-quang') });
+            activeColors.push({ label: 'Khuy nút (Buttons)', colorHex: state.colors.nut || '#ffffff', value: getColorName(state.colors.nut || '#ffffff', 'nut') });
         }
 
-        // Pocket Specs HTML
-        let pocketSpecsHTML = '';
+        const pocketSpecs = [];
         if (state.product === 'ao-bao-ho') {
-            const activePockets = [];
-            if (state.pockets.left) activePockets.push('Túi ngực trái');
-            if (state.pockets.right) activePockets.push('Túi ngực phải');
-            if (state.pockets.sleeve) activePockets.push('Túi hộp tay áo');
-            if (state.pockets.flap) activePockets.push('Nắp túi');
-            
-            if (activePockets.length > 0) {
-                pocketSpecsHTML = `<div style="font-size: 10px; color: #475569; font-family: 'Inter', sans-serif;">📂 <strong>Cấu hình túi:</strong> ${activePockets.join(', ')}</div>`;
-            } else {
-                pocketSpecsHTML = `<div style="font-size: 10px; color: #64748b; font-style: italic; font-family: 'Inter', sans-serif;">📂 Không cấu hình túi áo</div>`;
-            }
+            if (state.pockets.left) pocketSpecs.push('Túi ngực trái');
+            if (state.pockets.right) pocketSpecs.push('Túi ngực phải');
+            if (state.pockets.sleeve) pocketSpecs.push('Túi hộp tay áo');
+            if (state.pockets.flap) pocketSpecs.push('Nắp túi');
         } else if (state.product === 'quan-bao-ho') {
-            const activePockets = [];
-            if (state.pockets.left) activePockets.push('Túi Trái Trên');
-            if (state.pockets.right) activePockets.push('Túi Phải Trên');
-            if (state.pockets.sleeve) activePockets.push('Túi trái dưới');
-            if (state.pockets.sleeveRight) activePockets.push('Túi phải dưới');
-            if (state.pockets.flap) activePockets.push('Nắp che túi quần');
-            
-            if (activePockets.length > 0) {
-                pocketSpecsHTML = `<div style="font-size: 10px; color: #475569; font-family: 'Inter', sans-serif;">📂 <strong>Cấu hình túi:</strong> ${activePockets.join(', ')}</div>`;
-            } else {
-                pocketSpecsHTML = `<div style="font-size: 10px; color: #64748b; font-style: italic; font-family: 'Inter', sans-serif;">📂 Không cấu hình túi quần</div>`;
-            }
+            if (state.pockets.left) pocketSpecs.push('Túi Trái Trên');
+            if (state.pockets.right) pocketSpecs.push('Túi Phải Trên');
+            if (state.pockets.sleeve) pocketSpecs.push('Túi trái dưới');
+            if (state.pockets.sleeveRight) pocketSpecs.push('Túi phải dưới');
+            if (state.pockets.flap) pocketSpecs.push('Nắp che túi quần');
         }
 
-        // Reflective Specs HTML
-        let reflectiveSpecsHTML = '';
+        const reflectiveSpecs = [];
         if (state.product === 'ao-bao-ho' || state.product === 'quan-bao-ho') {
-            const activeRefs = [];
-            if (state.reflective.chest) activeRefs.push('Phản quang ngực');
-            if (state.reflective.shoulders) activeRefs.push('Phản quang vai');
-            if (state.reflective.sleeves) activeRefs.push('Phản quang bắp tay/ống quần');
-            if (activeRefs.length > 0) {
-                reflectiveSpecsHTML = `
-                    <div style="font-size: 10px; color: #475569; font-family: 'Inter', sans-serif; margin-top: 2px;">
-                        ⚡ <strong>Vạch phản quang:</strong> ${activeRefs.join(', ')} (Chiều cao lệch: ${state.reflective.yOffset || 0}px)
-                    </div>
-                `;
-            } else {
-                reflectiveSpecsHTML = `<div style="font-size: 10px; color: #64748b; font-style: italic; font-family: 'Inter', sans-serif; margin-top: 2px;">⚡ Không đính phản quang</div>`;
-            }
+            if (state.reflective.chest) reflectiveSpecs.push('Dải phản quang ngực/lưng');
+            if (state.reflective.shoulders) reflectiveSpecs.push('Phản quang vai');
+            if (state.reflective.sleeves) reflectiveSpecs.push('Phản quang bắp tay');
         }
 
-        // Technical Specs Left Column Data array
-        const specs = [
-            { label: 'Tên dòng áo/quần', value: productName },
-            { label: 'Phân loại Form', value: state.product === 'ao-polo' ? (state.form === 'nam' ? 'Áo Polo Nam' : 'Áo Polo Nữ') : (state.product === 'ao-thun' ? (state.form === 'nam' ? 'Áo Thun Nam' : 'Áo Thun Nữ') : (state.product === 'ao-bao-ho' ? 'Áo BHLĐ' : 'Quần BHLĐ')) },
-            { label: 'Chất liệu vải đề xuất', value: isWorkwear ? 'Kaki liên doanh dày dặn, bền màu' : 'Vải thun cá sấu 100% co giãn 4 chiều' },
-            { label: 'Kiểu cổ áo', value: state.product === 'ao-polo' ? 'Cổ bẻ Polo dệt bo cao cấp' : (state.product === 'ao-thun' ? 'Cổ tròn bo thun dệt kim' : 'Cổ bẻ jacket khóa kéo bảo hộ') },
-            { label: 'Kiểu tay áo', value: isWorkwear ? 'Tay dài đai cài nút cổ tay' : 'Tay ngắn bo thun' },
-            { label: 'Công nghệ logo', value: state.logos.length > 0 ? (state.logos[0].printStyle === 'theu' ? 'Thêu vi tính satin 3D' : 'In PET kỹ thuật số sắc nét') : 'In chuyển nhiệt bám sớ vải' }
-        ];
+        // Formatted draggable logos
+        const getPositionLabel = (pos) => {
+            const map = {
+                'nguc-trai': 'Ngực trái',
+                'nguc-phai': 'Ngực phải',
+                'sau-lung': 'Sau lưng',
+                'tay-trai': 'Tay trái',
+                'tay-phai': 'Tay phải',
+                'tru-co': 'Trụ cổ',
+                'co-ao': 'Cổ áo',
+                'lai-ao': 'Lai áo'
+            };
+            return map[pos] || pos;
+        };
+        const formattedLogos = state.logos.map(logo => ({
+            ...logo,
+            position: getPositionLabel(logo.position)
+        }));
 
-        let specsRowsHTML = specs.map(s => `
-            <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #f1f5f9; padding: 4px 0; font-size: 10px;">
-                <span style="color: #64748b; font-weight: 500;">${s.label}:</span>
-                <span style="color: #0f172a; font-weight: 700; text-align: right;">${s.value}</span>
-            </div>
-        `).join('');
-
-        // Draggable logos description and Zoom cards
-        const hasSnappedLogo = !!(state.logo && state.logo.imgElement);
-        const hasDraggableLogos = state.logos && state.logos.length > 0;
-        const hasPatterns = state.patterns && Object.values(state.patterns).some(p => p && p.imgElement);
-
-        let logoSpecsBlockHTML = '';
-        if (!hasSnappedLogo && !hasDraggableLogos && !hasPatterns) {
-            logoSpecsBlockHTML = `
-                <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; box-sizing: border-box;">
-                    <h3 style="margin: 0 0 4px 0; font-size: 10.5px; text-transform: uppercase; color: #0f172a; border-bottom: 2px solid #cbd5e1; padding-bottom: 3px; font-weight: 800;">ĐẶC TÍNH LOGO / HỌA TIẾT</h3>
-                    <div style="font-size: 9.5px; color: #64748b; font-style: italic; font-family: 'Inter', sans-serif; margin-top: 6px;">
-                        Đặc tính logo / họa tiết: chưa gắn vào thiết kế
-                    </div>
-                </div>
-            `;
-        } else {
-            let logoZoomCardsHTML = '';
-            if (hasSnappedLogo) {
-                const posLabels = {
-                    'nguc-trai': 'Ngực Trái (Left Chest)',
-                    'nguc-phai': 'Ngực Phải (Right Chest)',
-                    'sau-lung': 'Sau Lưng (Back Side)',
-                    'tay-trai': 'Tay Trái (Left Sleeve)',
-                    'tay-phai': 'Tay Phải (Right Sleeve)'
-                };
-                const pos = posLabels[state.logo.position] || state.logo.position;
-                logoZoomCardsHTML += `
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; gap: 12px; box-sizing: border-box; margin-bottom: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.01);">
-                        <div style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; padding: 2px;">
-                            <img src="${state.logo.imgElement.src}" style="max-width: 100%; max-height: 100%; object-fit: contain;"/>
-                        </div>
-                        <div style="flex: 1;">
-                            <div style="font-size: 11px; font-weight: 800; color: #0f172a;">Logo Cố Định: ${pos}</div>
-                            <div style="font-size: 9px; color: #64748b; margin-top: 2px;">Tỉ lệ scale: <strong>${state.logo.scale}%</strong> | Công nghệ: <strong>${state.logo.printStyle === 'theu' ? 'Thêu vi tính satin' : 'In chuyển nhiệt'}</strong></div>
-                        </div>
-                    </div>
-                `;
-            }
-            if (hasDraggableLogos) {
-                state.logos.forEach((l, idx) => {
-                    const posLabels = {
-                        'nguc-trai': 'Ngực Trái (Left Chest)',
-                        'nguc-phai': 'Ngực Phải (Right Chest)',
-                        'sau-lung': 'Sau Lưng (Back Side)',
-                        'tay-trai': 'Tay Trái (Left Sleeve)',
-                        'tay-phai': 'Tay Phải (Right Sleeve)'
-                    };
-                    const pos = posLabels[l.position] || l.position;
-                    logoZoomCardsHTML += `
-                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; gap: 12px; box-sizing: border-box; margin-bottom: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.01);">
-                            <div style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; padding: 2px;">
-                                <img src="${l.imgElement ? l.imgElement.src : ''}" style="max-width: 100%; max-height: 100%; object-fit: contain;"/>
-                            </div>
-                            <div style="flex: 1;">
-                                <div style="font-size: 11px; font-weight: 800; color: #0f172a;">Cận Cảnh Logo Tự Do #${idx + 1}: ${pos}</div>
-                                <div style="font-size: 9px; color: #64748b; margin-top: 2px;">Kích thước hiển thị: <strong>${l.scale}px</strong> | Công nghệ: <strong>${l.printStyle === 'theu' ? 'Thêu vi tính satin' : 'In PET sắc nét'}</strong></div>
-                            </div>
-                        </div>
-                    `;
+        // Patterns spec
+        const activePatterns = [];
+        const angleLabels = {
+            'front': 'Mặt trước',
+            'back': 'Mặt sau',
+            'left': 'Cạnh trái',
+            'right': 'Cạnh phải'
+        };
+        ['front', 'back', 'left', 'right'].forEach(angle => {
+            const p = state.patterns[angle];
+            if (p && p.imgElement) {
+                activePatterns.push({
+                    angle: angleLabels[angle] || angle,
+                    scale: p.scale,
+                    opacity: p.opacity,
+                    printType: p.printType,
+                    imgElement: p.imgElement
                 });
             }
-            if (hasPatterns) {
-                const angleNames = {
-                    'front': 'Mặt Trước (Front)',
-                    'back': 'Mặt Sau (Back)',
-                    'left': 'Mặt Trái (Left)',
-                    'right': 'Mặt Phải (Right)'
-                };
-                Object.entries(state.patterns).forEach(([angle, p]) => {
-                    if (p && p.imgElement) {
-                        logoZoomCardsHTML += `
-                            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; display: flex; align-items: center; gap: 12px; box-sizing: border-box; margin-bottom: 5px; box-shadow: 0 1px 3px rgba(0,0,0,0.01);">
-                                <div style="width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; background: white; border: 1px solid #e2e8f0; border-radius: 4px; overflow: hidden; padding: 2px;">
-                                    <img src="${p.imgElement.src}" style="max-width: 100%; max-height: 100%; object-fit: contain;"/>
-                                </div>
-                                <div style="flex: 1;">
-                                    <div style="font-size: 11px; font-weight: 800; color: #0f172a;">Họa Tiết Toàn Thân: ${angleNames[angle] || angle}</div>
-                                    <div style="font-size: 9px; color: #64748b; margin-top: 2px;">Tỉ lệ scale: <strong>${p.scale}%</strong> | Độ mờ: <strong>${p.opacity}%</strong> | Kiểu in: <strong>${p.printType === 'chuyen-nhiet' ? 'In chuyển nhiệt toàn phần' : 'In kỹ thuật số'}</strong></div>
-                                </div>
-                            </div>
-                        `;
-                    }
-                });
-            }
-            logoSpecsBlockHTML = `
-                <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; box-sizing: border-box;">
-                    <h3 style="margin: 0 0 4px 0; font-size: 10.5px; text-transform: uppercase; color: #0f172a; border-bottom: 2px solid #cbd5e1; padding-bottom: 3px; font-weight: 800;">ĐẶC TÍNH LOGO / HỌA TIẾT</h3>
-                    <div style="display: flex; flex-direction: column; gap: 4px; margin-top: 4px;">
-                        ${logoZoomCardsHTML}
-                    </div>
-                </div>
-            `;
-        }
+        });
 
-        // Define HTML string blocks for the layout packing solver
-        const clientInfoHTML = `
-            <div style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 10px; font-family: 'Inter', sans-serif; box-sizing: border-box; margin-bottom: 3.5mm;">
-                <div>
-                    <h3 style="margin: 0 0 2px 0; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #d60000; font-weight: bold;">THÔNG TIN KHÁCH HÀNG</h3>
-                    <div style="font-size: 12px; font-weight: bold; color: #0f172a; margin-bottom: 1px;">${fullname}</div>
-                    <div style="font-size: 9.5px; color: #475569;">Số điện thoại / Zalo: <strong>${phone}</strong></div>
-                </div>
-                <div style="text-align: right;">
-                    <h3 style="margin: 0 0 2px 0; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; font-weight: bold;">THỜI GIAN KHỞI TẠO</h3>
-                    <div style="font-size: 9.5px; color: #475569; font-weight: 500;">${new Date().toLocaleDateString('vi-VN')}</div>
-                    <div style="font-size: 9px; color: #0284c7; font-weight: 600; margin-top: 2px;">Trạng thái: Đã duyệt phác thảo 3D</div>
-                </div>
-            </div>
-        `;
+        const recordCode = (Math.floor(100000 + Math.random() * 900000)).toString();
 
-        const sizingTableHTML = `
-            <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; box-sizing: border-box;">
-                <h3 style="margin: 0 0 5px 0; font-size: 10.5px; text-transform: uppercase; color: #0f172a; border-bottom: 2px solid #cbd5e1; padding-bottom: 3px; font-weight: 800;">SỐ LƯỢNG ĐẶT HÀNG</h3>
-                <table style="width: 100%; border-collapse: collapse; font-size: 9px; font-family: 'Inter', sans-serif;">
-                    <thead>
-                        <tr style="background-color: #0f172a; color: #ffffff; text-align: left;">
-                            <th style="padding: 4px; text-align: left; width: 32%;">Form</th>
-                            <th style="padding: 4px; text-align: center; width: 18%;">Size</th>
-                            <th style="padding: 4px; text-align: left; width: 32%;">Thông Số Chuẩn</th>
-                            <th style="padding: 4px; text-align: center; width: 18%;">Số Lượng</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${sizeTableRows}
-                        <tr style="background-color: #f1f5f9; font-weight: bold; border-top: 1px solid #94a3b8;">
-                            <td colspan="3" style="padding: 5px 4px; text-align: left; color: #0f172a; font-size: 9.5px; text-transform: uppercase;">TỔNG CỘNG SỐ LƯỢNG MẪU</td>
-                            <td style="padding: 5px 4px; text-align: center; color: #d60000; font-size: 10px;">${totalQty} chiếc</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        `;
-
-        const colorSpecsBlockHTML = `
-            <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px;">
-                <h3 style="margin: 0 0 2px 0; font-size: 10.5px; text-transform: uppercase; color: #0f172a; border-bottom: 2px solid #cbd5e1; padding-bottom: 3px; font-weight: 800;">ĐẶC TẢ PHỐI MÀU & CHI TIẾT</h3>
-                <div style="font-size: 9.5px; font-weight: bold; color: #0284c7; margin-bottom: 2px;">Mẫu sản phẩm: ${productName}</div>
-                ${colorSpecsHTML}
-                ${pocketSpecsHTML}
-                ${reflectiveSpecsHTML}
-            </div>
-        `;
-
-        const specsBlockHTML = `
-            <div style="background-color: #ffffff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 10px; box-sizing: border-box; display: flex; flex-direction: column; gap: 4px;">
-                <h3 style="margin: 0 0 2px 0; font-size: 10.5px; text-transform: uppercase; color: #0f172a; border-bottom: 2px solid #cbd5e1; padding-bottom: 3px; font-weight: 800;">THÔNG SỐ ĐẶT HÀNG</h3>
-                ${specsRowsHTML}
-            </div>
-        `;
-
-        const warningBlockHTML = `
-            <div style="background-color: #fffbeb; border: 1px solid #fef3c7; border-radius: 8px; padding: 8px 10px; font-size: 9px; line-height: 1.4; color: #b45309; font-family: 'Inter', sans-serif; box-sizing: border-box;">
-                <strong>⚠️ Lưu ý từ xưởng may ĐỒNG PHỤC MRS LINH:</strong> Bản đặc tả kỹ thuật này sẽ được đối chiếu trực tiếp với mẫu vải và chỉ thêu thực tế tại xưởng. Mrs Linh bảo hành hình in thêu lên đến 12 tháng, hỗ trợ may mẫu thử trước khi sản xuất hàng loạt.
-            </div>
-        `;
-
-        const notesBlockHTML = `
-            <div style="background-color: #faf5ff; border: 1px solid #f3e8ff; border-radius: 8px; padding: 10px 12px; box-sizing: border-box;">
-                <h3 style="margin: 0 0 4px 0; font-size: 10.5px; text-transform: uppercase; color: #d60000; border-bottom: 2px solid #cbd5e1; padding-bottom: 3px; font-weight: 800;">GHI CHÚ ĐẶC BIỆT TỪ KHÁCH HÀNG</h3>
-                <div style="font-size: 9.5px; color: #334155; line-height: 1.6; white-space: pre-wrap; font-style: italic; margin-top: 3px;">
-                    ${notes}
-                </div>
-            </div>
-        `;
-
-        const signaturesBlockHTML = `
-            <div style="background-color: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 10px 14px; box-sizing: border-box; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; font-family: 'Inter', sans-serif; margin-top: 10px; margin-bottom: 0;">
-                <div style="text-align: center;">
-                    <div style="font-size: 9.5px; font-weight: bold; color: #0f172a; text-transform: uppercase;">ĐẠI DIỆN KHÁCH HÀNG</div>
-                    <div style="font-size: 8px; color: #64748b; margin-top: 2px;">(Ký, ghi rõ họ tên & đóng dấu)</div>
-                    <div style="margin-top: 25px; border-top: 1px dashed #cbd5e1; width: 100px; margin-left: auto; margin-right: auto;"></div>
-                </div>
-                <div style="text-align: center;">
-                    <div style="font-size: 9.5px; font-weight: bold; color: #0284c7; text-transform: uppercase;">ĐỒNG PHỤC MRS LINH</div>
-                    <div style="font-size: 8px; color: #64748b; margin-top: 2px;">(Hệ thống duyệt tự động qua Zalo)</div>
-                    <div style="margin-top: 25px; font-size: 9px; font-weight: bold; color: #0284c7;">ĐÃ XÁC NHẬN THIẾT KẾ 3D</div>
-                </div>
-            </div>
-        `;
-
-        // 3. EXPLICIT 1-PAGE LAYOUT DEFINITION (TO RESOLVE DYNAMIC OVERFLOW BUGS)
-        // Page 1 blocks (combined all specs, warnings, notes, and signatures):
-        const page1LeftBlocks = [
-            sizingTableHTML,
-            colorSpecsBlockHTML
-        ];
-        if (notes && notes.length > 0) {
-            page1LeftBlocks.push(notesBlockHTML);
-        }
-        page1LeftBlocks.push(signaturesBlockHTML);
-        
-        const page1RightImages = [
-            { label: 'MẶT TRƯỚC (FRONT VIEW)', src: imgFront },
-            { label: 'MẶT SAU (BACK VIEW)', src: imgBack }
-        ];
-
-        // 4. GENERATE FINAL HTML STAGE FOR HTML2PDF
-        const getHeaderHTML = (pageNum) => {
-            const recordCode = '810834'; // Or use dynamic code: Date.now().toString().slice(-6)
-            return `
-                <!-- Top Header Banner (Max height 80px / 20mm) -->
-                <div style="height: 20mm; border-bottom: 3.5px solid #0284c7; display: flex; justify-content: space-between; align-items: center; margin-bottom: 4mm; box-sizing: border-box; font-family: 'Inter', sans-serif; margin-top: -2mm;">
-                    <!-- Brand & Info Group (Left) -->
-                    <div style="display: flex; align-items: center;">
-                        <!-- Brand Logo -->
-                        <div style="display: flex; flex-direction: column; justify-content: center; align-items: flex-start; font-family: 'Outfit', sans-serif; min-width: 45mm;">
-                            <span style="font-size: 24px; font-weight: 900; color: #0284c7; line-height: 0.95; letter-spacing: 0.5px;">MRS LINH</span>
-                            <span style="font-size: 10px; font-weight: 800; color: #0f172a; line-height: 0.95; letter-spacing: 3.5px; margin-top: 4px;">UNIFORM</span>
-                            <span style="font-size: 6.5px; font-weight: 700; color: #64748b; line-height: 0.95; letter-spacing: 0.2px; margin-top: 4px; text-transform: uppercase;">ĐỒNG PHỤC CHUYÊN NGHIỆP</span>
-                        </div>
-                        
-                        <!-- Vertical Divider -->
-                        <div style="width: 1px; height: 12mm; background-color: #cbd5e1; margin: 0 15px;"></div>
-                        
-                        <!-- Brand Details -->
-                        <div style="display: flex; flex-direction: column; justify-content: center; font-family: 'Inter', sans-serif; gap: 2px;">
-                            <span style="font-size: 9px; font-weight: 800; color: #0f172a; line-height: 1.3;">CÔNG TY TNHH DV TM ĐT ĐỒNG PHỤC MRS<br>LINH</span>
-                            <span style="font-size: 7.5px; color: #475569; display: flex; align-items: center; gap: 4px; line-height: 1.2;">
-                                <span style="color: #ef4444; font-size: 8px;">📍</span> <strong>Địa chỉ:</strong> 16/6 Lưu Trọng Lư, Quy Nhơn, Gia Lai
-                            </span>
-                            <span style="font-size: 7.5px; color: #475569; display: flex; align-items: center; gap: 4px; line-height: 1.2;">
-                                <span style="color: #ef4444; font-size: 8px;">📞</span> <strong>SĐT/Zalo:</strong> 0934.975.913
-                            </span>
-                            <span style="font-size: 7.5px; color: #0284c7; display: flex; align-items: center; gap: 4px; line-height: 1.2; font-weight: 600; text-decoration: none;">
-                                <span style="color: #64748b; font-size: 8px;">✉️</span> mrslinh@inaodongphucmrslinh.com
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <!-- Document Title (Right) -->
-                    <div style="text-align: right; display: flex; flex-direction: column; justify-content: center; font-family: 'Inter', sans-serif; gap: 2px;">
-                        <span style="font-size: 20px; font-weight: 800; color: #0284c7; font-family: 'Inter', sans-serif; letter-spacing: -0.3px; line-height: 1.1;">BẢNG MÔ TẢ SẢN PHẨM</span>
-                        <span style="font-size: 8px; color: #475569; line-height: 1.2;">Mã hồ sơ: ML-${recordCode} | <strong style="color: #0284c7; font-weight: 800;">TRANG 1/1</strong></span>
-                        <span style="font-size: 8px; color: #94a3b8; font-weight: 500; line-height: 1.2;">Hệ thống 3D Mrs Linh</span>
-                    </div>
-                </div>
-            `;
+        const designData = {
+            fullname,
+            phone,
+            notes,
+            date: new Date().toLocaleDateString('vi-VN'),
+            product: state.product,
+            productName,
+            sizeQuantities: activeSizes,
+            totalQty,
+            colorSpecs: activeColors,
+            pocketSpecs,
+            reflectiveSpecs,
+            imgFront,
+            imgBack,
+            logos: formattedLogos,
+            patterns: activePatterns,
+            recordCode
         };
 
-        const getFooterHTML = (pageNum) => `
-            <!-- Footer -->
-            <div style="border-top: 1px dashed #cbd5e1; padding-top: 2.5mm; text-align: center; font-size: 8.5px; color: #64748b; font-family: 'Inter', sans-serif; display: flex; justify-content: space-between; align-items: center; box-sizing: border-box; margin-top: auto;">
-                <span>Thiết kế & Sản xuất bởi <strong>Mrs Linh Uniform</strong> | Hotline: <strong>0934 975 913</strong></span>
-                <span>www.inaodongphucmrslinh.com</span>
-                <span style="font-weight: bold; color: #0284c7; background: #e0f2fe; padding: 0.5mm 3mm; border-radius: 9999px;">Trang 1 / 1</span>
-            </div>
-        `;
-
-        const renderImageCardsHTML = (images) => {
-            return images.map(img => `
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 2mm; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 82mm; height: 68mm; box-sizing: border-box; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-                    <div style="width: 76mm; height: 55mm; display: flex; align-items: center; justify-content: center;">
-                        <img src="${img.src}" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block;"/>
-                    </div>
-                    <span style="font-size: 8.5px; font-weight: 800; color: #0284c7; text-transform: uppercase; background-color: #e0f2fe; padding: 0.5mm 3mm; border-radius: 4px; margin-top: 1mm; font-family: 'Inter', sans-serif;">${img.label}</span>
-                </div>
-            `).join('');
-        };
-
-        const page1BodyHTML = `
-            <div style="display: flex; gap: 6mm; flex: 1; align-items: stretch; margin-bottom: 4mm; box-sizing: border-box;">
-                <!-- Left Column: Page 1 Specs Blocks -->
-                <div style="flex: 1.1; display: flex; flex-direction: column; gap: 3.5mm; box-sizing: border-box;">
-                    ${page1LeftBlocks.join('')}
-                </div>
-                <!-- Right Column: Page 1 Mockup Cards -->
-                <div style="flex: 0.9; display: flex; flex-direction: column; gap: 3.5mm; box-sizing: border-box; justify-content: flex-start; align-items: center;">
-                    ${renderImageCardsHTML(page1RightImages)}
-                    <div style="width: 82mm; box-sizing: border-box;">
-                        ${logoSpecsBlockHTML}
-                    </div>
-                </div>
-            </div>
-        `;
-        
-        const page1HTML = `
-            <div class="pdf-page" style="position: relative;">
-                <!-- Watermark Logo Overlay -->
-                <div style="position: absolute; top: 55%; left: 50%; transform: translate(-50%, -50%); width: 140mm; height: 140mm; opacity: 0.06; pointer-events: none; z-index: 99; display: flex; align-items: center; justify-content: center;">
-                    <img src="public/logo.webp" style="max-width: 100%; max-height: 100%; object-fit: contain;" />
-                </div>
-
-                <!-- Top Header Banner -->
-                ${getHeaderHTML(1)}
-                
-                <!-- Client Info (Page 1 only) -->
-                ${clientInfoHTML}
-                
-                <!-- Page Body Content -->
-                ${page1BodyHTML}
-                
-                <!-- Footer -->
-                ${getFooterHTML(1)}
-            </div>
-        `;
-
-        const pagesHTML = page1HTML;
-
-        const googleFontsLink = `
-            <style>
-                @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@400;700;900&display=swap');
-                * {
-                    box-sizing: border-box;
-                }
-                body:not(.main-app-body) {
-                    margin: 0 !important;
-                    padding: 0 !important;
-                    display: block !important;
-                    width: 210mm !important;
-                    min-width: 210mm !important;
-                    background: #ffffff !important;
-                    overflow: visible !important;
-                }
-                body:not(.main-app-body) .html2pdf__container {
-                    width: 210mm !important;
-                    display: block !important;
-                }
-            </style>
-        `;
-        
-        // Create an invisible parent container in the DOM flow to resolve html2canvas offscreen rendering blank bugs
-        const container = document.createElement('div');
-        container.style.position = 'absolute';
-        container.style.left = '-9999px';
-        container.style.top = '0';
-        container.style.width = '210mm';
-        container.style.height = '297mm';
-        container.style.overflow = 'hidden';
-        document.body.appendChild(container);
-        
-        const element = document.createElement('div');
-        element.style.width = '210mm';
-        element.style.background = '#ffffff';
-        container.appendChild(element);
-        
-        element.innerHTML = googleFontsLink + pagesHTML;
-        
-        // 4. Run html2pdf to build and download the catalog
-        const opt = {
-            margin:       0,
-            filename:     `MRS_LINH_DESIGN_${state.product.toUpperCase()}_${phone}.pdf`,
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { 
-                scale: 2, 
-                useCORS: true, 
-                logging: false,
-                scrollX: 0,
-                scrollY: 0,
-                windowWidth: 1200
-            },
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-        
-        // Display subtle loading state in the button
+        // Display loading state in the button
         const btn = document.getElementById('btn-submit-zalo');
         const originalText = btn.innerText;
         btn.innerText = 'Đang lập file PDF...';
         btn.disabled = true;
-        
-        html2pdf().set(opt).from(element).save().then(() => {
-            // Clean up temporary DOM container
-            if (container.parentNode) {
-                container.parentNode.removeChild(container);
-            }
-            
+
+        window.exportDesignPdf(designData).then(() => {
             // Restore button
             btn.innerText = originalText;
             btn.disabled = false;
@@ -5532,14 +5068,9 @@
             window.open('https://zalo.me/0934975913', '_blank');
         }).catch(err => {
             console.error('PDF generation failed:', err);
-            
-            // Clean up temporary DOM container on error
-            if (container.parentNode) {
-                container.parentNode.removeChild(container);
-            }
-            
             btn.innerText = originalText;
             btn.disabled = false;
+            showToast('❌ Lỗi khi xuất PDF. Vui lòng thử lại!', 'danger');
         });
     }
 
