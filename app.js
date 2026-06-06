@@ -5404,8 +5404,8 @@
 
         const renderImageCardsHTML = (images) => {
             return images.map(img => `
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 2mm; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 84mm; height: 68mm; box-sizing: border-box; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-                    <div style="width: 78mm; height: 55mm; display: flex; align-items: center; justify-content: center;">
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 2mm; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 82mm; height: 68mm; box-sizing: border-box; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                    <div style="width: 76mm; height: 55mm; display: flex; align-items: center; justify-content: center;">
                         <img src="${img.src}" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block;"/>
                     </div>
                     <span style="font-size: 8.5px; font-weight: 800; color: #0284c7; text-transform: uppercase; background-color: #e0f2fe; padding: 0.5mm 3mm; border-radius: 4px; margin-top: 1mm; font-family: 'Inter', sans-serif;">${img.label}</span>
@@ -5414,7 +5414,7 @@
         };
 
         const page1BodyHTML = `
-            <div style="display: flex; gap: 8mm; flex: 1; align-items: stretch; margin-bottom: 4mm; box-sizing: border-box;">
+            <div style="display: flex; gap: 6mm; flex: 1; align-items: stretch; margin-bottom: 4mm; box-sizing: border-box;">
                 <!-- Left Column: Page 1 Specs Blocks -->
                 <div style="flex: 1.1; display: flex; flex-direction: column; gap: 3.5mm; box-sizing: border-box;">
                     ${page1LeftBlocks.join('')}
@@ -5422,7 +5422,7 @@
                 <!-- Right Column: Page 1 Mockup Cards -->
                 <div style="flex: 0.9; display: flex; flex-direction: column; gap: 3.5mm; box-sizing: border-box; justify-content: flex-start; align-items: center;">
                     ${renderImageCardsHTML(page1RightImages)}
-                    <div style="width: 84mm; box-sizing: border-box;">
+                    <div style="width: 82mm; box-sizing: border-box;">
                         ${logoSpecsBlockHTML}
                     </div>
                 </div>
