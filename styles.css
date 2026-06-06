@@ -1750,7 +1750,7 @@ textarea.input-field {
 .pdf-page {
     position: relative;
     width: 210mm;
-    height: 297mm;
+    height: 296.5mm;
     padding: 5mm 10mm 10mm 10mm;
     box-sizing: border-box;
     background-color: #ffffff;

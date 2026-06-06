@@ -5458,16 +5458,29 @@
                 * {
                     box-sizing: border-box;
                 }
+                body:not(.main-app-body) {
+                    margin: 0 !important;
+                    padding: 0 !important;
+                    display: block !important;
+                    width: 210mm !important;
+                    min-width: 210mm !important;
+                    background: #ffffff !important;
+                    overflow: visible !important;
+                }
+                body:not(.main-app-body) .html2pdf__container {
+                    width: 210mm !important;
+                    display: block !important;
+                }
             </style>
         `;
         
         // Create an invisible parent container in the DOM flow to resolve html2canvas offscreen rendering blank bugs
         const container = document.createElement('div');
         container.style.position = 'absolute';
-        container.style.left = '0';
+        container.style.left = '-9999px';
         container.style.top = '0';
-        container.style.width = '0';
-        container.style.height = '0';
+        container.style.width = '210mm';
+        container.style.height = '297mm';
         container.style.overflow = 'hidden';
         document.body.appendChild(container);
         
