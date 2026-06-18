@@ -102,11 +102,12 @@
         dragOffsetY: 0,
 
         patterns: {
-            front: { file: null, imgElement: null, x: 0, y: 0, scale: 100, rotate: 0, opacity: 95, blendMode: 'normal', printType: 'chuyen-nhiet', realism: 85, coverage: { than: true, tay: false, co: false, tui: false } },
-            back: { file: null, imgElement: null, x: 0, y: 0, scale: 100, rotate: 0, opacity: 95, blendMode: 'normal', printType: 'chuyen-nhiet', realism: 85, coverage: { than: true, tay: false, co: false, tui: false } },
-            left: { file: null, imgElement: null, x: 0, y: 0, scale: 100, rotate: 0, opacity: 95, blendMode: 'normal', printType: 'chuyen-nhiet', realism: 85, coverage: { than: true, tay: false, co: false, tui: false } },
-            right: { file: null, imgElement: null, x: 0, y: 0, scale: 100, rotate: 0, opacity: 95, blendMode: 'normal', printType: 'chuyen-nhiet', realism: 85, coverage: { than: true, tay: false, co: false, tui: false } }
+            front: [],
+            back: [],
+            left: [],
+            right: []
         },
+        activePatternId: null,
         activePatternSelected: false,
         activePatternResizeHandle: null,
         activePatternRotating: false,
@@ -1081,42 +1082,44 @@
             ctx.restore();
 
             // DYNAMIC CLIPPED PATTERN DRAW: Draw pattern on chosen layers
-            const activePattern = state.patterns[state.angle];
-            if (activePattern && activePattern.imgElement) {
-                const cov = activePattern.coverage || { than: true, tay: false, co: false, tui: false };
-                let shouldApply = false;
-                let isInsideCollar = false;
-                
-                if (layer.id === 'co-trong' && (state.product === 'ao-polo' || state.product === 'ao-thun') && state.angle === 'front') {
-                    isInsideCollar = true;
-                    // Apply pattern on the inside collar of the polo/T-shirt if Torso or Collar coverage is checked
-                    if (cov.than || cov.co) {
-                        shouldApply = true;
-                    }
-                } else {
-                    const isTorso = layer.id === 'than' || layer.group === 'than' || layer.id.includes('than') || layer.id.includes('nguc');
-                    const isSleeve = (layer.id.includes('tay') || layer.group === 'tay') && !layer.id.includes('bo-tay') && !layer.id.includes('co-tay') && !layer.id.includes('tui');
-                    const isCollar = layer.id === 'co' || layer.group === 'co' || layer.id.includes('co') || layer.id.includes('tru-co');
-                    const isPocket = layer.id.includes('tui') || layer.group === 'tui' || layer.id.includes('nap-tui');
+            const currentPatterns = state.patterns[state.angle] || [];
+            currentPatterns.forEach(pat => {
+                if (pat && pat.imgElement) {
+                    const cov = pat.coverage || { than: true, tay: false, co: false, tui: false };
+                    let shouldApply = false;
+                    let isInsideCollar = false;
                     
-                    if (isTorso && cov.than) shouldApply = true;
-                    if (isSleeve && cov.tay) shouldApply = true;
-                    if (isCollar && cov.co) shouldApply = true;
-                    if (isPocket && cov.tui) shouldApply = true;
+                    if (layer.id === 'co-trong' && (state.product === 'ao-polo' || state.product === 'ao-thun') && state.angle === 'front') {
+                        isInsideCollar = true;
+                        // Apply pattern on the inside collar of the polo/T-shirt if Torso or Collar coverage is checked
+                        if (cov.than || cov.co) {
+                            shouldApply = true;
+                        }
+                    } else {
+                        const isTorso = layer.id === 'than' || layer.group === 'than' || layer.id.includes('than') || layer.id.includes('nguc');
+                        const isSleeve = (layer.id.includes('tay') || layer.group === 'tay') && !layer.id.includes('bo-tay') && !layer.id.includes('co-tay') && !layer.id.includes('tui');
+                        const isCollar = layer.id === 'co' || layer.group === 'co' || layer.id.includes('co') || layer.id.includes('tru-co');
+                        const isPocket = layer.id.includes('tui') || layer.group === 'tui' || layer.id.includes('nap-tui');
+                        
+                        if (isTorso && cov.than) shouldApply = true;
+                        if (isSleeve && cov.tay) shouldApply = true;
+                        if (isCollar && cov.co) shouldApply = true;
+                        if (isPocket && cov.tui) shouldApply = true;
+                    }
+                    
+                    if (shouldApply) {
+                        drawRealisticPattern(ctx, pat, img, renderedImg, isInsideCollar);
+                    }
                 }
-                
-                if (shouldApply) {
-                    drawRealisticPattern(ctx, activePattern, img, renderedImg, isInsideCollar);
-                }
-            }
+            });
         });
 
         // Draw dynamic shoulder and sleeve reflective strips
         drawDynamicReflectiveStrips(ctx, 1);
 
         // Draw Pattern selection box & transform handles if selected
-        if (state.activePatternSelected) {
-            const activePattern = state.patterns[state.angle];
+        if (state.activePatternSelected && state.activePatternId) {
+            const activePattern = (state.patterns[state.angle] || []).find(p => p.id === state.activePatternId);
             if (activePattern && activePattern.imgElement) {
                 drawPatternTransformBox(ctx, activePattern);
             }
@@ -1238,6 +1241,7 @@
                 
                 // Deselect active pattern since we clicked on a logo
                 state.activePatternSelected = false;
+                state.activePatternId = null;
                 state.activePatternResizeHandle = null;
                 state.activePatternRotating = false;
                 state.activePatternDragging = false;
@@ -1247,56 +1251,67 @@
             }
 
             // 2. Check Pattern interaction if no logo was clicked
-            const pattern = state.patterns[state.angle];
-            if (pattern && pattern.imgElement) {
-                const cx = canvas.width / 2 + pattern.x;
-                const cy = canvas.height / 2 + pattern.y;
-                const rotateHandle = getPatternRotateHandle(pattern);
-                const corners = getPatternCorners(pattern);
-                const clickDist = (p1, p2) => Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
+            const patterns = state.patterns[state.angle] || [];
+            const clickDist = (p1, p2) => Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
+            
+            // First check if click is on the active pattern's handles (rotate/resize) if there is an active pattern
+            if (state.activePatternId) {
+                const activePat = patterns.find(p => p.id === state.activePatternId);
+                if (activePat && activePat.imgElement) {
+                    const rotateHandle = getPatternRotateHandle(activePat);
+                    const corners = getPatternCorners(activePat);
 
-                // A. Check Rotate Handle (dist <= 12)
-                if (rotateHandle && clickDist(coords, rotateHandle) <= 12) {
-                    state.activePatternRotating = true;
-                    state.activePatternSelected = true;
-                    isDragging = false; // Disable rotation drag
-                    drawCanvas();
-                    return;
-                }
+                    // A. Check Rotate Handle (dist <= 12)
+                    if (rotateHandle && clickDist(coords, rotateHandle) <= 12) {
+                        state.activePatternRotating = true;
+                        state.activePatternSelected = true;
+                        isDragging = false;
+                        drawCanvas();
+                        return;
+                    }
 
-                // B. Check Resize Handles (dist <= 12)
-                if (corners) {
-                    const handleKeys = ['tl', 'tr', 'br', 'bl'];
-                    for (let i = 0; i < corners.length; i++) {
-                        if (clickDist(coords, corners[i]) <= 12) {
-                            state.activePatternResizeHandle = handleKeys[i];
-                            state.activePatternSelected = true;
-                            const w100 = pattern.imgElement.width * 0.4;
-                            const h100 = pattern.imgElement.height * 0.4;
-                            pattern.diagonal100 = Math.sqrt((w100 / 2) ** 2 + (h100 / 2) ** 2);
-                            
-                            isDragging = false;
-                            drawCanvas();
-                            return;
+                    // B. Check Resize Handles (dist <= 12)
+                    if (corners) {
+                        const handleKeys = ['tl', 'tr', 'br', 'bl'];
+                        for (let i = 0; i < corners.length; i++) {
+                            if (clickDist(coords, corners[i]) <= 12) {
+                                state.activePatternResizeHandle = handleKeys[i];
+                                state.activePatternSelected = true;
+                                const w100 = activePat.imgElement.width * 0.4;
+                                const h100 = activePat.imgElement.height * 0.4;
+                                activePat.diagonal100 = Math.sqrt((w100 / 2) ** 2 + (h100 / 2) ** 2);
+                                isDragging = false;
+                                drawCanvas();
+                                return;
+                            }
                         }
                     }
                 }
+            }
 
-                // C. Check click INSIDE the pattern body
-                const localCoords = getLocalClickCoords(coords.x, coords.y, pattern);
+            // C. Check click INSIDE any pattern body (from top layer to bottom layer)
+            for (let i = patterns.length - 1; i >= 0; i--) {
+                const pat = patterns[i];
+                if (!pat.imgElement) continue;
+                
+                const cx = canvas.width / 2 + pat.x;
+                const cy = canvas.height / 2 + pat.y;
+                const localCoords = getLocalClickCoords(coords.x, coords.y, pat);
                 if (localCoords) {
-                    const scaleFactor = pattern.scale / 100;
-                    const w = pattern.imgElement.width * scaleFactor * 0.4;
-                    const h = pattern.imgElement.height * scaleFactor * 0.4;
+                    const scaleFactor = pat.scale / 100;
+                    const w = pat.imgElement.width * scaleFactor * 0.4;
+                    const h = pat.imgElement.height * scaleFactor * 0.4;
                     
                     if (Math.abs(localCoords.x) <= w / 2 && Math.abs(localCoords.y) <= h / 2) {
+                        state.activePatternId = pat.id;
                         state.activePatternDragging = true;
                         state.activePatternSelected = true;
                         state.dragOffsetX = cx - coords.x;
                         state.dragOffsetY = cy - coords.y;
                         isDragging = false;
+                        buildPatternListUI(); // Highlight selected pattern in list UI
+                        syncPatternInputsUI(); // Update sliders to match this pattern
                         drawCanvas();
-                        syncPatternInputsUI(); // Update sliders immediately
                         return;
                     }
                 }
@@ -1304,6 +1319,7 @@
 
             // Clicked outside both pattern and logos: deselect pattern
             state.activePatternSelected = false;
+            state.activePatternId = null;
             state.activePatternResizeHandle = null;
             state.activePatternRotating = false;
             state.activePatternDragging = false;
@@ -1311,12 +1327,14 @@
 
             isDragging = true;
             startX = clientX;
+            buildPatternListUI(); // Clear highlights
+            syncPatternInputsUI(); // Hide sliders
             drawCanvas();
         };
 
         const handleDragMove = (clientX, clientY) => {
             const coords = getCanvasCoords(clientX, clientY);
-            const pattern = state.patterns[state.angle];
+            const pattern = getActivePattern();
 
             // A. Rotating Pattern
             if (state.activePatternRotating && pattern) {
@@ -1474,8 +1492,8 @@
 
         // Arrow Keys Keyboard Listeners to shift selected pattern coordinates
         window.addEventListener('keydown', (e) => {
-            if (state.activePatternSelected) {
-                const pattern = state.patterns[state.angle];
+            if (state.activePatternSelected && state.activePatternId) {
+                const pattern = getActivePattern();
                 if (pattern && pattern.imgElement) {
                     let moved = false;
                     const step = e.shiftKey ? 10 : 2; // move faster if shift is held
@@ -2157,10 +2175,184 @@
         });
     }
 
+    // Dynamic UI builder for Multi-Patterns Management List
+    function buildPatternListUI() {
+        const listEl = document.getElementById('div-patterns-list');
+        if (!listEl) return;
+        
+        listEl.innerHTML = '';
+        
+        const patterns = state.patterns[state.angle] || [];
+        
+        if (patterns.length === 0) {
+            listEl.innerHTML = `
+                <div class="text-muted" style="font-size: 11px; font-style: italic; text-align: center; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px dashed var(--border-color);">
+                    Chưa có họa tiết nào trên mặt này. Tải ảnh lên ở trên để bắt đầu!
+                </div>
+            `;
+            return;
+        }
+        
+        patterns.forEach((pattern, idx) => {
+            const card = document.createElement('div');
+            card.className = 'uploaded-logo-preview';
+            card.style.display = 'flex';
+            card.style.alignItems = 'center';
+            card.style.gap = '10px';
+            card.style.padding = '10px 12px';
+            card.style.borderRadius = '8px';
+            card.style.marginTop = '4px';
+            card.style.cursor = 'pointer';
+            card.style.transition = 'all 0.2s ease';
+            
+            if (pattern.id === state.activePatternId) {
+                card.style.border = '1px solid var(--accent-blue)';
+                card.style.background = 'rgba(56, 189, 248, 0.08)';
+            } else {
+                card.style.border = '1px solid var(--border-color)';
+                card.style.background = 'rgba(19, 27, 46, 0.3)';
+            }
+            
+            // Select on click
+            card.addEventListener('click', (e) => {
+                if (e.target.closest('button')) return; // ignore button clicks
+                state.activePatternId = pattern.id;
+                state.activePatternSelected = true;
+                buildPatternListUI();
+                syncPatternInputsUI();
+                drawCanvas();
+            });
+            
+            const img = document.createElement('img');
+            img.src = pattern.imgElement.src;
+            img.style.height = '36px';
+            img.style.width = '36px';
+            img.style.objectFit = 'contain';
+            img.style.background = 'white';
+            img.style.padding = '2px';
+            img.style.borderRadius = '4px';
+            
+            const info = document.createElement('div');
+            info.style.flex = '1';
+            info.style.display = 'flex';
+            info.style.flexDirection = 'column';
+            info.style.gap = '2px';
+            
+            const title = document.createElement('span');
+            title.innerText = `Họa tiết #${idx + 1}`;
+            title.style.fontSize = '11px';
+            title.style.fontWeight = '700';
+            title.style.color = pattern.id === state.activePatternId ? 'var(--accent-blue)' : 'var(--text-main)';
+            
+            const scaleText = document.createElement('span');
+            scaleText.innerText = `Kích thước: ${pattern.scale}%`;
+            scaleText.style.fontSize = '9px';
+            scaleText.style.color = 'var(--text-muted)';
+            
+            info.appendChild(title);
+            info.appendChild(scaleText);
+            
+            // Layering/ordering and reset/delete controls
+            const layerControls = document.createElement('div');
+            layerControls.style.display = 'flex';
+            layerControls.style.gap = '4px';
+            
+            const btnDown = document.createElement('button');
+            btnDown.className = 'btn btn-secondary';
+            btnDown.style.padding = '2px 4px';
+            btnDown.style.fontSize = '9px';
+            btnDown.innerHTML = '▼';
+            btnDown.title = 'Đưa xuống dưới (Xuống dưới một lớp)';
+            if (idx === 0) btnDown.disabled = true;
+            btnDown.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (idx > 0) {
+                    const temp = patterns[idx];
+                    patterns[idx] = patterns[idx - 1];
+                    patterns[idx - 1] = temp;
+                    state.isDirty = true;
+                    buildPatternListUI();
+                    drawCanvas();
+                }
+            });
+            
+            const btnUp = document.createElement('button');
+            btnUp.className = 'btn btn-secondary';
+            btnUp.style.padding = '2px 4px';
+            btnUp.style.fontSize = '9px';
+            btnUp.innerHTML = '▲';
+            btnUp.title = 'Đưa lên trên (Lên trên một lớp)';
+            if (idx === patterns.length - 1) btnUp.disabled = true;
+            btnUp.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (idx < patterns.length - 1) {
+                    const temp = patterns[idx];
+                    patterns[idx] = patterns[idx + 1];
+                    patterns[idx + 1] = temp;
+                    state.isDirty = true;
+                    buildPatternListUI();
+                    drawCanvas();
+                }
+            });
+            
+            const btnReset = document.createElement('button');
+            btnReset.className = 'btn btn-secondary';
+            btnReset.style.padding = '2px 6px';
+            btnReset.style.fontSize = '9px';
+            btnReset.innerText = '🎯';
+            btnReset.title = 'Đặt lại vị trí';
+            btnReset.addEventListener('click', (e) => {
+                e.stopPropagation();
+                pattern.x = 0;
+                pattern.y = 0;
+                pattern.scale = 100;
+                pattern.rotate = 0;
+                pattern.opacity = 95;
+                pattern.realism = 85;
+                pattern.blendMode = 'normal';
+                pattern.printType = 'chuyen-nhiet';
+                state.isDirty = true;
+                syncPatternInputsUI();
+                drawCanvas();
+            });
+            
+            const btnDelete = document.createElement('button');
+            btnDelete.className = 'btn btn-danger';
+            btnDelete.style.padding = '2px 6px';
+            btnDelete.style.fontSize = '9px';
+            btnDelete.innerText = '✕';
+            btnDelete.title = 'Xóa';
+            btnDelete.addEventListener('click', (e) => {
+                e.stopPropagation();
+                state.patterns[state.angle] = patterns.filter(p => p.id !== pattern.id);
+                if (state.activePatternId === pattern.id) {
+                    state.activePatternId = null;
+                    state.activePatternSelected = false;
+                }
+                state.isDirty = true;
+                buildPatternListUI();
+                syncPatternInputsUI();
+                drawCanvas();
+            });
+            
+            layerControls.appendChild(btnDown);
+            layerControls.appendChild(btnUp);
+            layerControls.appendChild(btnReset);
+            layerControls.appendChild(btnDelete);
+            
+            card.appendChild(img);
+            card.appendChild(info);
+            card.appendChild(layerControls);
+            
+            listEl.appendChild(card);
+        });
+    }
+
     // Core preloading and rendering trigger
     function loadAndRender() {
         syncUIControls();
         buildLogoListUI();
+        buildPatternListUI();
         syncPatternInputsUI();
         buildColorSwatches();
 
@@ -3169,12 +3361,19 @@
         
         // Reset patterns
         state.patterns = {
-            front: { file: null, imgElement: null, x: 0, y: 0, scale: 100, rotate: 0, opacity: 95, blendMode: 'normal', printType: 'chuyen-nhiet', realism: 85, coverage: { than: true, tay: false, co: false, tui: false } },
-            back: { file: null, imgElement: null, x: 0, y: 0, scale: 100, rotate: 0, opacity: 95, blendMode: 'normal', printType: 'chuyen-nhiet', realism: 85, coverage: { than: true, tay: false, co: false, tui: false } },
-            left: { file: null, imgElement: null, x: 0, y: 0, scale: 100, rotate: 0, opacity: 95, blendMode: 'normal', printType: 'chuyen-nhiet', realism: 85, coverage: { than: true, tay: false, co: false, tui: false } },
-            right: { file: null, imgElement: null, x: 0, y: 0, scale: 100, rotate: 0, opacity: 95, blendMode: 'normal', printType: 'chuyen-nhiet', realism: 85, coverage: { than: true, tay: false, co: false, tui: false } }
+            front: [],
+            back: [],
+            left: [],
+            right: []
         };
+        state.activePatternId = null;
+        state.activePatternSelected = false;
         
+        buildPatternListUI();
+        
+        const pInput = document.getElementById('input-pattern-file');
+        if (pInput) pInput.value = '';
+
         // Uncheck all pocket and reflective checkboxes in DOM
         const checkIds = [
             'input-pocket-left', 'input-pocket-right', 'input-pocket-sleeve', 'input-pocket-sleeve-right', 'input-pocket-flap',
@@ -3189,12 +3388,6 @@
         if (inputReflectiveHeight) inputReflectiveHeight.value = 0;
         const lblReflectiveHeight = document.getElementById('lbl-reflective-height');
         if (lblReflectiveHeight) lblReflectiveHeight.innerText = 'Mặc định';
-
-        // Hide any pattern previews
-        const pDiv = document.getElementById('div-pattern-preview');
-        if (pDiv) pDiv.classList.add('hidden');
-        const pInput = document.getElementById('input-pattern-file');
-        if (pInput) pInput.value = '';
 
         // Reset display selected color active part
         const selectPart = document.getElementById('select-color-part');
@@ -3422,26 +3615,27 @@
         ctx.restore();
     }
 
+    function getActivePattern() {
+        if (!state.activePatternId) return null;
+        const patterns = state.patterns[state.angle] || [];
+        return patterns.find(p => p.id === state.activePatternId) || null;
+    }
+
     // Sync pattern coordinate sliders UI with active pattern state values
     function syncPatternInputsUI() {
-        const pattern = state.patterns[state.angle];
-        const previewDiv = document.getElementById('div-pattern-preview');
-        const previewImg = document.getElementById('img-pattern-preview');
-        const viewLabel = document.getElementById('lbl-pattern-view-badge');
+        const pattern = getActivePattern();
+        const controlsDiv = document.getElementById('div-pattern-controls');
 
         if (!pattern || !pattern.imgElement) {
             state.activePatternSelected = false;
-            if (previewDiv) previewDiv.classList.add('hidden');
+            state.activePatternId = null;
+            if (controlsDiv) controlsDiv.classList.add('hidden');
             const fileInput = document.getElementById('input-pattern-file');
             if (fileInput) fileInput.value = '';
             return;
         }
 
-        if (previewDiv) previewDiv.classList.remove('hidden');
-        if (previewImg) previewImg.src = pattern.imgElement.src;
-        
-        const angleNames = { 'front': 'Mặt Trước', 'back': 'Mặt Sau', 'left': 'Mặt Trái', 'right': 'Mặt Phải' };
-        if (viewLabel) viewLabel.innerText = angleNames[state.angle] || 'Họa Tiết';
+        if (controlsDiv) controlsDiv.classList.remove('hidden');
 
         const scaleSlider = document.getElementById('input-pattern-scale');
         const scaleNum = document.getElementById('input-pattern-scale-num');
@@ -4141,88 +4335,92 @@
                 const img = new Image();
                 img.src = event.target.result;
                 img.onload = () => {
-                    state.patterns[state.angle].file = file;
-                    state.patterns[state.angle].imgElement = img;
-                    state.isDirty = true;
+                    const newPattern = {
+                        id: 'pattern_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+                        file: file,
+                        imgElement: img,
+                        x: 0,
+                        y: 0,
+                        scale: 100,
+                        rotate: 0,
+                        opacity: 95,
+                        blendMode: 'normal',
+                        printType: 'chuyen-nhiet',
+                        realism: 85,
+                        coverage: { than: true, tay: false, co: false, tui: false },
+                        _renderCache: {}
+                    };
+                    if (!state.patterns[state.angle]) {
+                        state.patterns[state.angle] = [];
+                    }
+                    state.patterns[state.angle].push(newPattern);
+                    state.activePatternId = newPattern.id;
                     state.activePatternSelected = true; // Select pattern immediately
+                    state.isDirty = true;
                     
+                    buildPatternListUI();
                     syncPatternInputsUI();
                     scheduleRedraw();
+                    
+                    patternInput.value = ''; // clear input
                 };
             };
             reader.readAsDataURL(file);
         });
 
-        // Remove Pattern
-        document.getElementById('btn-remove-pattern').addEventListener('click', () => {
-            state.patterns[state.angle].file = null;
-            state.patterns[state.angle].imgElement = null;
-            state.activePatternSelected = false;
-            state.isDirty = true;
-            document.getElementById('div-pattern-preview').classList.add('hidden');
-            document.getElementById('input-pattern-file').value = '';
-            scheduleRedraw();
-        });
-
-        // Reset Pattern
-        document.getElementById('btn-reset-pattern').addEventListener('click', () => {
-            const pattern = state.patterns[state.angle];
+        // Sliders Listeners
+        document.getElementById('input-pattern-scale').addEventListener('input', (e) => {
+            const pattern = getActivePattern();
             if (pattern) {
-                pattern.x = 0;
-                pattern.y = 0;
-                pattern.scale = 100;
-                pattern.rotate = 0;
-                pattern.opacity = 90;
-                pattern.realism = 80;
-                pattern.blendMode = 'multiply';
-                pattern.printType = 'chuyen-nhiet';
+                const val = parseInt(e.target.value);
+                pattern.scale = val;
                 state.isDirty = true;
-                syncPatternInputsUI();
+                const numEl = document.getElementById('input-pattern-scale-num');
+                if (numEl) numEl.value = val;
                 scheduleRedraw();
             }
         });
-
-        // Sliders Listeners
-        document.getElementById('input-pattern-scale').addEventListener('input', (e) => {
-            const val = parseInt(e.target.value);
-            state.patterns[state.angle].scale = val;
-            state.isDirty = true;
-            const numEl = document.getElementById('input-pattern-scale-num');
-            if (numEl) numEl.value = val;
-            scheduleRedraw();
-        });
         document.getElementById('input-pattern-rotate').addEventListener('input', (e) => {
-            const val = parseInt(e.target.value);
-            state.patterns[state.angle].rotate = val;
-            state.isDirty = true;
-            const numEl = document.getElementById('input-pattern-rotate-num');
-            if (numEl) numEl.value = val;
-            scheduleRedraw();
+            const pattern = getActivePattern();
+            if (pattern) {
+                const val = parseInt(e.target.value);
+                pattern.rotate = val;
+                state.isDirty = true;
+                const numEl = document.getElementById('input-pattern-rotate-num');
+                if (numEl) numEl.value = val;
+                scheduleRedraw();
+            }
         });
 
         // Numeric Keypad/Keyboard Inputs Listeners
         const scaleNumInput = document.getElementById('input-pattern-scale-num');
         if (scaleNumInput) {
             scaleNumInput.addEventListener('input', (e) => {
-                let val = parseInt(e.target.value);
-                if (isNaN(val)) return;
-                val = Math.max(10, Math.min(300, val));
-                state.patterns[state.angle].scale = val;
-                state.isDirty = true;
-                const slider = document.getElementById('input-pattern-scale');
-                if (slider) slider.value = val;
-                scheduleRedraw();
+                const pattern = getActivePattern();
+                if (pattern) {
+                    let val = parseInt(e.target.value);
+                    if (isNaN(val)) return;
+                    val = Math.max(10, Math.min(300, val));
+                    pattern.scale = val;
+                    state.isDirty = true;
+                    const slider = document.getElementById('input-pattern-scale');
+                    if (slider) slider.value = val;
+                    scheduleRedraw();
+                }
             });
             scaleNumInput.addEventListener('blur', (e) => {
-                let val = parseInt(e.target.value);
-                if (isNaN(val) || val < 10) val = 10;
-                if (val > 300) val = 300;
-                e.target.value = val;
-                state.patterns[state.angle].scale = val;
-                state.isDirty = true;
-                const slider = document.getElementById('input-pattern-scale');
-                if (slider) slider.value = val;
-                scheduleRedraw();
+                const pattern = getActivePattern();
+                if (pattern) {
+                    let val = parseInt(e.target.value);
+                    if (isNaN(val) || val < 10) val = 10;
+                    if (val > 300) val = 300;
+                    e.target.value = val;
+                    pattern.scale = val;
+                    state.isDirty = true;
+                    const slider = document.getElementById('input-pattern-scale');
+                    if (slider) slider.value = val;
+                    scheduleRedraw();
+                }
             });
             scaleNumInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
@@ -4234,26 +4432,32 @@
         const rotateNumInput = document.getElementById('input-pattern-rotate-num');
         if (rotateNumInput) {
             rotateNumInput.addEventListener('input', (e) => {
-                let val = parseInt(e.target.value);
-                if (isNaN(val)) return;
-                val = Math.max(-180, Math.min(180, val));
-                state.patterns[state.angle].rotate = val;
-                state.isDirty = true;
-                const slider = document.getElementById('input-pattern-rotate');
-                if (slider) slider.value = val;
-                scheduleRedraw();
+                const pattern = getActivePattern();
+                if (pattern) {
+                    let val = parseInt(e.target.value);
+                    if (isNaN(val)) return;
+                    val = Math.max(-180, Math.min(180, val));
+                    pattern.rotate = val;
+                    state.isDirty = true;
+                    const slider = document.getElementById('input-pattern-rotate');
+                    if (slider) slider.value = val;
+                    scheduleRedraw();
+                }
             });
             rotateNumInput.addEventListener('blur', (e) => {
-                let val = parseInt(e.target.value);
-                if (isNaN(val)) val = 0;
-                if (val < -180) val = -180;
-                if (val > 180) val = 180;
-                e.target.value = val;
-                state.patterns[state.angle].rotate = val;
-                state.isDirty = true;
-                const slider = document.getElementById('input-pattern-rotate');
-                if (slider) slider.value = val;
-                scheduleRedraw();
+                const pattern = getActivePattern();
+                if (pattern) {
+                    let val = parseInt(e.target.value);
+                    if (isNaN(val)) val = 0;
+                    if (val < -180) val = -180;
+                    if (val > 180) val = 180;
+                    e.target.value = val;
+                    pattern.rotate = val;
+                    state.isDirty = true;
+                    const slider = document.getElementById('input-pattern-rotate');
+                    if (slider) slider.value = val;
+                    scheduleRedraw();
+                }
             });
             rotateNumInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
@@ -4263,44 +4467,62 @@
         }
 
         document.getElementById('input-pattern-opacity').addEventListener('input', (e) => {
-            const val = parseInt(e.target.value);
-            state.patterns[state.angle].opacity = val;
-            state.isDirty = true;
-            document.getElementById('lbl-pattern-opacity').innerText = `${val}%`;
-            scheduleRedraw();
+            const pattern = getActivePattern();
+            if (pattern) {
+                const val = parseInt(e.target.value);
+                pattern.opacity = val;
+                state.isDirty = true;
+                document.getElementById('lbl-pattern-opacity').innerText = `${val}%`;
+                scheduleRedraw();
+            }
         });
         document.getElementById('input-pattern-x').addEventListener('input', (e) => {
-            const val = parseInt(e.target.value);
-            state.patterns[state.angle].x = val;
-            state.isDirty = true;
-            document.getElementById('lbl-pattern-x').innerText = `${val}px`;
-            scheduleRedraw();
+            const pattern = getActivePattern();
+            if (pattern) {
+                const val = parseInt(e.target.value);
+                pattern.x = val;
+                state.isDirty = true;
+                document.getElementById('lbl-pattern-x').innerText = `${val}px`;
+                scheduleRedraw();
+            }
         });
         document.getElementById('input-pattern-y').addEventListener('input', (e) => {
-            const val = parseInt(e.target.value);
-            state.patterns[state.angle].y = val;
-            state.isDirty = true;
-            document.getElementById('lbl-pattern-y').innerText = `${val}px`;
-            scheduleRedraw();
+            const pattern = getActivePattern();
+            if (pattern) {
+                const val = parseInt(e.target.value);
+                pattern.y = val;
+                state.isDirty = true;
+                document.getElementById('lbl-pattern-y').innerText = `${val}px`;
+                scheduleRedraw();
+            }
         });
         document.getElementById('input-pattern-realism').addEventListener('input', (e) => {
-            const val = parseInt(e.target.value);
-            state.patterns[state.angle].realism = val;
-            state.isDirty = true;
-            document.getElementById('lbl-pattern-realism').innerText = `${val}%`;
-            scheduleRedraw();
+            const pattern = getActivePattern();
+            if (pattern) {
+                const val = parseInt(e.target.value);
+                pattern.realism = val;
+                state.isDirty = true;
+                document.getElementById('lbl-pattern-realism').innerText = `${val}%`;
+                scheduleRedraw();
+            }
         });
 
         // Dropdowns Listeners
         document.getElementById('select-pattern-blend').addEventListener('change', (e) => {
-            state.patterns[state.angle].blendMode = e.target.value;
-            state.isDirty = true;
-            scheduleRedraw();
+            const pattern = getActivePattern();
+            if (pattern) {
+                pattern.blendMode = e.target.value;
+                state.isDirty = true;
+                scheduleRedraw();
+            }
         });
         document.getElementById('select-pattern-print').addEventListener('change', (e) => {
-            state.patterns[state.angle].printType = e.target.value;
-            state.isDirty = true;
-            scheduleRedraw();
+            const pattern = getActivePattern();
+            if (pattern) {
+                pattern.printType = e.target.value;
+                state.isDirty = true;
+                scheduleRedraw();
+            }
         });
 
         // Coverage Checkboxes Listeners
@@ -4308,19 +4530,21 @@
             const chk = document.getElementById(chkId);
             if (chk) {
                 chk.addEventListener('change', (e) => {
-                    const pattern = state.patterns[state.angle];
-                    if (!pattern.coverage) {
-                        pattern.coverage = { than: true, tay: false, co: false, tui: false };
+                    const pattern = getActivePattern();
+                    if (pattern) {
+                        if (!pattern.coverage) {
+                            pattern.coverage = { than: true, tay: false, co: false, tui: false };
+                        }
+                        pattern.coverage[key] = e.target.checked;
+                        state.isDirty = true;
+                        
+                        const card = document.getElementById(cardId);
+                        if (card) {
+                            card.classList.toggle('checked', e.target.checked);
+                        }
+                        
+                        scheduleRedraw();
                     }
-                    pattern.coverage[key] = e.target.checked;
-                    state.isDirty = true;
-                    
-                    const card = document.getElementById(cardId);
-                    if (card) {
-                        card.classList.toggle('checked', e.target.checked);
-                    }
-                    
-                    scheduleRedraw();
                 });
             }
         };
@@ -4600,31 +4824,33 @@
             tempCtx.restore();
 
             // Apply patterns
-            const activePattern = state.patterns[angle];
-            if (activePattern && activePattern.imgElement) {
-                const cov = activePattern.coverage || { than: true, tay: false, co: false, tui: false };
-                let shouldApply = false;
-                let isInsideCollar = false;
-                
-                if (layer.id === 'co-trong' && (state.product === 'ao-polo' || state.product === 'ao-thun')) {
-                    isInsideCollar = true;
-                    if (cov.than || cov.co) shouldApply = true;
-                } else {
-                    const isTorso = layer.id === 'than' || layer.group === 'than' || layer.id.includes('than') || layer.id.includes('nguc');
-                    const isSleeve = (layer.id.includes('tay') || layer.group === 'tay') && !layer.id.includes('bo-tay') && !layer.id.includes('co-tay') && !layer.id.includes('tui');
-                    const isCollar = layer.id === 'co' || layer.group === 'co' || layer.id.includes('co') || layer.id.includes('tru-co');
-                    const isPocket = layer.id.includes('tui') || layer.group === 'tui' || layer.id.includes('nap-tui');
+            const currentPatterns = state.patterns[angle] || [];
+            currentPatterns.forEach(pat => {
+                if (pat && pat.imgElement) {
+                    const cov = pat.coverage || { than: true, tay: false, co: false, tui: false };
+                    let shouldApply = false;
+                    let isInsideCollar = false;
                     
-                    if (isTorso && cov.than) shouldApply = true;
-                    if (isSleeve && cov.tay) shouldApply = true;
-                    if (isCollar && cov.co) shouldApply = true;
-                    if (isPocket && cov.tui) shouldApply = true;
+                    if (layer.id === 'co-trong' && (state.product === 'ao-polo' || state.product === 'ao-thun')) {
+                        isInsideCollar = true;
+                        if (cov.than || cov.co) shouldApply = true;
+                    } else {
+                        const isTorso = layer.id === 'than' || layer.group === 'than' || layer.id.includes('than') || layer.id.includes('nguc');
+                        const isSleeve = (layer.id.includes('tay') || layer.group === 'tay') && !layer.id.includes('bo-tay') && !layer.id.includes('co-tay') && !layer.id.includes('tui');
+                        const isCollar = layer.id === 'co' || layer.group === 'co' || layer.id.includes('co') || layer.id.includes('tru-co');
+                        const isPocket = layer.id.includes('tui') || layer.group === 'tui' || layer.id.includes('nap-tui');
+                        
+                        if (isTorso && cov.than) shouldApply = true;
+                        if (isSleeve && cov.tay) shouldApply = true;
+                        if (isCollar && cov.co) shouldApply = true;
+                        if (isPocket && cov.tui) shouldApply = true;
+                    }
+                    
+                    if (shouldApply) {
+                        drawRealisticPattern(tempCtx, pat, img, renderedImg, isInsideCollar);
+                    }
                 }
-                
-                if (shouldApply) {
-                    drawRealisticPattern(tempCtx, activePattern, img, renderedImg, isInsideCollar);
-                }
-            }
+            });
         });
 
         // Draw custom draggable logos
@@ -5015,16 +5241,18 @@
             'right': 'Cạnh phải'
         };
         ['front', 'back', 'left', 'right'].forEach(angle => {
-            const p = state.patterns[angle];
-            if (p && p.imgElement) {
-                activePatterns.push({
-                    angle: angleLabels[angle] || angle,
-                    scale: p.scale,
-                    opacity: p.opacity,
-                    printType: p.printType,
-                    imgElement: p.imgElement
-                });
-            }
+            const list = state.patterns[angle] || [];
+            list.forEach((p, idx) => {
+                if (p && p.imgElement) {
+                    activePatterns.push({
+                        angle: list.length > 1 ? `${angleLabels[angle] || angle} - Họa tiết #${idx + 1}` : (angleLabels[angle] || angle),
+                        scale: p.scale,
+                        opacity: p.opacity,
+                        printType: p.printType,
+                        imgElement: p.imgElement
+                    });
+                }
+            });
         });
 
         const recordCode = (Math.floor(100000 + Math.random() * 900000)).toString();
@@ -5125,34 +5353,36 @@
             tempCtx.restore();
 
             // DYNAMIC CLIPPED PATTERN DRAW FOR EXPORT
-            const activePattern = state.patterns[state.angle];
-            if (activePattern && activePattern.imgElement) {
-                const cov = activePattern.coverage || { than: true, tay: false, co: false, tui: false };
-                let shouldApply = false;
-                let isInsideCollar = false;
-                
-                if (layer.id === 'co-trong' && (state.product === 'ao-polo' || state.product === 'ao-thun') && state.angle === 'front') {
-                    isInsideCollar = true;
-                    // Apply pattern on the inside collar of the polo/T-shirt if Torso or Collar coverage is checked
-                    if (cov.than || cov.co) {
-                        shouldApply = true;
-                    }
-                } else {
-                    const isTorso = layer.id === 'than' || layer.group === 'than' || layer.id.includes('than') || layer.id.includes('nguc');
-                    const isSleeve = (layer.id.includes('tay') || layer.group === 'tay') && !layer.id.includes('bo-tay') && !layer.id.includes('co-tay') && !layer.id.includes('tui');
-                    const isCollar = layer.id === 'co' || layer.group === 'co' || layer.id.includes('co') || layer.id.includes('tru-co');
-                    const isPocket = layer.id.includes('tui') || layer.group === 'tui' || layer.id.includes('nap-tui');
+            const currentPatterns = state.patterns[state.angle] || [];
+            currentPatterns.forEach(pat => {
+                if (pat && pat.imgElement) {
+                    const cov = pat.coverage || { than: true, tay: false, co: false, tui: false };
+                    let shouldApply = false;
+                    let isInsideCollar = false;
                     
-                    if (isTorso && cov.than) shouldApply = true;
-                    if (isSleeve && cov.tay) shouldApply = true;
-                    if (isCollar && cov.co) shouldApply = true;
-                    if (isPocket && cov.tui) shouldApply = true;
+                    if (layer.id === 'co-trong' && (state.product === 'ao-polo' || state.product === 'ao-thun') && state.angle === 'front') {
+                        isInsideCollar = true;
+                        // Apply pattern on the inside collar of the polo/T-shirt if Torso or Collar coverage is checked
+                        if (cov.than || cov.co) {
+                            shouldApply = true;
+                        }
+                    } else {
+                        const isTorso = layer.id === 'than' || layer.group === 'than' || layer.id.includes('than') || layer.id.includes('nguc');
+                        const isSleeve = (layer.id.includes('tay') || layer.group === 'tay') && !layer.id.includes('bo-tay') && !layer.id.includes('co-tay') && !layer.id.includes('tui');
+                        const isCollar = layer.id === 'co' || layer.group === 'co' || layer.id.includes('co') || layer.id.includes('tru-co');
+                        const isPocket = layer.id.includes('tui') || layer.group === 'tui' || layer.id.includes('nap-tui');
+                        
+                        if (isTorso && cov.than) shouldApply = true;
+                        if (isSleeve && cov.tay) shouldApply = true;
+                        if (isCollar && cov.co) shouldApply = true;
+                        if (isPocket && cov.tui) shouldApply = true;
+                    }
+                    
+                    if (shouldApply) {
+                        drawRealisticPattern(tempCtx, pat, img, renderedImg, isInsideCollar);
+                    }
                 }
-                
-                if (shouldApply) {
-                    drawRealisticPattern(tempCtx, activePattern, img, renderedImg, isInsideCollar);
-                }
-            }
+            });
         });
 
         // Draw dynamic shoulder and sleeve reflective strips on export

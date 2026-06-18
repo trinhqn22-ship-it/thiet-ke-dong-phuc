@@ -337,120 +337,113 @@
                         </div>
                     </div>
 
-                    <div class="uploaded-logo-preview hidden" id="div-pattern-preview" style="padding: 12px; background: rgba(19, 27, 46, 0.5); border: 1px solid var(--border-color); border-radius: 8px; display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 10px;">
-                            <img id="img-pattern-preview" src="" alt="Pattern Preview" style="max-height: 48px; max-width: 100px; object-fit: contain; background: white; padding: 2px; border-radius: 4px;">
-                            <div style="flex: 1; display: flex; flex-direction: column;">
-                                <span style="font-size: 11px; font-weight: 700; color: var(--accent-blue);" id="lbl-pattern-view-badge">Mặt Trước</span>
-                                <span style="font-size: 9px; color: var(--text-muted);">🖱 Kéo thả, resize và xoay trực tiếp</span>
-                            </div>
-                            <div style="display: flex; gap: 6px;">
-                                <button class="btn btn-secondary" style="padding: 2px 6px; font-size: 9px;" id="btn-reset-pattern" title="Khôi phục vị trí mặc định">🎯 Reset</button>
-                                <button class="btn btn-danger" style="padding: 2px 6px; font-size: 9px;" id="btn-remove-pattern">Xóa</button>
+                    <div id="div-patterns-list" style="display: flex; flex-direction: column; gap: 10px; margin-top: 10px;">
+                        <!-- List of patterns on current angle -->
+                    </div>
+
+                    <!-- Wrapped Pattern Controls -->
+                    <div id="div-pattern-controls" class="hidden">
+                        <!-- Size slider -->
+                        <div class="control-group">
+                            <label class="control-label">
+                                Kích thước họa tiết 
+                                <span class="value-badge" id="lbl-pattern-scale-container" style="padding: 2px 4px; display: inline-flex; align-items: center; gap: 1px;">
+                                    <input type="number" id="input-pattern-scale-num" min="10" max="300" value="100">%
+                                </span>
+                            </label>
+                            <input type="range" class="custom-range" id="input-pattern-scale" min="10" max="300" value="100">
+                        </div>
+
+                        <!-- Rotate slider -->
+                        <div class="control-group">
+                            <label class="control-label">
+                                Góc xoay hình in 
+                                <span class="value-badge" id="lbl-pattern-rotate-container" style="padding: 2px 4px; display: inline-flex; align-items: center; gap: 1px;">
+                                    <input type="number" id="input-pattern-rotate-num" min="-180" max="180" value="0">°
+                                </span>
+                            </label>
+                            <input type="range" class="custom-range" id="input-pattern-rotate" min="-180" max="180" value="0">
+                        </div>
+
+                        <!-- Scope of coverage -->
+                        <div class="control-group">
+                            <label class="control-label">Phủ họa tiết lên các bộ phận</label>
+                            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
+                                <div class="checkbox-card checked" id="chk-cov-than" style="padding: 10px 14px;">
+                                    <span style="font-size: 13px; font-weight: 500;">Thân áo / Thân quần</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="input-cov-than" checked>
+                                        <span class="slider-toggle"></span>
+                                    </label>
+                                </div>
+                                <div class="checkbox-card" id="chk-cov-tay" style="padding: 10px 14px;">
+                                    <span style="font-size: 13px; font-weight: 500;">Tay áo / Cánh tay</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="input-cov-tay">
+                                        <span class="slider-toggle"></span>
+                                    </label>
+                                </div>
+                                <div class="checkbox-card" id="chk-cov-co" style="padding: 10px 14px;">
+                                    <span style="font-size: 13px; font-weight: 500;">Cổ áo / Bo cổ</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="input-cov-co">
+                                        <span class="slider-toggle"></span>
+                                    </label>
+                                </div>
+                                <div class="checkbox-card" id="chk-cov-tui" style="padding: 10px 14px;">
+                                    <span style="font-size: 13px; font-weight: 500;">Túi áo / Túi quần / Chi tiết phụ</span>
+                                    <label class="toggle-switch">
+                                        <input type="checkbox" id="input-cov-tui">
+                                        <span class="slider-toggle"></span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Size slider -->
-                    <div class="control-group">
-                        <label class="control-label">
-                            Kích thước họa tiết 
-                            <span class="value-badge" id="lbl-pattern-scale-container" style="padding: 2px 4px; display: inline-flex; align-items: center; gap: 1px;">
-                                <input type="number" id="input-pattern-scale-num" min="10" max="300" value="100">%
-                            </span>
-                        </label>
-                        <input type="range" class="custom-range" id="input-pattern-scale" min="10" max="300" value="100">
-                    </div>
-
-                    <!-- Rotate slider -->
-                    <div class="control-group">
-                        <label class="control-label">
-                            Góc xoay hình in 
-                            <span class="value-badge" id="lbl-pattern-rotate-container" style="padding: 2px 4px; display: inline-flex; align-items: center; gap: 1px;">
-                                <input type="number" id="input-pattern-rotate-num" min="-180" max="180" value="0">°
-                            </span>
-                        </label>
-                        <input type="range" class="custom-range" id="input-pattern-rotate" min="-180" max="180" value="0">
-                    </div>
-
-                    <!-- Scope of coverage -->
-                    <div class="control-group">
-                        <label class="control-label">Phủ họa tiết lên các bộ phận</label>
-                        <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 4px;">
-                            <div class="checkbox-card checked" id="chk-cov-than" style="padding: 10px 14px;">
-                                <span style="font-size: 13px; font-weight: 500;">Thân áo / Thân quần</span>
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="input-cov-than" checked>
-                                    <span class="slider-toggle"></span>
-                                </label>
-                            </div>
-                            <div class="checkbox-card" id="chk-cov-tay" style="padding: 10px 14px;">
-                                <span style="font-size: 13px; font-weight: 500;">Tay áo / Cánh tay</span>
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="input-cov-tay">
-                                    <span class="slider-toggle"></span>
-                                </label>
-                            </div>
-                            <div class="checkbox-card" id="chk-cov-co" style="padding: 10px 14px;">
-                                <span style="font-size: 13px; font-weight: 500;">Cổ áo / Bo cổ</span>
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="input-cov-co">
-                                    <span class="slider-toggle"></span>
-                                </label>
-                            </div>
-                            <div class="checkbox-card" id="chk-cov-tui" style="padding: 10px 14px;">
-                                <span style="font-size: 13px; font-weight: 500;">Túi áo / Túi quần / Chi tiết phụ</span>
-                                <label class="toggle-switch">
-                                    <input type="checkbox" id="input-cov-tui">
-                                    <span class="slider-toggle"></span>
-                                </label>
-                            </div>
+                        <!-- Opacity (Advanced / Pro Mode only) -->
+                        <div class="control-group logo-pro-control hidden">
+                            <label class="control-label">Độ mờ / Độ trong suốt <span class="value-badge" id="lbl-pattern-opacity">95%</span></label>
+                            <input type="range" class="custom-range" id="input-pattern-opacity" min="10" max="100" value="95">
                         </div>
-                    </div>
 
-                    <!-- Opacity (Advanced / Pro Mode only) -->
-                    <div class="control-group logo-pro-control hidden">
-                        <label class="control-label">Độ mờ / Độ trong suốt <span class="value-badge" id="lbl-pattern-opacity">95%</span></label>
-                        <input type="range" class="custom-range" id="input-pattern-opacity" min="10" max="100" value="95">
-                    </div>
+                        <!-- Coordinates X and Y -->
+                        <div class="control-group logo-pro-control hidden">
+                            <label class="control-label">Tọa độ Ngang X <span class="value-badge" id="lbl-pattern-x">0px</span></label>
+                            <input type="range" class="custom-range" id="input-pattern-x" min="-300" max="300" value="0">
+                        </div>
+                        
+                        <div class="control-group logo-pro-control hidden">
+                            <label class="control-label">Tọa độ Dọc Y <span class="value-badge" id="lbl-pattern-y">0px</span></label>
+                            <input type="range" class="custom-range" id="input-pattern-y" min="-300" max="300" value="0">
+                        </div>
 
-                    <!-- Coordinates X and Y -->
-                    <div class="control-group logo-pro-control hidden">
-                        <label class="control-label">Tọa độ Ngang X <span class="value-badge" id="lbl-pattern-x">0px</span></label>
-                        <input type="range" class="custom-range" id="input-pattern-x" min="-300" max="300" value="0">
-                    </div>
-                    
-                    <div class="control-group logo-pro-control hidden">
-                        <label class="control-label">Tọa độ Dọc Y <span class="value-badge" id="lbl-pattern-y">0px</span></label>
-                        <input type="range" class="custom-range" id="input-pattern-y" min="-300" max="300" value="0">
-                    </div>
+                        <!-- Realistic shading level (Advanced / Pro Mode only) -->
+                        <div class="control-group logo-pro-control hidden">
+                            <label class="control-label">Độ chân thật sớ vải <span class="value-badge" id="lbl-pattern-realism">85%</span></label>
+                            <input type="range" class="custom-range" id="input-pattern-realism" min="0" max="100" value="85">
+                        </div>
 
-                    <!-- Realistic shading level (Advanced / Pro Mode only) -->
-                    <div class="control-group logo-pro-control hidden">
-                        <label class="control-label">Độ chân thật sớ vải <span class="value-badge" id="lbl-pattern-realism">85%</span></label>
-                        <input type="range" class="custom-range" id="input-pattern-realism" min="0" max="100" value="85">
-                    </div>
+                        <!-- Blend Mode Dropdown (Advanced / Pro Mode only) -->
+                        <div class="control-group logo-pro-control hidden">
+                            <label class="control-label">Chế độ hòa trộn màu</label>
+                            <select class="input-field" id="select-pattern-blend" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px;">
+                                <option value="normal" selected>Normal (In nhiệt sắc nét, rõ màu - Khuyên dùng)</option>
+                                <option value="multiply">Multiply (Hòa trộn tối, chìm màu vào áo)</option>
+                                <option value="soft-light">Soft Light (Chìm nhẹ tự nhiên vào thớ vải)</option>
+                                <option value="overlay">Overlay (Tương phản sáng tối cực mạnh)</option>
+                            </select>
+                        </div>
 
-                    <!-- Blend Mode Dropdown (Advanced / Pro Mode only) -->
-                    <div class="control-group logo-pro-control hidden">
-                        <label class="control-label">Chế độ hòa trộn màu</label>
-                        <select class="input-field" id="select-pattern-blend" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px;">
-                            <option value="normal" selected>Normal (In nhiệt sắc nét, rõ màu - Khuyên dùng)</option>
-                            <option value="multiply">Multiply (Hòa trộn tối, chìm màu vào áo)</option>
-                            <option value="soft-light">Soft Light (Chìm nhẹ tự nhiên vào thớ vải)</option>
-                            <option value="overlay">Overlay (Tương phản sáng tối cực mạnh)</option>
-                        </select>
-                    </div>
-
-                    <!-- Print Type Selector -->
-                    <div class="control-group logo-pro-control hidden" style="display: none !important;">
-                        <label class="control-label">Công nghệ in đề xuất</label>
-                        <select class="input-field" id="select-pattern-print" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px;">
-                            <option value="chuyen-nhiet">In Chuyển Nhiệt (Mịn màng bám sớ vải)</option>
-                            <option value="lua">In Lụa (Màu lì, nổi vân thớ nhẹ)</option>
-                            <option value="pet">In PET kỹ thuật số (Màu tươi, viền sắc cạnh)</option>
-                            <option value="theu">Thêu vi tính (Dày dặn, tơ chỉ nổi 3D)</option>
-                        </select>
+                        <!-- Print Type Selector -->
+                        <div class="control-group logo-pro-control hidden" style="display: none !important;">
+                            <label class="control-label">Công nghệ in đề xuất</label>
+                            <select class="input-field" id="select-pattern-print" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-color); border-radius: 6px; padding: 8px;">
+                                <option value="chuyen-nhiet">In Chuyển Nhiệt (Mịn màng bám sớ vải)</option>
+                                <option value="lua">In Lụa (Màu lì, nổi vân thớ nhẹ)</option>
+                                <option value="pet">In PET kỹ thuật số (Màu tươi, viền sắc cạnh)</option>
+                                <option value="theu">Thêu vi tính (Dày dặn, tơ chỉ nổi 3D)</option>
+                            </select>
+                        </div>
                     </div>
 
                     <!-- Chế độ Thiết Kế — đặt ở đây để liền mạch với Họa Tiết -->
