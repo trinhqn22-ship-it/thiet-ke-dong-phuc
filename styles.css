@@ -1579,6 +1579,11 @@ textarea.input-field {
         transform: translateY(100%);
         display: none !important;
     }
+    .tool-panel .panel-close {
+        width: 48px;
+        height: 48px;
+        font-size: 24px;
+    }
     
     .preview-stage-container {
         width: 100%;
