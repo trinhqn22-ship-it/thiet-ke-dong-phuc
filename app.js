@@ -4726,12 +4726,32 @@
         });
 
         // Export PNG downloads
-        document.getElementById('btn-download-png').addEventListener('click', () => {
-            downloadDesignPNG();
-        });
-        document.getElementById('btn-export-png-panel').addEventListener('click', () => {
-            downloadDesignPNG();
-        });
+        const bindPngExport = (id) => {
+            const btn = document.getElementById(id);
+            if (!btn) return;
+            
+            let touchFired = false;
+            const trigger = (e) => {
+                e.preventDefault();
+                downloadDesignPNG();
+            };
+            
+            btn.addEventListener('click', (e) => {
+                if (touchFired) {
+                    touchFired = false;
+                    return;
+                }
+                downloadDesignPNG();
+            });
+            btn.addEventListener('touchend', (e) => {
+                touchFired = true;
+                trigger(e);
+                setTimeout(() => { touchFired = false; }, 500);
+            }, { passive: false });
+        };
+        
+        bindPngExport('btn-download-png');
+        bindPngExport('btn-export-png-panel');
         
 
 
@@ -5450,21 +5470,111 @@
     }
 
 
-    // Direct Canvas Export PNG with supersampling x2
+    // Direct Canvas Export PNG with double-wide combined Front & Back layout
     function downloadDesignPNG() {
-        // Create an offscreen canvas with 2x resolution for high-quality supersampled output
-        const tempCanvas = document.createElement('canvas');
-        tempCanvas.width = canvas.width * 2;
-        tempCanvas.height = canvas.height * 2;
-        const tempCtx = tempCanvas.getContext('2d');
+        // Show loading state or toast
+        showToast('⏳ Đang tạo ảnh PNG trong suốt cho cả 2 mặt...', 'info', 3000);
 
-        // Scale by 2x immediately to automatically double resolution for all subsequent drawing operations
-        tempCtx.save();
-        tempCtx.scale(2, 2);
+        // Detect if browser is iOS (iPhone/iPad/iPod)
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        
+        // Mobile Safari has strict popup blocker rules. We open a blank tab synchronously
+        // inside the click handler, then update its URL once rendering finishes.
+        let iosTab = null;
+        if (isIOS) {
+            iosTab = window.open('about:blank', '_blank');
+            if (iosTab) {
+                iosTab.document.write(`
+                    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; margin:0; background:#0b0f19; color:#f8fafc; font-family:sans-serif;">
+                        <div style="border: 4px solid rgba(255, 255, 255, 0.1); border-top-color: #38bdf8; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 20px;"></div>
+                        <h2 style="font-size:16px;">Đang dựng hình ảnh thiết kế...</h2>
+                        <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
+                    </div>
+                `);
+            }
+        }
 
+        const originalAngle = state.angle;
+        
+        // Collect required layers for both Front and Back to ensure they are loaded
+        const frontLayers = getLayersConfigForAngle('front');
+        const backLayers = getLayersConfigForAngle('back');
+        const allRequiredLayers = [...frontLayers, ...backLayers];
+
+        // Preload all layers to prevent missing layers on canvas
+        preloadLayers(allRequiredLayers, () => {
+            try {
+                // Create a high resolution combined canvas (2000px width, 1100px height)
+                const tempCanvas = document.createElement('canvas');
+                tempCanvas.width = 2000;
+                tempCanvas.height = 1100;
+                const tempCtx = tempCanvas.getContext('2d');
+                
+                // Clear canvas explicitly to ensure transparent background
+                tempCtx.clearRect(0, 0, tempCanvas.width, tempCanvas.height);
+                
+                // 1. Draw FRONT garment on the left half (width 900x900, centered at X=50, Y=20)
+                drawGarmentToContextForExport(tempCtx, 'front', 50, 20, 900, 900);
+                
+                // 2. Draw BACK garment on the right half (width 900x900, centered at X=1050, Y=20)
+                drawGarmentToContextForExport(tempCtx, 'back', 1050, 20, 900, 900);
+                
+                // 3. Draw Labels ("FRONT" & "BACK") inside premium Glassmorphic pills
+                drawPillLabel(tempCtx, "FRONT", 500, 1010);
+                drawPillLabel(tempCtx, "BACK", 1500, 1010);
+                
+                // File name formatting: thiet-ke-ao-front-back-[ma-ho-so-hoac-thoi-gian].png
+                const recordCode = (document.getElementById('spec-record-code')?.innerText || '').replace('ML-', '') || state.recordCode || new Date().getTime();
+                const filename = `thiet-ke-ao-front-back-${recordCode}.png`;
+                
+                const dataURL = tempCanvas.toDataURL('image/png');
+                
+                if (isIOS && iosTab) {
+                    // Update iOS preview page with image and save instructions
+                    iosTab.document.title = filename;
+                    iosTab.document.body.innerHTML = `
+                        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; margin:0; padding:20px; background:#0b0f19; color:#f8fafc; font-family:-apple-system, BlinkMacSystemFont, sans-serif; box-sizing:border-box;">
+                            <img src="${dataURL}" style="max-width:100%; max-height:75vh; object-fit:contain; border-radius:12px; box-shadow:0 20px 40px rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.08); background: repeating-conic-gradient(#1e293b 0% 25%, #0f172a 0% 50%) 50% / 20px 20px;" />
+                            <h2 style="margin:24px 0 8px 0; font-size:18px; font-weight:600; text-align:center;">Thiết Kế Đã Sẵn Sàng!</h2>
+                            <p style="color:#94a3b8; font-size:13.5px; margin:0 0 24px 0; text-align:center; max-width:320px; line-height:1.5;">Chạm và giữ im vào hình ảnh ở trên để chọn <b>"Lưu vào Ảnh" (Save to Photos)</b>.</p>
+                            <button onclick="window.close()" style="padding:12px 28px; background:rgba(255,255,255,0.08); color:#f8fafc; border:1px solid rgba(255,255,255,0.12); border-radius:9999px; font-size:14px; font-weight:500; cursor:pointer; transition:background 0.2s;">Đóng Tab</button>
+                        </div>
+                    `;
+                    showToast('🎉 Đã tạo ảnh PNG thành công! Vui lòng lưu ảnh ở tab mới mở.', 'success');
+                } else {
+                    // Standard desktop/Android download
+                    const link = document.createElement('a');
+                    link.download = filename;
+                    link.href = dataURL;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    showToast('🎉 Đã tạo ảnh PNG Front/Back thành công!', 'success');
+                }
+            } catch (err) {
+                console.error('PNG export rendering failed:', err);
+                showToast('❌ Không thể tải ảnh, vui lòng thử lại', 'danger');
+                if (iosTab) iosTab.close();
+            } finally {
+                // Ensure state is restored
+                state.angle = originalAngle;
+                loadAndRender();
+            }
+        });
+    }
+
+    // Custom helper to render the garment at a specific angle and canvas bounds
+    function drawGarmentToContextForExport(ctx, angle, xOffset, yOffset, width, height) {
+        const originalAngle = state.angle;
+        state.angle = angle;
+        
         const activeLayers = getLayersConfig();
         
-        // Render exactly like the main canvas, but strictly on transparent background
+        ctx.save();
+        ctx.translate(xOffset, yOffset);
+        ctx.scale(width / 800, height / 800);
+        
         activeLayers.forEach(layer => {
             const img = imgCache[layer.path];
             if (!img) return;
@@ -5479,37 +5589,36 @@
             
             const renderedImg = getTintedLayer(img, color, textureType);
             
-            tempCtx.save();
+            ctx.save();
             let dy = 0;
             if (layer.id === 'phan-quang') {
                 dy = -parseInt(state.reflective.yOffset || 0);
                 const tapeYCenter = 300;
-                tempCtx.translate(0, tapeYCenter + dy);
-                tempCtx.scale(1, parseFloat(state.reflective.width || 5) / 5);
-                tempCtx.translate(0, -tapeYCenter);
+                ctx.translate(0, tapeYCenter + dy);
+                ctx.scale(1, parseFloat(state.reflective.width || 5) / 5);
+                ctx.translate(0, -tapeYCenter);
             }
             if (layer.isOverlay) {
-                tempCtx.globalCompositeOperation = 'multiply';
-                tempCtx.drawImage(renderedImg, 0, 0, canvas.width, canvas.height);
+                ctx.globalCompositeOperation = 'multiply';
+                ctx.drawImage(renderedImg, 0, 0, 800, 800);
             } else {
                 if (layer.id === 'co-trong') {
-                    tempCtx.globalAlpha = 0.7; // Faded by 30% compared to normal torso (100% - 30% = 70% opacity)
+                    ctx.globalAlpha = 0.7;
                 }
-                tempCtx.drawImage(renderedImg, 0, 0, canvas.width, canvas.height);
+                ctx.drawImage(renderedImg, 0, 0, 800, 800);
             }
-            tempCtx.restore();
+            ctx.restore();
 
-            // DYNAMIC CLIPPED PATTERN DRAW FOR EXPORT
-            const currentPatterns = state.patterns[state.angle] || [];
+            // PATTERNS
+            const currentPatterns = state.patterns[angle] || [];
             currentPatterns.forEach(pat => {
                 if (pat && pat.imgElement) {
                     const cov = pat.coverage || { than: true, tay: false, co: false, tui: false };
                     let shouldApply = false;
                     let isInsideCollar = false;
                     
-                    if (layer.id === 'co-trong' && (state.product === 'ao-polo' || state.product === 'ao-thun') && state.angle === 'front') {
+                    if (layer.id === 'co-trong' && (state.product === 'ao-polo' || state.product === 'ao-thun') && angle === 'front') {
                         isInsideCollar = true;
-                        // Apply pattern on the inside collar of the polo/T-shirt if Torso or Collar coverage is checked
                         if (cov.than || cov.co) {
                             shouldApply = true;
                         }
@@ -5526,35 +5635,89 @@
                     }
                     
                     if (shouldApply) {
-                        drawRealisticPattern(tempCtx, pat, img, renderedImg, isInsideCollar);
+                        drawRealisticPattern(ctx, pat, img, renderedImg, isInsideCollar);
                     }
                 }
             });
         });
 
-        // Draw dynamic shoulder and sleeve reflective strips on export
-        drawDynamicReflectiveStrips(tempCtx, 1);
+        // Draw dynamic shoulder and sleeve reflective strips
+        drawDynamicReflectiveStrips(ctx, 1);
 
-        // Draw Custom Draggable Logos on export
+        // Draw Custom Draggable Logos
         state.logos.forEach(logo => {
-            if (logo.view === state.angle && logo.imgElement) {
+            if (logo.view === angle && logo.imgElement) {
                 const logoW = logo.scale;
                 const logoH = logo.scale * (logo.imgElement.height / logo.imgElement.width);
                 
                 const thanLayer = activeLayers.find(l => l.id === 'than' || l.id.includes('than'));
                 const bodyImg = thanLayer ? imgCache[thanLayer.path] : null;
                 
-                drawRealisticLogo(tempCtx, logo, logo.x, logo.y, logoW, logoH, bodyImg);
+                drawRealisticLogo(ctx, logo, logo.x, logo.y, logoW, logoH, bodyImg);
             }
         });
 
-        tempCtx.restore(); // restore scaling
+        ctx.restore();
+        state.angle = originalAngle;
+    }
 
-        // Trigger browser download
-        const link = document.createElement('a');
-        link.download = `mrs-linh-thietke-${state.product}-${state.angle}.png`;
-        link.href = tempCanvas.toDataURL();
-        link.click();
+    // Helper to draw clean Glassmorphism pill labels for "FRONT" and "BACK"
+    function drawPillLabel(ctx, text, centerX, centerY) {
+        const width = 240;
+        const height = 64;
+        const radius = 32;
+        
+        ctx.save();
+        
+        // Draw pill background
+        ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+        ctx.shadowBlur = 15;
+        ctx.shadowOffsetY = 6;
+        
+        ctx.fillStyle = 'rgba(15, 23, 42, 0.85)';
+        ctx.beginPath();
+        if (ctx.roundRect) {
+            ctx.roundRect(centerX - width / 2, centerY - height / 2, width, height, radius);
+        } else {
+            const x = centerX - width / 2;
+            const y = centerY - height / 2;
+            ctx.moveTo(x + radius, y);
+            ctx.arcTo(x + width, y, x + width, y + height, radius);
+            ctx.arcTo(x + width, y + height, x, y + height, radius);
+            ctx.arcTo(x, y + height, x, y, radius);
+            ctx.arcTo(x, y, x + width, y, radius);
+            ctx.closePath();
+        }
+        ctx.fill();
+        
+        // Draw border line
+        ctx.shadowBlur = 0;
+        ctx.shadowOffsetY = 0;
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        if (ctx.roundRect) {
+            ctx.roundRect(centerX - width / 2, centerY - height / 2, width, height, radius);
+        } else {
+            const x = centerX - width / 2;
+            const y = centerY - height / 2;
+            ctx.moveTo(x + radius, y);
+            ctx.arcTo(x + width, y, x + width, y + height, radius);
+            ctx.arcTo(x + width, y + height, x, y + height, radius);
+            ctx.arcTo(x, y + height, x, y, radius);
+            ctx.arcTo(x, y, x + width, y, radius);
+            ctx.closePath();
+        }
+        ctx.stroke();
+        
+        // Draw label text
+        ctx.font = "bold 26px 'Outfit', 'Inter', sans-serif";
+        ctx.fillStyle = '#ffffff';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, centerX, centerY);
+        
+        ctx.restore();
     }
 
     // Spec View details population helper
