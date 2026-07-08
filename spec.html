@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bảng Mô Tả Sản Phẩm 3D - MRS LINH UNIFORM</title>
+    
+    <!-- SEO & Icons -->
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="shortcut icon" href="public/favicon.ico" type="image/x-icon">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap">
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="styles.css?v=1.1.5">
+    
+    <!-- Client-Side HTML to PDF Engine -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="lib/pdf/exportDesignPdf.js?v=1.2.3"></script>
+</head>
+<body class="main-app-body spec-view">
+
+    <!-- Spec Header -->
+    <header class="spec-header">
+        <div class="logo-container">
+            <img src="public/logo.webp" alt="Mrs Linh Uniform Logo" style="height: 42px; width: auto; object-fit: contain; display: block; border-radius: 4px;">
+            <div class="logo-text">
+                <h1 style="font-size: 18px;">MRS LINH UNIFORM</h1>
+                <p>Nền tảng Thiết Kế 3D</p>
+            </div>
+        </div>
+        
+        <div class="header-actions">
+            <button class="theme-toggle" id="btn-theme-toggle" title="Đổi giao diện Sáng/Tối">
+                <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m11.314 11.314l.707.707M12 5a7 7 0 100 14 7 7 0 000-14z"></path></svg>
+            </button>
+        </div>
+    </header>
+
+    <!-- Spec Layout Wrapper -->
+    <main class="spec-layout-container">
+        
+        <!-- Customer details bar -->
+        <section class="spec-customer-bar">
+            <div class="customer-info-left">
+                <span class="info-label">THÔNG TIN KHÁCH HÀNG</span>
+                <h2 id="spec-fullname">Đang tải...</h2>
+                <p>Số điện thoại / Zalo: <strong id="spec-phone">Đang tải...</strong></p>
+            </div>
+            <div class="customer-info-right">
+                <span class="info-label">MÃ HỒ SƠ & NGÀY TẠO</span>
+                <h3 id="spec-record-code" style="color: var(--accent-blue);">Đang tải...</h3>
+                <p>Ngày lập: <strong id="spec-date">Đang tải...</strong></p>
+            </div>
+        </section>
+
+        <!-- Main Content (2 Columns on Desktop, Stacked on Mobile) -->
+        <div class="spec-main-content">
+            
+            <!-- Left Column: 3D Preview Engine -->
+            <div class="spec-column-left">
+                <div class="spec-3d-stage">
+                    <div class="spotlight"></div>
+                    
+                    <div class="canvas-wrapper" id="div-canvas-wrapper">
+                        <canvas id="product-canvas" width="800" height="800"></canvas>
+                        <div class="canvas-drag-overlay"></div>
+                        
+                        <!-- Loader -->
+                        <div class="canvas-loader" id="canvas-loader">
+                            <div class="loader-content">
+                                <div class="spinner-box">
+                                    <div class="circle-border">
+                                        <div class="circle-core"></div>
+                                    </div>
+                                </div>
+                                <span class="loader-text">Đang tải mô hình 3D...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Angle HUD -->
+                    <div class="stage-hud">
+                        <div class="angle-controller">
+                            <button class="angle-btn active" data-angle="front">FRONT</button>
+                            <button class="angle-btn" data-angle="left">LEFT</button>
+                            <button class="angle-btn" data-angle="back">BACK</button>
+                            <button class="angle-btn" data-angle="right">RIGHT</button>
+                        </div>
+                        <div class="hud-help">
+                            <span>🖱 Kéo thả hoặc vuốt màn hình để xoay áo 360°</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Specs & Tables -->
+            <div class="spec-column-right">
+                
+                <!-- Product Overview Card -->
+                <div class="spec-card">
+                    <h3 class="card-title">Mẫu Đồng Phục</h3>
+                    <h2 id="spec-product-name" style="font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 12px;">Đang tải...</h2>
+                    
+                    <div class="specs-grid-meta">
+                        <div class="meta-item">
+                            <span class="meta-label">📂 Túi áo/quần:</span>
+                            <span class="meta-value" id="spec-pockets">Đang tải...</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-label">🧵 Phản quang:</span>
+                            <span class="meta-value" id="spec-reflective">Đang tải...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sizes & Quantities Table Card -->
+                <div class="spec-card">
+                    <h3 class="card-title">Số Lượng Đặt Hàng</h3>
+                    <div class="table-responsive">
+                        <table class="spec-table">
+                            <thead>
+                                <tr>
+                                    <th>Form dáng</th>
+                                    <th style="text-align: center;">Size</th>
+                                    <th>Thông số chuẩn</th>
+                                    <th style="text-align: center;">Số lượng</th>
+                                </tr>
+                            </thead>
+                            <tbody id="spec-sizes-table-body">
+                                <tr>
+                                    <td colspan="4" style="text-align: center; color: var(--text-muted);">Đang tải bảng size số lượng...</td>
+                                </tr>
+                            </tbody>
+                            <tfoot>
+                                <tr style="background: rgba(255, 255, 255, 0.02); font-weight: bold;">
+                                    <td colspan="3" style="text-transform: uppercase;">Tổng cộng số lượng đặt</td>
+                                    <td style="text-align: center; color: var(--accent-rose); font-size: 15px;" id="spec-total-qty">0 chiếc</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Colors Specification Table Card -->
+                <div class="spec-card">
+                    <h3 class="card-title">Đặc Tả Phối Màu Sắc Chi Tiết</h3>
+                    <div class="table-responsive">
+                        <table class="spec-table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 40%;">Bộ phận áo</th>
+                                    <th style="width: 60%;">Màu sắc vải / cúc nút</th>
+                                </tr>
+                            </thead>
+                            <tbody id="spec-colors-table-body">
+                                <tr>
+                                    <td colspan="2" style="text-align: center; color: var(--text-muted);">Đang tải thông số phối màu...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Special Notes Card -->
+                <div class="spec-card">
+                    <h3 class="card-title">Ghi Chú Đơn Hàng Từ Khách Hàng</h3>
+                    <div id="spec-notes" style="font-size: 13.5px; line-height: 1.6; color: var(--text-secondary); background: rgba(255, 255, 255, 0.01); padding: 12px; border-radius: 8px; border: 1px dashed var(--border-color); white-space: pre-line;">
+                        Đang tải ghi chú...
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- Floating Action Spec Popup (Fixed Bottom HUD) -->
+    <div class="floating-spec-popup" id="spec-action-popup">
+        <button class="popup-close-btn" id="btn-close-popup" title="Đóng thanh thao tác">✕</button>
+        <div class="popup-body">
+            <div class="popup-info">
+                <span class="popup-title">Bản Mô Tả Đơn Hàng 3D</span>
+                <span class="popup-subtitle">Tải file catalog PDF hoặc gửi duyệt qua Zalo xưởng may</span>
+            </div>
+            <div class="popup-actions">
+                <button class="btn btn-secondary btn-popup-action" id="btn-popup-pdf">
+                    <span class="btn-icon">📥</span> Lưu file PDF
+                </button>
+                <button class="btn btn-primary btn-popup-action" id="btn-popup-zalo" style="background: var(--accent-gradient);">
+                    <span class="btn-icon">💬</span> Gửi qua Zalo
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- App Engine JavaScript -->
+    <script src="app.js?v=1.2.0-debug"></script>
+</body>
+</html>

@@ -6,6 +6,30 @@
 (function () {
     'use strict';
     
+    // Helper to encode design data into base64 URL
+    function encodeDesignData(data) {
+        try {
+            const json = JSON.stringify(data);
+            const utf8 = unescape(encodeURIComponent(json));
+            return btoa(utf8);
+        } catch (e) {
+            console.error('Failed to encode design data:', e);
+            return '';
+        }
+    }
+
+    // Helper to decode design data from base64 URL
+    function decodeDesignData(base64) {
+        try {
+            const utf8 = atob(base64);
+            const json = decodeURIComponent(escape(utf8));
+            return JSON.parse(json);
+        } catch (e) {
+            console.error('Failed to decode design data:', e);
+            return null;
+        }
+    }
+    
     // Default garment colors for each interface theme to optimize contrast
     const DARK_THEME_GARMENT_COLORS = {
         than: '#f1f5f9',       // milky white/greyish white body
@@ -4084,6 +4108,35 @@
 
     // Interactive event listeners registrations
     function initEvents() {
+        const isSpecView = window.location.pathname.includes('spec.html') || window.location.search.includes('view=spec');
+        if (isSpecView) {
+            // Angle Buttons Click triggers
+            document.querySelectorAll('.angle-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    updateAngle(btn.getAttribute('data-angle'));
+                });
+            });
+            
+            // Theme toggle listener
+            const themeToggle = document.getElementById('btn-theme-toggle');
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    const body = document.body;
+                    let newTheme = 'dark';
+                    if (body.getAttribute('data-theme') === 'light') {
+                        body.removeAttribute('data-theme');
+                        newTheme = 'dark';
+                    } else {
+                        body.setAttribute('data-theme', 'light');
+                        newTheme = 'light';
+                    }
+                    state.theme = newTheme;
+                    updateThemeUI();
+                    loadAndRender();
+                });
+            }
+            return; // Exit early: no other editor event listeners are registered
+        }
         
         // Tab switching slide panels control
         document.querySelectorAll('.toolbar-tab').forEach(tab => {
@@ -5288,12 +5341,106 @@
             btn.disabled = false;
             
             // Close modal
-            document.getElementById('modal-zalo-share').classList.remove('active');
+            const zaloModal = document.getElementById('modal-zalo-share');
+            if (zaloModal) zaloModal.classList.remove('active');
             
             showToast('🎉 Tải file PDF catalog thiết kế thành công! Đang kết nối Zalo Mrs Linh...', 'success', 5000);
             
-            // Open Zalo chat
-            window.open('https://zalo.me/0934975913', '_blank');
+            // Prepare sharing data
+            const shareState = {
+                fullname,
+                phone,
+                notes,
+                date: designData.date,
+                product: state.product,
+                productName,
+                sizeQuantities: activeSizes,
+                totalQty,
+                colorSpecs: activeColors,
+                pocketSpecs,
+                reflectiveSpecs,
+                recordCode: designData.recordCode,
+                state: {
+                    product: state.product,
+                    form: state.form,
+                    colors: state.colors,
+                    pockets: state.pockets,
+                    reflective: state.reflective,
+                    size: state.size,
+                    logos: state.logos.map(l => ({
+                        src: l.src.startsWith('data:') && l.src.length > 50000 ? '' : l.src, // Skip huge base64 logos to prevent URL length overflow
+                        position: l.position,
+                        scale: l.scale,
+                        x: l.x,
+                        y: l.y
+                    })),
+                    patterns: state.patterns ? Object.keys(state.patterns).reduce((acc, angle) => {
+                        acc[angle] = (state.patterns[angle] || []).map(p => ({
+                            scale: p.scale,
+                            rotate: p.rotate,
+                            opacity: p.opacity,
+                            x: p.x,
+                            y: p.y,
+                            blendMode: p.blendMode,
+                            printType: p.printType,
+                            realism: p.realism,
+                            src: p.src.startsWith('data:') && p.src.length > 50000 ? '' : p.src,
+                            coverage: p.coverage
+                        }));
+                        return acc;
+                    }, {}) : {}
+                }
+            };
+
+            const encoded = encodeDesignData(shareState);
+            let currentPath = window.location.pathname;
+            if (currentPath.endsWith('/') || currentPath.endsWith('\\')) {
+                currentPath += 'spec.html';
+            } else if (currentPath.includes('index.html')) {
+                currentPath = currentPath.replace('index.html', 'spec.html');
+            } else {
+                currentPath = currentPath + (currentPath.endsWith('/') ? '' : '/') + 'spec.html';
+            }
+            const shareUrl = `${window.location.origin}${currentPath}?data=${encodeURIComponent(encoded)}`;
+            const message = `Mrs Linh Uniform gửi anh/chị bảng mô tả sản phẩm 3D. Vui lòng kiểm tra và xác nhận thiết kế tại:\n${shareUrl}`;
+            
+            // Copy to clipboard
+            if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(message).then(() => {
+                    showToast('📋 Đã copy link và lời nhắn Zalo! Hãy dán (Ctrl+V) vào ô chat Zalo.', 'success', 8000);
+                }).catch(err => {
+                    console.error('Clipboard copy failed:', err);
+                    fallbackCopyText(message);
+                });
+            } else {
+                fallbackCopyText(message);
+            }
+
+            function fallbackCopyText(text) {
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                try {
+                    document.execCommand('copy');
+                    showToast('📋 Đã copy link và lời nhắn Zalo! Hãy dán vào ô chat Zalo.', 'success', 8000);
+                } catch (e) {
+                    console.error('Fallback copy failed:', e);
+                }
+                document.body.removeChild(textArea);
+            }
+
+            // Redirect to Zalo chat target phone
+            const targetPhone = phone.replace(/[^0-9]/g, '');
+            if (targetPhone) {
+                setTimeout(() => {
+                    window.open(`https://zalo.me/${targetPhone}`, '_blank');
+                }, 1200);
+            } else {
+                setTimeout(() => {
+                    window.open('https://zalo.me/0934975913', '_blank');
+                }, 1200);
+            }
         }).catch(err => {
             console.error('PDF generation failed:', err);
             btn.innerText = originalText;
@@ -5410,8 +5557,222 @@
         link.click();
     }
 
+    // Spec View details population helper
+    function renderSpecSheetDetails(decoded) {
+        // Set standard elements
+        const nameEl = document.getElementById('spec-fullname');
+        if (nameEl) nameEl.innerText = decoded.fullname || 'Chưa cung cấp';
+        
+        const phoneEl = document.getElementById('spec-phone');
+        if (phoneEl) phoneEl.innerText = decoded.phone || 'Chưa cung cấp';
+        
+        const dateEl = document.getElementById('spec-date');
+        if (dateEl) dateEl.innerText = decoded.date || new Date().toLocaleDateString('vi-VN');
+        
+        const codeEl = document.getElementById('spec-record-code');
+        if (codeEl) codeEl.innerText = `ML-${decoded.recordCode || '810834'}`;
+        
+        const notesEl = document.getElementById('spec-notes');
+        if (notesEl) {
+            notesEl.innerText = decoded.notes || 'Không có ghi chú đặc biệt.';
+        }
+        
+        const prodNameEl = document.getElementById('spec-product-name');
+        if (prodNameEl) {
+            prodNameEl.innerText = decoded.productName || 'Đồng Phục Mrs Linh';
+        }
+
+        const pocketEl = document.getElementById('spec-pockets');
+        if (pocketEl && decoded.pocketSpecs) {
+            pocketEl.innerText = decoded.pocketSpecs.length > 0 ? decoded.pocketSpecs.join(', ') : 'Không có';
+        }
+        
+        const reflectiveEl = document.getElementById('spec-reflective');
+        if (reflectiveEl && decoded.reflectiveSpecs) {
+            reflectiveEl.innerText = decoded.reflectiveSpecs.length > 0 ? decoded.reflectiveSpecs.join(', ') : 'Không có';
+        }
+
+        // Render color specs table
+        const colorsTable = document.getElementById('spec-colors-table-body');
+        if (colorsTable && decoded.colorSpecs) {
+            colorsTable.innerHTML = '';
+            decoded.colorSpecs.forEach(spec => {
+                const tr = document.createElement('tr');
+                
+                const tdLabel = document.createElement('td');
+                tdLabel.style.fontWeight = 'bold';
+                tdLabel.innerText = spec.label;
+                
+                const tdVal = document.createElement('td');
+                tdVal.style.display = 'flex';
+                tdVal.style.alignItems = 'center';
+                tdVal.style.gap = '8px';
+                
+                if (spec.colorHex) {
+                    const colorCircle = document.createElement('span');
+                    colorCircle.style.display = 'inline-block';
+                    colorCircle.style.width = '14px';
+                    colorCircle.style.height = '14px';
+                    colorCircle.style.borderRadius = '3px';
+                    colorCircle.style.backgroundColor = spec.colorHex;
+                    colorCircle.style.border = '1px solid var(--border-color)';
+                    tdVal.appendChild(colorCircle);
+                }
+                
+                const nameSpan = document.createElement('span');
+                nameSpan.innerText = spec.value || spec.colorHex || '';
+                tdVal.appendChild(nameSpan);
+                
+                tr.appendChild(tdLabel);
+                tr.appendChild(tdVal);
+                colorsTable.appendChild(tr);
+            });
+        }
+
+        // Render sizes & quantities table
+        const sizesTable = document.getElementById('spec-sizes-table-body');
+        const totalQtyEl = document.getElementById('spec-total-qty');
+        if (sizesTable && decoded.sizeQuantities) {
+            sizesTable.innerHTML = '';
+            decoded.sizeQuantities.forEach(item => {
+                const tr = document.createElement('tr');
+                
+                const tdForm = document.createElement('td');
+                tdForm.innerText = item.form;
+                
+                const tdSize = document.createElement('td');
+                tdSize.style.fontWeight = 'bold';
+                tdSize.style.textAlign = 'center';
+                tdSize.innerText = item.size;
+                
+                const tdGuide = document.createElement('td');
+                tdGuide.innerText = item.guide;
+                
+                const tdQty = document.createElement('td');
+                tdQty.style.fontWeight = 'bold';
+                tdQty.style.textAlign = 'center';
+                tdQty.style.color = 'var(--accent-blue)';
+                tdQty.innerText = `${item.qty} chiếc`;
+                
+                tr.appendChild(tdForm);
+                tr.appendChild(tdSize);
+                tr.appendChild(tdGuide);
+                tr.appendChild(tdQty);
+                sizesTable.appendChild(tr);
+            });
+            
+            if (totalQtyEl) {
+                totalQtyEl.innerText = `${decoded.totalQty || 0} chiếc`;
+            }
+        }
+    }
+
+    // Spec floating action popup setup helper
+    function initSpecPopupEvents() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const rawData = urlParams.get('data');
+        if (!rawData) return;
+        
+        const decoded = decodeDesignData(rawData);
+        if (!decoded) return;
+
+        // Button Lưu PDF
+        const btnPdf = document.getElementById('btn-popup-pdf');
+        if (btnPdf) {
+            btnPdf.addEventListener('click', () => {
+                const originalText = btnPdf.innerText;
+                btnPdf.innerText = 'Đang xuất PDF...';
+                btnPdf.disabled = true;
+                
+                showToast('⏳ Đang tạo file PDF bản mô tả sản phẩm...', 'info', 3000);
+                
+                const imgFront = getTransparentShirtCanvas('front').toDataURL('image/png');
+                const imgBack = getTransparentShirtCanvas('back').toDataURL('image/png');
+                
+                const designDataForPdf = {
+                    ...decoded,
+                    imgFront,
+                    imgBack
+                };
+                
+                setTimeout(() => {
+                    window.exportDesignPdf(designDataForPdf).then(() => {
+                        btnPdf.innerText = originalText;
+                        btnPdf.disabled = false;
+                        showToast('🎉 Tải file PDF bản mô tả sản phẩm thành công!', 'success');
+                    }).catch(err => {
+                        console.error('PDF export failed:', err);
+                        btnPdf.innerText = originalText;
+                        btnPdf.disabled = false;
+                        showToast('❌ Lỗi khi xuất PDF. Vui lòng thử lại!', 'danger');
+                    });
+                }, 100);
+            });
+        }
+        
+        // Button Gửi Zalo
+        const btnZalo = document.getElementById('btn-popup-zalo');
+        if (btnZalo) {
+            btnZalo.addEventListener('click', () => {
+                const shareUrl = window.location.href;
+                const message = `Mrs Linh Uniform gửi anh/chị bảng mô tả sản phẩm 3D. Vui lòng kiểm tra và xác nhận thiết kế tại:\n${shareUrl}`;
+                
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(message).then(() => {
+                        showToast('📋 Đã copy link và lời nhắn Zalo! Hãy dán (Ctrl+V) vào ô chat Zalo.', 'success', 6000);
+                    }).catch(err => {
+                        console.error('Clipboard copy failed:', err);
+                        fallbackCopy(message);
+                    });
+                } else {
+                    fallbackCopy(message);
+                }
+
+                function fallbackCopy(text) {
+                    const textArea = document.createElement('textarea');
+                    textArea.value = text;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    try {
+                        document.execCommand('copy');
+                        showToast('📋 Đã copy link và lời nhắn Zalo!', 'success', 6000);
+                    } catch (e) {
+                        console.error('Fallback copy failed:', e);
+                    }
+                    document.body.removeChild(textArea);
+                }
+                
+                const cleanPhone = decoded.phone ? decoded.phone.replace(/[^0-9]/g, '') : '';
+                if (cleanPhone) {
+                    setTimeout(() => {
+                        window.open(`https://zalo.me/${cleanPhone}`, '_blank');
+                    }, 1000);
+                } else {
+                    setTimeout(() => {
+                        window.open('https://zalo.me/share', '_blank');
+                    }, 1000);
+                }
+            });
+        }
+        
+        // Close Popup Button
+        const btnClosePopup = document.getElementById('btn-close-popup');
+        const popup = document.getElementById('spec-action-popup');
+        if (btnClosePopup && popup) {
+            btnClosePopup.addEventListener('click', () => {
+                popup.classList.add('collapsed');
+                setTimeout(() => {
+                    popup.style.display = 'none';
+                }, 300);
+                showToast('🔔 Bạn có thể tải lại trang nếu muốn mở lại thanh thao tác nhanh.', 'info', 5000);
+            });
+        }
+    }
+
     // Core Initialization
     function init() {
+        const isSpecView = window.location.pathname.includes('spec.html') || window.location.search.includes('view=spec');
+
         // Setup initial angle and load layers (this also calls buildColorSwatches inside loadAndRender)
         updateAngle('front');
         
@@ -5421,40 +5782,102 @@
         // Event triggers setup
         initEvents();
         
-        // LocalStorage loading of drafts if exists
-        const draft = localStorage.getItem('mrs_linh_design_draft');
-        if (draft) {
-            try {
-                const parsed = JSON.parse(draft);
-                state.product = parsed.product || state.product;
-                state.form = parsed.form || state.form;
-                state.colors = { ...state.colors, ...parsed.colors };
-                state.hasUserCustomizedColors = true;
-                state.pockets = { ...state.pockets, ...parsed.pockets };
-                state.reflective = { ...state.reflective, ...parsed.reflective };
-                state.size = parsed.size || state.size;
-                
-                // Sync form gender buttons UI to match restored state
-                if (state.form === 'nu') {
-                    document.getElementById('form-nu').classList.add('active');
-                    document.getElementById('form-nam').classList.remove('active');
+        if (isSpecView) {
+            // Load design configuration from URL data parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const rawData = urlParams.get('data');
+            if (rawData) {
+                const decoded = decodeDesignData(rawData);
+                if (decoded) {
+                    // Restore state
+                    if (decoded.state) {
+                        state.product = decoded.state.product || state.product;
+                        state.form = decoded.state.form || state.form;
+                        state.colors = { ...state.colors, ...decoded.state.colors };
+                        state.hasUserCustomizedColors = true;
+                        state.pockets = { ...state.pockets, ...decoded.state.pockets };
+                        state.reflective = { ...state.reflective, ...decoded.state.reflective };
+                        state.size = decoded.state.size || state.size;
+                        state.logos = decoded.state.logos || [];
+                        state.patterns = decoded.state.patterns || {};
+                        
+                        // Set image elements for logo list to render on canvas
+                        state.logos.forEach(logo => {
+                            if (logo.src) {
+                                const img = new Image();
+                                img.crossOrigin = 'anonymous';
+                                img.src = logo.src;
+                                img.onload = () => {
+                                    logo.imgElement = img;
+                                    loadAndRender(); // re-draw when logo loads
+                                };
+                            }
+                        });
+                        
+                        // Set image elements for pattern list to render on canvas
+                        if (state.patterns) {
+                            Object.keys(state.patterns).forEach(angle => {
+                                (state.patterns[angle] || []).forEach(p => {
+                                    if (p.src) {
+                                        const img = new Image();
+                                        img.crossOrigin = 'anonymous';
+                                        img.src = p.src;
+                                        img.onload = () => {
+                                            p.imgElement = img;
+                                            loadAndRender(); // re-draw when pattern loads
+                                        };
+                                    }
+                                });
+                            });
+                        }
+                    }
+                    
+                    // Render customer data into the page
+                    renderSpecSheetDetails(decoded);
                 } else {
-                    document.getElementById('form-nam').classList.add('active');
-                    document.getElementById('form-nu').classList.remove('active');
+                    showToast('❌ Không thể giải mã dữ liệu bản vẽ này!', 'danger');
                 }
-                
-                // Sync product card active UI
-                document.querySelectorAll('.product-card').forEach(card => {
-                    card.classList.toggle('active', card.getAttribute('data-product') === state.product);
-                });
-                
-            } catch (e) {
-                console.error('Draft parsing failed.', e);
+            } else {
+                showToast('⚠️ Không tìm thấy dữ liệu bản vẽ trong liên kết!', 'warning');
+            }
+            
+            // Setup Spec actions popup listeners
+            initSpecPopupEvents();
+        } else {
+            // LocalStorage loading of drafts if exists
+            const draft = localStorage.getItem('mrs_linh_design_draft');
+            if (draft) {
+                try {
+                    const parsed = JSON.parse(draft);
+                    state.product = parsed.product || state.product;
+                    state.form = parsed.form || state.form;
+                    state.colors = { ...state.colors, ...parsed.colors };
+                    state.hasUserCustomizedColors = true;
+                    state.pockets = { ...state.pockets, ...parsed.pockets };
+                    state.reflective = { ...state.reflective, ...parsed.reflective };
+                    state.size = parsed.size || state.size;
+                    
+                    // Sync form gender buttons UI to match restored state
+                    if (state.form === 'nu') {
+                        document.getElementById('form-nu').classList.add('active');
+                        document.getElementById('form-nam').classList.remove('active');
+                    } else {
+                        document.getElementById('form-nam').classList.add('active');
+                        document.getElementById('form-nu').classList.remove('active');
+                    }
+                    
+                    // Sync product card active UI
+                    document.querySelectorAll('.product-card').forEach(card => {
+                        card.classList.toggle('active', card.getAttribute('data-product') === state.product);
+                    });
+                    
+                } catch (e) {
+                    console.error('Draft parsing failed.', e);
+                }
             }
         }
         
         updateThemeUI();
-        // Single unified loadAndRender — calls buildColorSwatches internally
         loadAndRender();
     }
 
