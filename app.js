@@ -137,6 +137,12 @@
         activePatternRotating: false,
         activePatternDragging: false,
 
+        texts: [], // Array of custom text layers
+        selectedTextId: null,
+        activeDragTextId: null,
+        activeTextRotating: false,
+        activeTextResizeHandle: null,
+
         isDirty: false,
         size: 'M',
         price: 'Liên hệ xưởng báo giá gốc',
@@ -1192,6 +1198,29 @@
             }
         });
         
+        // Draw Custom Draggable Texts
+        (state.texts || []).forEach(text => {
+            if (text.view === state.angle && text.content) {
+                if (!text.imgElement) {
+                    text.imgElement = renderTextToCanvas(text);
+                }
+                const scaleVal = text.scale / 100;
+                const textW = text.imgElement.width * scaleVal;
+                const textH = text.imgElement.height * scaleVal;
+                
+                const thanLayer = activeLayers.find(l => l.id === 'than' || l.id.includes('than'));
+                const bodyImg = thanLayer ? imgCache[thanLayer.path] : null;
+                
+                // Render text with realistic fabric folds (reusing drawRealisticLogo)
+                drawRealisticLogo(ctx, text, text.x, text.y, textW, textH, bodyImg);
+                
+                // Active selection border and control handles
+                if (state.selectedTextId === text.id) {
+                    drawTextTransformBox(ctx, text);
+                }
+            }
+        });
+        
         // Debug Active Layers
         renderDebugLayers(activeLayers);
     }
@@ -1237,6 +1266,80 @@
 
         const handleDragStart = (clientX, clientY) => {
             const coords = getCanvasCoords(clientX, clientY);
+            const clickDist = (p1, p2) => Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
+
+            // 0. Check Decorative Text handles and bounding box interaction first
+            if (state.selectedTextId) {
+                const activeText = (state.texts || []).find(t => t.id === state.selectedTextId);
+                if (activeText && activeText.imgElement && activeText.view === state.angle) {
+                    const rotateHandle = getTextRotateHandle(activeText);
+                    const corners = getTextCorners(activeText);
+
+                    // A. Check Text Rotate Handle (dist <= 12)
+                    if (rotateHandle && clickDist(coords, rotateHandle) <= 12) {
+                        state.activeTextRotating = true;
+                        isDragging = false;
+                        drawCanvas();
+                        return;
+                    }
+
+                    // B. Check Text Resize Handles (dist <= 12)
+                    if (corners) {
+                        const handleKeys = ['tl', 'tr', 'br', 'bl'];
+                        for (let i = 0; i < corners.length; i++) {
+                            if (clickDist(coords, corners[i]) <= 12) {
+                                state.activeTextResizeHandle = handleKeys[i];
+                                const w100 = activeText.imgElement.width;
+                                const h100 = activeText.imgElement.height;
+                                activeText.diagonal100 = Math.sqrt((w100 / 2) ** 2 + (h100 / 2) ** 2);
+                                isDragging = false;
+                                drawCanvas();
+                                return;
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Check click inside any Text body
+            let clickedText = null;
+            const currentAngleTexts = (state.texts || []).filter(t => t.view === state.angle && t.imgElement);
+            for (let i = currentAngleTexts.length - 1; i >= 0; i--) {
+                const txt = currentAngleTexts[i];
+                const w = txt.imgElement.width * (txt.scale / 100);
+                const h = txt.imgElement.height * (txt.scale / 100);
+
+                // Translate coordinates to rotated local space
+                const rad = (-(txt.rotation || 0) * Math.PI) / 180;
+                const cos = Math.cos(rad);
+                const sin = Math.sin(rad);
+                const dx = coords.x - txt.x;
+                const dy = coords.y - txt.y;
+                const localX = dx * cos - dy * sin;
+                const localY = dx * sin + dy * cos;
+
+                if (Math.abs(localX) <= w / 2 && Math.abs(localY) <= h / 2) {
+                    clickedText = txt;
+                    break;
+                }
+            }
+
+            if (clickedText) {
+                state.selectedTextId = clickedText.id;
+                state.activeDragTextId = clickedText.id;
+                state.dragOffsetX = clickedText.x - coords.x;
+                state.dragOffsetY = clickedText.y - coords.y;
+                isDragging = false;
+
+                // Deselect active pattern and logo
+                state.activePatternSelected = false;
+                state.activePatternId = null;
+                state.activeDragLogoId = null;
+
+                syncTextInputsUI();
+                drawCanvas();
+                return;
+            }
 
             // 1. Check Logos interaction first (logos are layered on top of pattern/body)
             let clickedLogo = null;
@@ -1263,20 +1366,24 @@
                 state.dragOffsetY = clickedLogo.y - coords.y;
                 isDragging = false; // Disable rotation drag
                 
-                // Deselect active pattern since we clicked on a logo
+                // Deselect active pattern and texts since we clicked on a logo
                 state.activePatternSelected = false;
                 state.activePatternId = null;
                 state.activePatternResizeHandle = null;
                 state.activePatternRotating = false;
                 state.activePatternDragging = false;
+                state.selectedTextId = null;
+                state.activeDragTextId = null;
+                state.activeTextRotating = false;
+                state.activeTextResizeHandle = null;
                 
+                syncTextInputsUI();
                 drawCanvas(); // Re-draw to show dashed border active
                 return;
             }
 
             // 2. Check Pattern interaction if no logo was clicked
             const patterns = state.patterns[state.angle] || [];
-            const clickDist = (p1, p2) => Math.sqrt((p1.x - p2.x) ** 2 + (p1.y - p2.y) ** 2);
             
             // First check if click is on the active pattern's handles (rotate/resize) if there is an active pattern
             if (state.activePatternId) {
@@ -1333,26 +1440,39 @@
                         state.dragOffsetX = cx - coords.x;
                         state.dragOffsetY = cy - coords.y;
                         isDragging = false;
+                        
+                        // Deselect text when selecting pattern
+                        state.selectedTextId = null;
+                        state.activeDragTextId = null;
+                        state.activeTextRotating = false;
+                        state.activeTextResizeHandle = null;
+                        
                         buildPatternListUI(); // Highlight selected pattern in list UI
                         syncPatternInputsUI(); // Update sliders to match this pattern
+                        syncTextInputsUI();
                         drawCanvas();
                         return;
                     }
                 }
             }
 
-            // Clicked outside both pattern and logos: deselect pattern
+            // Clicked outside pattern, logos, and text: deselect everything
             state.activePatternSelected = false;
             state.activePatternId = null;
             state.activePatternResizeHandle = null;
             state.activePatternRotating = false;
             state.activePatternDragging = false;
             state.activeDragLogoId = null;
+            state.selectedTextId = null;
+            state.activeDragTextId = null;
+            state.activeTextRotating = false;
+            state.activeTextResizeHandle = null;
 
             isDragging = true;
             startX = clientX;
             buildPatternListUI(); // Clear highlights
             syncPatternInputsUI(); // Hide sliders
+            syncTextInputsUI();
             drawCanvas();
         };
 
@@ -1431,6 +1551,66 @@
                 }
                 return true; // Handled
             }
+
+            // E. Rotating Text
+            if (state.activeTextRotating && state.selectedTextId) {
+                const text = (state.texts || []).find(t => t.id === state.selectedTextId);
+                if (text) {
+                    const cx = text.x;
+                    const cy = text.y;
+                    const angleRad = Math.atan2(coords.y - cy, coords.x - cx);
+                    let angleDeg = Math.round((angleRad * 180) / Math.PI + 90);
+                    
+                    if (angleDeg < -180) angleDeg += 360;
+                    if (angleDeg > 180) angleDeg -= 360;
+                    
+                    text.rotation = angleDeg;
+                    state.isDirty = true;
+                    syncTextInputsUI();
+                    scheduleRedraw();
+                }
+                return true;
+            }
+
+            // F. Resizing Text
+            if (state.activeTextResizeHandle && state.selectedTextId) {
+                const text = (state.texts || []).find(t => t.id === state.selectedTextId);
+                if (text && text.imgElement) {
+                    const cx = text.x;
+                    const cy = text.y;
+                    const dx = coords.x - cx;
+                    const dy = coords.y - cy;
+                    const D_current = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (!text.diagonal100) {
+                        const w100 = text.imgElement.width;
+                        const h100 = text.imgElement.height;
+                        text.diagonal100 = Math.sqrt((w100 / 2) ** 2 + (h100 / 2) ** 2);
+                    }
+                    
+                    const scaleVal = Math.round((D_current / text.diagonal100) * 100);
+                    text.scale = Math.max(20, Math.min(300, scaleVal));
+                    state.isDirty = true;
+                    syncTextInputsUI();
+                    scheduleRedraw();
+                }
+                return true;
+            }
+
+            // G. Dragging Text
+            if (state.activeDragTextId) {
+                const text = (state.texts || []).find(t => t.id === state.activeDragTextId);
+                if (text) {
+                    text.x = coords.x + state.dragOffsetX;
+                    text.y = coords.y + state.dragOffsetY;
+                    text.x = Math.max(0, Math.min(canvas.width, text.x));
+                    text.y = Math.max(0, Math.min(canvas.height, text.y));
+                    state.isDirty = true;
+                    scheduleRedraw();
+                }
+                return true;
+            }
+
             return false; // Not handled, fallback to rotation
         };
 
@@ -1441,6 +1621,9 @@
             if (state.activeDragLogoId) {
                 state.activeDragLogoId = null;
             }
+            state.activeTextRotating = false;
+            state.activeTextResizeHandle = null;
+            state.activeDragTextId = null;
             scheduleRedraw(); // Clear dashed box
             isDragging = false;
         };
@@ -1917,6 +2100,400 @@
                 state.size = options[0];
             }
         }
+    }
+
+
+    // Helper to update property on selected text layer
+    function updateSelectedTextProperty(propName, value, rebuildCanvas = true) {
+        if (!state.selectedTextId) return;
+        const text = (state.texts || []).find(t => t.id === state.selectedTextId);
+        if (text) {
+            text[propName] = value;
+            if (rebuildCanvas) {
+                text.imgElement = renderTextToCanvas(text);
+                // Reset cached diagonal length on size changes
+                if (propName === 'fontSize' || propName === 'letterSpacing' || propName === 'curveAmount' || propName === 'radius' || propName === 'content' || propName === 'type') {
+                    text.diagonal100 = null;
+                }
+            }
+            state.isDirty = true;
+            buildTextListUI();
+            drawCanvas();
+        }
+    }
+
+    // Dynamic UI builder for Decorative Text Layers List
+    function buildTextListUI() {
+        const listEl = document.getElementById('div-texts-list');
+        if (!listEl) return;
+        
+        listEl.innerHTML = '';
+        
+        const texts = state.texts || [];
+        if (texts.length === 0) {
+            listEl.innerHTML = `
+                <div class="text-muted" id="lbl-no-texts" style="font-size: 11px; font-style: italic; text-align: center; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px dashed var(--border-color);">
+                    Chưa có chữ trang trí nào được thêm. Nhấn "Thêm chữ" ở trên để bắt đầu!
+                </div>
+            `;
+            return;
+        }
+        
+        texts.forEach(text => {
+            const card = document.createElement('div');
+            card.className = 'uploaded-logo-preview';
+            card.style.flexDirection = 'column';
+            card.style.alignItems = 'stretch';
+            card.style.gap = '8px';
+            card.style.padding = '10px';
+            card.style.background = state.selectedTextId === text.id ? 'rgba(56, 189, 248, 0.15)' : 'rgba(19, 27, 46, 0.5)';
+            card.style.border = state.selectedTextId === text.id ? '1px solid var(--accent-blue)' : '1px solid var(--border-color)';
+            card.style.borderRadius = '8px';
+            card.style.cursor = 'pointer';
+            card.style.marginTop = '4px';
+            
+            // Header: info & actions
+            const header = document.createElement('div');
+            header.style.display = 'flex';
+            header.style.alignItems = 'center';
+            header.style.justifyContent = 'space-between';
+            header.style.gap = '8px';
+            
+            const info = document.createElement('div');
+            info.style.flex = '1';
+            info.style.display = 'flex';
+            info.style.flexDirection = 'column';
+            info.style.minWidth = '0';
+            
+            const labelText = document.createElement('span');
+            labelText.innerText = `"${text.content}"`;
+            labelText.style.fontSize = '12px';
+            labelText.style.fontWeight = '700';
+            labelText.style.color = '#f8fafc';
+            labelText.style.whiteSpace = 'nowrap';
+            labelText.style.overflow = 'hidden';
+            labelText.style.textOverflow = 'ellipsis';
+            labelText.style.display = 'block';
+            labelText.style.maxWidth = '130px';
+            
+            const angleNames = { 'front': 'Mặt Trước', 'back': 'Mặt Sau', 'left': 'Mặt Trái', 'right': 'Mặt Phải' };
+            const subLabel = document.createElement('span');
+            subLabel.innerText = `${angleNames[text.view] || text.view} | ${text.fontFamily}`;
+            subLabel.style.fontSize = '10px';
+            subLabel.style.color = 'var(--text-muted)';
+            
+            info.appendChild(labelText);
+            info.appendChild(subLabel);
+            
+            const actions = document.createElement('div');
+            actions.style.display = 'flex';
+            actions.style.gap = '4px';
+            
+            const btnCenter = document.createElement('button');
+            btnCenter.className = 'btn btn-secondary';
+            btnCenter.style.padding = '2px 6px';
+            btnCenter.style.fontSize = '9px';
+            btnCenter.innerText = '🎯 Giữa';
+            btnCenter.addEventListener('click', (e) => {
+                e.stopPropagation();
+                text.x = 400;
+                text.y = 350;
+                state.selectedTextId = text.id;
+                state.isDirty = true;
+                buildTextListUI();
+                syncTextInputsUI();
+                drawCanvas();
+            });
+            
+            const btnDelete = document.createElement('button');
+            btnDelete.className = 'btn btn-danger';
+            btnDelete.style.padding = '2px 6px';
+            btnDelete.style.fontSize = '9px';
+            btnDelete.innerText = 'Xóa';
+            btnDelete.addEventListener('click', (e) => {
+                e.stopPropagation();
+                state.texts = state.texts.filter(t => t.id !== text.id);
+                if (state.selectedTextId === text.id) {
+                    state.selectedTextId = null;
+                }
+                state.isDirty = true;
+                buildTextListUI();
+                syncTextInputsUI();
+                drawCanvas();
+                showToast('🗑 Đã xóa chữ trang trí!', 'info');
+            });
+            
+            actions.appendChild(btnCenter);
+            actions.appendChild(btnDelete);
+            
+            header.appendChild(info);
+            header.appendChild(actions);
+            card.appendChild(header);
+            
+            card.addEventListener('click', () => {
+                state.selectedTextId = text.id;
+                buildTextListUI();
+                syncTextInputsUI();
+                drawCanvas();
+            });
+            
+            listEl.appendChild(card);
+        });
+    }
+
+    // Sync Text panel input elements with selected text layer properties
+    function syncTextInputsUI() {
+        const text = state.selectedTextId ? (state.texts || []).find(t => t.id === state.selectedTextId) : null;
+        
+        const typeSelect = document.getElementById('text-type-select');
+        const curveGroup = document.getElementById('group-text-curve');
+        const radiusGroup = document.getElementById('group-text-radius');
+        const directionGroup = document.getElementById('group-text-circle-direction');
+        
+        if (text) {
+            document.getElementById('text-content-input').value = text.content;
+            typeSelect.value = text.type;
+            
+            if (text.type === 'curved') {
+                curveGroup.classList.remove('hidden');
+                radiusGroup.classList.add('hidden');
+                directionGroup.classList.add('hidden');
+            } else if (text.type === 'circle') {
+                curveGroup.classList.add('hidden');
+                radiusGroup.classList.remove('hidden');
+                directionGroup.classList.remove('hidden');
+            } else {
+                curveGroup.classList.add('hidden');
+                radiusGroup.classList.add('hidden');
+                directionGroup.classList.add('hidden');
+            }
+            
+            document.getElementById('input-text-curve').value = text.curveAmount;
+            document.getElementById('lbl-text-curve').innerText = text.curveAmount;
+            
+            document.getElementById('input-text-radius').value = text.radius;
+            document.getElementById('lbl-text-radius').innerText = text.radius + 'px';
+            
+            document.getElementById('text-circle-direction-select').value = text.circleDirection;
+            document.getElementById('text-font-select').value = text.fontFamily;
+            
+            document.getElementById('input-text-size').value = text.fontSize;
+            document.getElementById('lbl-text-size').innerText = text.fontSize + 'px';
+            
+            document.getElementById('text-weight-select').value = text.fontWeight;
+            
+            document.getElementById('input-text-spacing').value = text.letterSpacing;
+            document.getElementById('lbl-text-spacing').innerText = text.letterSpacing;
+            
+            document.getElementById('input-text-color').value = text.color;
+            document.getElementById('input-text-color-hex').value = text.color;
+            
+            document.getElementById('input-text-stroke-width').value = text.strokeWidth;
+            document.getElementById('lbl-text-stroke-width').innerText = text.strokeWidth + 'px';
+            
+            document.getElementById('input-text-stroke-color').value = text.strokeColor;
+            document.getElementById('input-text-stroke-color-hex').value = text.strokeColor;
+            
+            document.getElementById('input-text-rotation').value = text.rotation;
+            document.getElementById('lbl-text-rotation').innerText = text.rotation + '°';
+            
+            document.getElementById('input-text-scale').value = text.scale;
+            document.getElementById('lbl-text-scale').innerText = text.scale + '%';
+            
+            document.getElementById('btn-delete-text').style.display = 'block';
+        } else {
+            document.getElementById('btn-delete-text').style.display = 'none';
+            
+            const selectedType = typeSelect.value;
+            if (selectedType === 'curved') {
+                curveGroup.classList.remove('hidden');
+                radiusGroup.classList.add('hidden');
+                directionGroup.classList.add('hidden');
+            } else if (selectedType === 'circle') {
+                curveGroup.classList.add('hidden');
+                radiusGroup.classList.remove('hidden');
+                directionGroup.classList.remove('hidden');
+            } else {
+                curveGroup.classList.add('hidden');
+                radiusGroup.classList.add('hidden');
+                directionGroup.classList.add('hidden');
+            }
+        }
+    }
+
+    // Initialize all event listeners for Text Panel controls
+    function initTextEvents() {
+        // 1. Add Text Button click
+        const btnAdd = document.getElementById('btn-add-text');
+        if (btnAdd) {
+            btnAdd.addEventListener('click', () => {
+                const content = document.getElementById('text-content-input').value.trim();
+                if (!content) {
+                    showToast('Vui lòng nhập nội dung chữ!', 'warning');
+                    return;
+                }
+                const newText = {
+                    id: 'text_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+                    content: content,
+                    type: document.getElementById('text-type-select').value,
+                    fontFamily: document.getElementById('text-font-select').value,
+                    fontSize: parseInt(document.getElementById('input-text-size').value),
+                    fontWeight: parseInt(document.getElementById('text-weight-select').value),
+                    color: document.getElementById('input-text-color').value,
+                    strokeColor: document.getElementById('input-text-stroke-color').value,
+                    strokeWidth: parseFloat(document.getElementById('input-text-stroke-width').value),
+                    letterSpacing: parseFloat(document.getElementById('input-text-spacing').value),
+                    curveAmount: parseFloat(document.getElementById('input-text-curve').value),
+                    radius: parseFloat(document.getElementById('input-text-radius').value),
+                    circleDirection: document.getElementById('text-circle-direction-select').value,
+                    x: 400,
+                    y: 350,
+                    rotation: parseInt(document.getElementById('input-text-rotation').value),
+                    scale: parseInt(document.getElementById('input-text-scale').value),
+                    opacity: 100,
+                    view: state.angle,
+                    imgElement: null
+                };
+                newText.imgElement = renderTextToCanvas(newText);
+                state.texts.push(newText);
+                state.selectedTextId = newText.id;
+                state.isDirty = true;
+                
+                buildTextListUI();
+                syncTextInputsUI();
+                drawCanvas();
+                showToast('🔤 Đã thêm chữ thành công! Hãy kéo thả trên áo để căn chỉnh.', 'success', 5000);
+            });
+        }
+
+        // 2. Delete Selected Text Button click
+        const btnDelete = document.getElementById('btn-delete-text');
+        if (btnDelete) {
+            btnDelete.addEventListener('click', () => {
+                if (state.selectedTextId) {
+                    state.texts = state.texts.filter(t => t.id !== state.selectedTextId);
+                    state.selectedTextId = null;
+                    state.isDirty = true;
+                    
+                    buildTextListUI();
+                    syncTextInputsUI();
+                    drawCanvas();
+                    showToast('🗑 Đã xóa chữ đang chọn!', 'info');
+                }
+            });
+        }
+
+        // 3. Setup real-time listeners for all text properties
+        document.getElementById('text-content-input').addEventListener('input', (e) => {
+            updateSelectedTextProperty('content', e.target.value);
+        });
+
+        document.getElementById('text-type-select').addEventListener('change', (e) => {
+            const val = e.target.value;
+            // Toggle curve/radius group display immediately
+            const curveGroup = document.getElementById('group-text-curve');
+            const radiusGroup = document.getElementById('group-text-radius');
+            const directionGroup = document.getElementById('group-text-circle-direction');
+            if (val === 'curved') {
+                curveGroup.classList.remove('hidden');
+                radiusGroup.classList.add('hidden');
+                directionGroup.classList.add('hidden');
+            } else if (val === 'circle') {
+                curveGroup.classList.add('hidden');
+                radiusGroup.classList.remove('hidden');
+                directionGroup.classList.remove('hidden');
+            } else {
+                curveGroup.classList.add('hidden');
+                radiusGroup.classList.add('hidden');
+                directionGroup.classList.add('hidden');
+            }
+            updateSelectedTextProperty('type', val);
+        });
+
+        document.getElementById('input-text-curve').addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            document.getElementById('lbl-text-curve').innerText = val;
+            updateSelectedTextProperty('curveAmount', val);
+        });
+
+        document.getElementById('input-text-radius').addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            document.getElementById('lbl-text-radius').innerText = val + 'px';
+            updateSelectedTextProperty('radius', val);
+        });
+
+        document.getElementById('text-circle-direction-select').addEventListener('change', (e) => {
+            updateSelectedTextProperty('circleDirection', e.target.value);
+        });
+
+        document.getElementById('text-font-select').addEventListener('change', (e) => {
+            updateSelectedTextProperty('fontFamily', e.target.value);
+        });
+
+        document.getElementById('input-text-size').addEventListener('input', (e) => {
+            const val = parseInt(e.target.value);
+            document.getElementById('lbl-text-size').innerText = val + 'px';
+            updateSelectedTextProperty('fontSize', val);
+        });
+
+        document.getElementById('text-weight-select').addEventListener('change', (e) => {
+            updateSelectedTextProperty('fontWeight', parseInt(e.target.value));
+        });
+
+        document.getElementById('input-text-spacing').addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            document.getElementById('lbl-text-spacing').innerText = val;
+            updateSelectedTextProperty('letterSpacing', val);
+        });
+
+        // Color & Stroke Picker sync
+        const colorPicker = document.getElementById('input-text-color');
+        const colorHex = document.getElementById('input-text-color-hex');
+        colorPicker.addEventListener('input', (e) => {
+            const val = e.target.value;
+            colorHex.value = val;
+            updateSelectedTextProperty('color', val);
+        });
+        colorHex.addEventListener('input', (e) => {
+            const val = e.target.value.trim();
+            if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+                colorPicker.value = val;
+                updateSelectedTextProperty('color', val);
+            }
+        });
+
+        document.getElementById('input-text-stroke-width').addEventListener('input', (e) => {
+            const val = parseFloat(e.target.value);
+            document.getElementById('lbl-text-stroke-width').innerText = val + 'px';
+            updateSelectedTextProperty('strokeWidth', val);
+        });
+
+        const strokePicker = document.getElementById('input-text-stroke-color');
+        const strokeHex = document.getElementById('input-text-stroke-color-hex');
+        strokePicker.addEventListener('input', (e) => {
+            const val = e.target.value;
+            strokeHex.value = val;
+            updateSelectedTextProperty('strokeColor', val);
+        });
+        strokeHex.addEventListener('input', (e) => {
+            const val = e.target.value.trim();
+            if (/^#[0-9A-Fa-f]{6}$/.test(val)) {
+                strokePicker.value = val;
+                updateSelectedTextProperty('strokeColor', val);
+            }
+        });
+
+        document.getElementById('input-text-rotation').addEventListener('input', (e) => {
+            const val = parseInt(e.target.value);
+            document.getElementById('lbl-text-rotation').innerText = val + '°';
+            updateSelectedTextProperty('rotation', val, false); // no rebuild of text canvas
+        });
+
+        document.getElementById('input-text-scale').addEventListener('input', (e) => {
+            const val = parseInt(e.target.value);
+            document.getElementById('lbl-text-scale').innerText = val + '%';
+            updateSelectedTextProperty('scale', val, false); // no rebuild
+        });
     }
 
 
@@ -4060,6 +4637,378 @@
         targetCtx.restore();
     }
 
+    // Render decorative text to a transparent offscreen canvas based on options
+    function renderTextToCanvas(text) {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        const content = text.content || "MRS LINH UNIFORM";
+        const type = text.type || "straight";
+        const fontFamily = text.fontFamily || "Arial";
+        const fontSize = parseInt(text.fontSize || 48);
+        const fontWeight = text.fontWeight || 400;
+        const color = text.color || "#ffffff";
+        const strokeColor = text.strokeColor || "#000000";
+        const strokeWidth = parseFloat(text.strokeWidth || 0);
+        const letterSpacing = parseFloat(text.letterSpacing || 0);
+        const curveAmount = parseFloat(text.curveAmount || 0);
+        const radius = parseFloat(text.radius || 160);
+        const circleDirection = text.circleDirection || 'half-top';
+
+        // Base font string with fallback to Arial
+        const fontStr = `${fontWeight} ${fontSize}px "${fontFamily}", Arial`;
+        ctx.font = fontStr;
+
+        // Measure text characters to calculate canvas sizing
+        const charList = content.split('');
+        const charWidths = charList.map(c => ctx.measureText(c).width);
+        const textWidthSum = charWidths.reduce((a, b) => a + b, 0);
+        const totalSpacing = (charList.length - 1) * letterSpacing;
+        const totalTextWidth = textWidthSum + totalSpacing;
+        const totalTextHeight = fontSize * 1.3;
+
+        // Common canvas settings
+        ctx.textBaseline = 'middle';
+        ctx.textAlign = 'center';
+
+        if (type === 'straight') {
+            // Straight horizontal text layout
+            const padX = Math.max(20, strokeWidth * 2);
+            const padY = Math.max(20, strokeWidth * 2);
+            canvas.width = totalTextWidth + padX * 2;
+            canvas.height = totalTextHeight + padY * 2;
+
+            // Re-apply properties because canvas resize resets context state
+            ctx.font = fontStr;
+            ctx.textBaseline = 'middle';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = color;
+            if (strokeWidth > 0) {
+                ctx.strokeStyle = strokeColor;
+                ctx.lineWidth = strokeWidth;
+                ctx.lineJoin = 'round';
+            }
+
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+
+            if (letterSpacing === 0) {
+                if (strokeWidth > 0) ctx.strokeText(content, cx, cy);
+                ctx.fillText(content, cx, cy);
+            } else {
+                let currX = cx - totalTextWidth / 2;
+                charList.forEach((char, idx) => {
+                    const charW = charWidths[idx];
+                    const charX = currX + charW / 2;
+                    if (strokeWidth > 0) ctx.strokeText(char, charX, cy);
+                    ctx.fillText(char, charX, cy);
+                    currX += charW + letterSpacing;
+                });
+            }
+        } 
+        else if (type === 'curved') {
+            // Curved text along an arc (curves up or down)
+            if (Math.abs(curveAmount) < 2) {
+                // Fallback to straight text if curveAmount is near 0
+                text.type = 'straight';
+                const straightCanvas = renderTextToCanvas(text);
+                text.type = 'curved'; // restore state
+                return straightCanvas;
+            }
+
+            // Curve height (sagitta) is scaled from curveAmount (max 120px height)
+            const h = (Math.abs(curveAmount) / 100) * 120;
+            const W = Math.max(100, totalTextWidth);
+            
+            // Radius of curvature R
+            const R = (W * W) / (8 * h) + h / 2;
+            const padX = Math.max(40, strokeWidth * 2);
+            const padY = Math.max(40, strokeWidth * 2);
+
+            canvas.width = W + padX * 2;
+            canvas.height = h + fontSize * 1.5 + padY * 2;
+
+            ctx.font = fontStr;
+            ctx.textBaseline = 'middle';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = color;
+            if (strokeWidth > 0) {
+                ctx.strokeStyle = strokeColor;
+                ctx.lineWidth = strokeWidth;
+                ctx.lineJoin = 'round';
+            }
+
+            const cx = canvas.width / 2;
+
+            if (curveAmount > 0) {
+                // Curved up (Rainbow arc): circle center lies below the text
+                const circleCenterY = canvas.height - padY - fontSize / 2 + R - h;
+                const circleCenterX = cx;
+
+                let runningDist = 0;
+                charList.forEach((char, idx) => {
+                    const charW = charWidths[idx];
+                    const distToCenter = runningDist + charW / 2 - totalTextWidth / 2;
+                    const angle = distToCenter / R; // angle in radians from vertical top
+
+                    const x = circleCenterX + R * Math.sin(angle);
+                    const y = circleCenterY - R * Math.cos(angle);
+
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.rotate(angle);
+                    if (strokeWidth > 0) ctx.strokeText(char, 0, 0);
+                    ctx.fillText(char, 0, 0);
+                    ctx.restore();
+
+                    runningDist += charW + letterSpacing;
+                });
+            } else {
+                // Curved down (Smile arc): circle center lies above the text
+                const circleCenterY = padY + fontSize / 2 - R;
+                const circleCenterX = cx;
+
+                let runningDist = 0;
+                charList.forEach((char, idx) => {
+                    const charW = charWidths[idx];
+                    const distToCenter = runningDist + charW / 2 - totalTextWidth / 2;
+                    const angle = distToCenter / R; // angle in radians from vertical top
+
+                    const x = circleCenterX + R * Math.sin(angle);
+                    const y = circleCenterY + R * Math.cos(angle);
+
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.rotate(-angle);
+                    if (strokeWidth > 0) ctx.strokeText(char, 0, 0);
+                    ctx.fillText(char, 0, 0);
+                    ctx.restore();
+
+                    runningDist += charW + letterSpacing;
+                });
+            }
+        }
+        else if (type === 'circle') {
+            // Text arranged in a circle of radius
+            const pad = Math.max(30, strokeWidth * 2 + fontSize);
+            const diameter = radius * 2 + pad * 2;
+            canvas.width = diameter;
+            canvas.height = diameter;
+
+            ctx.font = fontStr;
+            ctx.textBaseline = 'middle';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = color;
+            if (strokeWidth > 0) {
+                ctx.strokeStyle = strokeColor;
+                ctx.lineWidth = strokeWidth;
+                ctx.lineJoin = 'round';
+            }
+
+            const cx = canvas.width / 2;
+            const cy = canvas.height / 2;
+
+            if (circleDirection === 'full') {
+                // Distribute evenly around 360 degrees
+                const angleStep = (2 * Math.PI) / charList.length;
+                charList.forEach((char, idx) => {
+                    const angle = -Math.PI / 2 + idx * angleStep;
+                    const x = cx + radius * Math.cos(angle);
+                    const y = cy + radius * Math.sin(angle);
+
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.rotate(angle + Math.PI / 2);
+                    if (strokeWidth > 0) ctx.strokeText(char, 0, 0);
+                    ctx.fillText(char, 0, 0);
+                    ctx.restore();
+                });
+            } else if (circleDirection === 'half-top') {
+                // Curved around the top half
+                let runningDist = 0;
+                charList.forEach((char, idx) => {
+                    const charW = charWidths[idx];
+                    const distToCenter = runningDist + charW / 2 - totalTextWidth / 2;
+                    const angle = -Math.PI / 2 + distToCenter / radius;
+
+                    const x = cx + radius * Math.cos(angle);
+                    const y = cy + radius * Math.sin(angle);
+
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.rotate(angle + Math.PI / 2);
+                    if (strokeWidth > 0) ctx.strokeText(char, 0, 0);
+                    ctx.fillText(char, 0, 0);
+                    ctx.restore();
+
+                    runningDist += charW + letterSpacing;
+                });
+            } else if (circleDirection === 'half-bottom') {
+                // Curved around the bottom half (reads left to right)
+                let runningDist = 0;
+                charList.forEach((char, idx) => {
+                    const charW = charWidths[idx];
+                    const distToCenter = runningDist + charW / 2 - totalTextWidth / 2;
+                    const angle = Math.PI / 2 + distToCenter / radius;
+
+                    const x = cx + radius * Math.cos(angle);
+                    const y = cy + radius * Math.sin(angle);
+
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.rotate(angle - Math.PI / 2);
+                    if (strokeWidth > 0) ctx.strokeText(char, 0, 0);
+                    ctx.fillText(char, 0, 0);
+                    ctx.restore();
+
+                    runningDist += charW + letterSpacing;
+                });
+            }
+        }
+        else if (type === 'vertical') {
+            // Stacked vertical text
+            const padX = Math.max(20, strokeWidth * 2);
+            const padY = Math.max(20, strokeWidth * 2);
+            const maxW = Math.max(...charWidths);
+            const stepY = fontSize + letterSpacing;
+            const totalH = stepY * charList.length - letterSpacing;
+
+            canvas.width = maxW + padX * 2;
+            canvas.height = totalH + padY * 2;
+
+            ctx.font = fontStr;
+            ctx.textBaseline = 'middle';
+            ctx.textAlign = 'center';
+            ctx.fillStyle = color;
+            if (strokeWidth > 0) {
+                ctx.strokeStyle = strokeColor;
+                ctx.lineWidth = strokeWidth;
+                ctx.lineJoin = 'round';
+            }
+
+            const cx = canvas.width / 2;
+
+            charList.forEach((char, idx) => {
+                const charY = padY + idx * stepY + fontSize / 2;
+                if (strokeWidth > 0) ctx.strokeText(char, cx, charY);
+                ctx.fillText(char, cx, charY);
+            });
+        }
+
+        return canvas;
+    }
+
+    // Get text corners in canvas space
+    function getTextCorners(text) {
+        if (!text || !text.imgElement) return null;
+        const scaleFactor = text.scale / 100;
+        const w = text.imgElement.width * scaleFactor;
+        const h = text.imgElement.height * scaleFactor;
+        const cx = text.x;
+        const cy = text.y;
+        const rad = ((text.rotation || 0) * Math.PI) / 180;
+
+        const cos = Math.cos(rad);
+        const sin = Math.sin(rad);
+
+        const localCorners = [
+            { x: -w / 2, y: -h / 2 }, // Top-Left
+            { x: w / 2, y: -h / 2 },  // Top-Right
+            { x: w / 2, y: h / 2 },   // Bottom-Right
+            { x: -w / 2, y: h / 2 }   // Bottom-Left
+        ];
+
+        return localCorners.map(pt => ({
+            x: cx + pt.x * cos - pt.y * sin,
+            y: cy + pt.x * sin + pt.y * cos
+        }));
+    }
+
+    // Get text rotation handle coordinates
+    function getTextRotateHandle(text) {
+        if (!text || !text.imgElement) return null;
+        const scaleFactor = text.scale / 100;
+        const h = text.imgElement.height * scaleFactor;
+        const cx = text.x;
+        const cy = text.y;
+        const rad = ((text.rotation || 0) * Math.PI) / 180;
+
+        const cos = Math.cos(rad);
+        const sin = Math.sin(rad);
+
+        const pt = { x: 0, y: -h / 2 - 25 };
+        return {
+            x: cx + pt.x * cos - pt.y * sin,
+            y: cy + pt.x * sin + pt.y * cos
+        };
+    }
+
+    // Draw selection boundaries and transform handles around text
+    function drawTextTransformBox(targetCtx, text) {
+        if (!text || !text.imgElement) return;
+
+        const corners = getTextCorners(text);
+        if (!corners) return;
+
+        targetCtx.save();
+
+        // 1. Draw dashed selection box
+        targetCtx.strokeStyle = 'rgba(56, 189, 248, 0.85)';
+        targetCtx.lineWidth = 1.5;
+        targetCtx.setLineDash([4, 4]);
+        targetCtx.beginPath();
+        targetCtx.moveTo(corners[0].x, corners[0].y);
+        targetCtx.lineTo(corners[1].x, corners[1].y);
+        targetCtx.lineTo(corners[2].x, corners[2].y);
+        targetCtx.lineTo(corners[3].x, corners[3].y);
+        targetCtx.closePath();
+        targetCtx.stroke();
+
+        // 2. Draw vertical line connecting top to rotate handle
+        const cx = text.x;
+        const cy = text.y;
+        const rad = ((text.rotation || 0) * Math.PI) / 180;
+        const cos = Math.cos(rad);
+        const sin = Math.sin(rad);
+
+        const scaleFactor = text.scale / 100;
+        const h = text.imgElement.height * scaleFactor;
+        
+        const topCenter = {
+            x: cx + (0) * cos - (-h / 2) * sin,
+            y: cy + (0) * sin + (-h / 2) * cos
+        };
+        const rotateHandle = getTextRotateHandle(text);
+
+        targetCtx.strokeStyle = 'rgba(56, 189, 248, 0.85)';
+        targetCtx.lineWidth = 1.5;
+        targetCtx.setLineDash([]);
+        targetCtx.beginPath();
+        targetCtx.moveTo(topCenter.x, topCenter.y);
+        targetCtx.lineTo(rotateHandle.x, rotateHandle.y);
+        targetCtx.stroke();
+
+        // 3. Draw rotate handle circle
+        targetCtx.fillStyle = '#ffffff';
+        targetCtx.strokeStyle = '#38bdf8';
+        targetCtx.lineWidth = 2;
+        targetCtx.beginPath();
+        targetCtx.arc(rotateHandle.x, rotateHandle.y, 6, 0, 2 * Math.PI);
+        targetCtx.fill();
+        targetCtx.stroke();
+
+        // 4. Draw corner resize handle rectangles
+        corners.forEach(pt => {
+            targetCtx.fillStyle = '#ffffff';
+            targetCtx.strokeStyle = '#38bdf8';
+            targetCtx.lineWidth = 1.5;
+            targetCtx.fillRect(pt.x - 4, pt.y - 4, 8, 8);
+            targetCtx.strokeRect(pt.x - 4, pt.y - 4, 8, 8);
+        });
+
+        targetCtx.restore();
+    }
+
     // ── Toast Notification ───────────────────────────────────────────────
     // Thay thế alert() để không block main thread và đẹp hơn
     function showToast(message, type = 'info', duration = 4000) {
@@ -4175,6 +5124,7 @@
                     'panel-pockets': 'Thiết Kế Túi Áo',
                     'panel-reflective': 'Dải Phản Quang',
                     'panel-logo': 'Thương Hiệu Logo',
+                    'panel-text': 'Chữ Trang Trí',
                     'panel-patterns': 'Họa Tiết In Lớn',
                     'panel-sizes': 'Bảng thông số Size cơ bản',
                     'panel-export': 'Tải File Thiết Kế'
@@ -4802,7 +5752,28 @@
                 colors: state.colors,
                 pockets: state.pockets,
                 reflective: state.reflective,
-                size: state.size
+                size: state.size,
+                texts: (state.texts || []).map(t => ({
+                    id: t.id,
+                    content: t.content,
+                    type: t.type,
+                    fontFamily: t.fontFamily,
+                    fontSize: t.fontSize,
+                    fontWeight: t.fontWeight,
+                    color: t.color,
+                    strokeColor: t.strokeColor,
+                    strokeWidth: t.strokeWidth,
+                    letterSpacing: t.letterSpacing,
+                    curveAmount: t.curveAmount,
+                    radius: t.radius,
+                    circleDirection: t.circleDirection,
+                    x: t.x,
+                    y: t.y,
+                    rotation: t.rotation,
+                    scale: t.scale,
+                    opacity: t.opacity,
+                    view: t.view
+                }))
             }));
             showToast('💾 Đã lưu bản phác thảo thiết kế thành công!', 'success');
         });
@@ -4845,6 +5816,9 @@
             updateThemeUI();
             loadAndRender();
         });
+
+        // Initialize Text Decoration Events
+        initTextEvents();
     }
 
     // Generate transparent canvas of only the designed shirt (Dynamic angle)
@@ -4935,6 +5909,23 @@
                 const bodyImg = thanLayer ? imgCache[thanLayer.path] : null;
                 
                 drawRealisticLogo(tempCtx, logo, logo.x, logo.y, logoW, logoH, bodyImg);
+            }
+        });
+
+        // Draw custom draggable texts
+        (state.texts || []).forEach(text => {
+            if (text.view === angle && text.content) {
+                if (!text.imgElement) {
+                    text.imgElement = renderTextToCanvas(text);
+                }
+                const scaleVal = text.scale / 100;
+                const textW = text.imgElement.width * scaleVal;
+                const textH = text.imgElement.height * scaleVal;
+                
+                const thanLayer = activeLayers.find(l => l.id === 'than' || l.id.includes('than'));
+                const bodyImg = thanLayer ? imgCache[thanLayer.path] : null;
+                
+                drawRealisticLogo(tempCtx, text, text.x, text.y, textW, textH, bodyImg);
             }
         });
         
@@ -5286,6 +6277,13 @@
             if (state.reflective.sleeves) reflectiveSpecs.push('Phản quang bắp tay');
         }
 
+        const textSpecs = [];
+        (state.texts || []).forEach(t => {
+            const angleNames = { 'front': 'Mặt trước', 'back': 'Mặt sau', 'left': 'Cạnh trái', 'right': 'Cạnh phải' };
+            const typeNames = { 'straight': 'Chữ thẳng', 'curved': 'Chữ cong', 'circle': 'Chữ chạy tròn', 'vertical': 'Chữ dọc' };
+            textSpecs.push(`"${t.content}" (${angleNames[t.view] || t.view} - ${typeNames[t.type] || t.type} - Font: ${t.fontFamily} - Cỡ: ${t.fontSize}px)`);
+        });
+
         // Formatted draggable logos
         const getPositionLabel = (pos) => {
             const map = {
@@ -5342,10 +6340,12 @@
             colorSpecs: activeColors,
             pocketSpecs,
             reflectiveSpecs,
+            textSpecs,
             imgFront,
             imgBack,
             logos: formattedLogos,
             patterns: activePatterns,
+            texts: state.texts,
             recordCode
         };
 
@@ -5379,6 +6379,7 @@
                 colorSpecs: activeColors,
                 pocketSpecs,
                 reflectiveSpecs,
+                textSpecs,
                 recordCode: designData.recordCode,
                 state: {
                     product: state.product,
@@ -5408,7 +6409,28 @@
                             coverage: p.coverage
                         }));
                         return acc;
-                    }, {}) : {}
+                    }, {}) : {},
+                    texts: (state.texts || []).map(t => ({
+                        id: t.id,
+                        content: t.content,
+                        type: t.type,
+                        fontFamily: t.fontFamily,
+                        fontSize: t.fontSize,
+                        fontWeight: t.fontWeight,
+                        color: t.color,
+                        strokeColor: t.strokeColor,
+                        strokeWidth: t.strokeWidth,
+                        letterSpacing: t.letterSpacing,
+                        curveAmount: t.curveAmount,
+                        radius: t.radius,
+                        circleDirection: t.circleDirection,
+                        x: t.x,
+                        y: t.y,
+                        rotation: t.rotation,
+                        scale: t.scale,
+                        opacity: t.opacity,
+                        view: t.view
+                    }))
                 }
             };
 
@@ -5657,6 +6679,23 @@
             }
         });
 
+        // Draw Custom Draggable Texts
+        (state.texts || []).forEach(text => {
+            if (text.view === angle && text.content) {
+                if (!text.imgElement) {
+                    text.imgElement = renderTextToCanvas(text);
+                }
+                const scaleVal = text.scale / 100;
+                const textW = text.imgElement.width * scaleVal;
+                const textH = text.imgElement.height * scaleVal;
+                
+                const thanLayer = activeLayers.find(l => l.id === 'than' || l.id.includes('than'));
+                const bodyImg = thanLayer ? imgCache[thanLayer.path] : null;
+                
+                drawRealisticLogo(ctx, text, text.x, text.y, textW, textH, bodyImg);
+            }
+        });
+
         ctx.restore();
         state.angle = originalAngle;
     }
@@ -5753,6 +6792,17 @@
         const reflectiveEl = document.getElementById('spec-reflective');
         if (reflectiveEl && decoded.reflectiveSpecs) {
             reflectiveEl.innerText = decoded.reflectiveSpecs.length > 0 ? decoded.reflectiveSpecs.join(', ') : 'Không có';
+        }
+
+        const textsContainer = document.getElementById('spec-texts-container');
+        const textsEl = document.getElementById('spec-texts');
+        if (textsContainer && textsEl && decoded.textSpecs) {
+            if (decoded.textSpecs.length > 0) {
+                textsContainer.style.display = 'flex';
+                textsEl.innerText = decoded.textSpecs.join('; ');
+            } else {
+                textsContainer.style.display = 'none';
+            }
         }
 
         // Render color specs table
@@ -5855,7 +6905,8 @@
                 const designDataForPdf = {
                     ...decoded,
                     imgFront,
-                    imgBack
+                    imgBack,
+                    texts: (decoded.state && decoded.state.texts) ? decoded.state.texts : []
                 };
                 
                 setTimeout(() => {
@@ -5945,6 +6996,9 @@
         // Event triggers setup
         initEvents();
         
+        buildTextListUI();
+        syncTextInputsUI();
+        
         if (isSpecView) {
             // Load design configuration from URL data parameter
             const urlParams = new URLSearchParams(window.location.search);
@@ -5963,6 +7017,11 @@
                         state.size = decoded.state.size || state.size;
                         state.logos = decoded.state.logos || [];
                         state.patterns = decoded.state.patterns || {};
+                        state.texts = decoded.state.texts || [];
+                        
+                        state.texts.forEach(text => {
+                            text.imgElement = renderTextToCanvas(text);
+                        });
                         
                         // Set image elements for logo list to render on canvas
                         state.logos.forEach(logo => {
@@ -6019,6 +7078,13 @@
                     state.pockets = { ...state.pockets, ...parsed.pockets };
                     state.reflective = { ...state.reflective, ...parsed.reflective };
                     state.size = parsed.size || state.size;
+                    state.texts = parsed.texts || [];
+                    state.texts.forEach(text => {
+                        text.imgElement = renderTextToCanvas(text);
+                    });
+                    
+                    buildTextListUI();
+                    syncTextInputsUI();
                     
                     // Sync form gender buttons UI to match restored state
                     if (state.form === 'nu') {

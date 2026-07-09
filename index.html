@@ -18,7 +18,7 @@
     <!-- Google Fonts — Non-blocking via <link> (faster than @import in CSS) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700;900&family=Montserrat:wght@300;400;500;600;700;800;900&family=Oswald:wght@300;400;500;600;700&display=swap">
 
     <!-- Stylesheet -->
     <link rel="stylesheet" href="styles.css?v=1.1.5">
@@ -82,6 +82,10 @@
             <button class="toolbar-tab" data-panel="panel-logo" id="tab-logo">
                 <div class="tab-icon">🖼</div>
                 <span>Logo</span>
+            </button>
+            <button class="toolbar-tab" data-panel="panel-text" id="tab-text">
+                <div class="tab-icon">🔤</div>
+                <span>Chữ</span>
             </button>
             <button class="toolbar-tab" data-panel="panel-patterns" id="tab-patterns">
                 <div class="tab-icon">✨</div>
@@ -320,6 +324,137 @@
                         <div id="div-logos-list" style="display: flex; flex-direction: column; gap: 14px; margin-top: 8px;">
                             <div class="text-muted" id="lbl-no-logos" style="font-size: 12px; font-style: italic; text-align: center; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px dashed var(--border-color);">
                                 Chưa có logo nào được tải lên. Tải ảnh lên ở trên để bắt đầu!
+                            </div>
+                        </div>
+                </div>
+
+                <!-- Panel 5.5: Text Customization (Chữ Trang Trí) -->
+                <div class="panel-content hidden" id="panel-text">
+                    <!-- Text Content Input -->
+                    <div class="control-group">
+                        <label class="control-label" style="font-weight: 700; color: var(--accent-blue);">Nội dung chữ</label>
+                        <input type="text" class="input-field" id="text-content-input" placeholder="Nhập chữ trang trí..." value="Đồng Phục Mrs Linh">
+                    </div>
+
+                    <!-- Layout Type Selection -->
+                    <div class="control-group">
+                        <label class="control-label">Kiểu chữ</label>
+                        <select class="input-field" id="text-type-select">
+                            <option value="straight" selected>Chữ thẳng</option>
+                            <option value="curved">Chữ cong</option>
+                            <option value="circle">Chữ chạy tròn</option>
+                            <option value="vertical">Chữ dọc</option>
+                        </select>
+                    </div>
+
+                    <!-- Curve Slider (Only visible for Curved text) -->
+                    <div class="control-group hidden" id="group-text-curve">
+                        <label class="control-label">Độ cong <span class="value-badge" id="lbl-text-curve">50</span></label>
+                        <input type="range" class="custom-range" id="input-text-curve" min="-100" max="100" value="50">
+                    </div>
+
+                    <!-- Radius Slider (Only visible for Circle text) -->
+                    <div class="control-group hidden" id="group-text-radius">
+                        <label class="control-label">Bán kính vòng tròn <span class="value-badge" id="lbl-text-radius">160px</span></label>
+                        <input type="range" class="custom-range" id="input-text-radius" min="50" max="300" value="160">
+                    </div>
+
+                    <!-- Circle Layout (Only visible for Circle text) -->
+                    <div class="control-group hidden" id="group-text-circle-direction">
+                        <label class="control-label">Hướng chạy chữ tròn</label>
+                        <select class="input-field" id="text-circle-direction-select">
+                            <option value="half-top" selected>Nửa vòng trên</option>
+                            <option value="half-bottom">Nửa vòng dưới</option>
+                            <option value="full">Vòng tròn đầy đủ</option>
+                        </select>
+                    </div>
+
+                    <!-- Font Family dropdown -->
+                    <div class="control-group">
+                        <label class="control-label">Font chữ</label>
+                        <select class="input-field" id="text-font-select">
+                            <option value="Arial" selected>Arial (Mặc định)</option>
+                            <option value="Roboto">Roboto</option>
+                            <option value="Be Vietnam Pro">Be Vietnam Pro</option>
+                            <option value="Montserrat">Montserrat</option>
+                            <option value="Oswald">Oswald</option>
+                        </select>
+                    </div>
+
+                    <!-- Font Size & Font Weight row -->
+                    <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                        <div style="flex: 1;">
+                            <label class="control-label" style="font-size: 11px;">Cỡ chữ <span class="value-badge" id="lbl-text-size">48px</span></label>
+                            <input type="range" class="custom-range" id="input-text-size" min="12" max="120" value="48">
+                        </div>
+                        <div style="flex: 1;">
+                            <label class="control-label" style="font-size: 11px;">Độ dày</label>
+                            <select class="input-field" id="text-weight-select" style="padding: 6px;">
+                                <option value="300">Mảnh</option>
+                                <option value="400" selected>Bình thường</option>
+                                <option value="700">Đậm</option>
+                                <option value="900">Rất đậm</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Letter Spacing -->
+                    <div class="control-group">
+                        <label class="control-label">Khoảng cách chữ <span class="value-badge" id="lbl-text-spacing">0</span></label>
+                        <input type="range" class="custom-range" id="input-text-spacing" min="-10" max="30" value="0">
+                    </div>
+
+                    <!-- Text Colors & Border (Stroke Width, Stroke Color) -->
+                    <div style="display: flex; gap: 12px; margin-bottom: 12px;">
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                            <label class="control-label" style="font-size: 11px;">Màu chữ</label>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <input type="color" id="input-text-color" value="#ffffff" style="width: 28px; height: 28px; padding: 0; border: none; border-radius: 4px; cursor: pointer; background: transparent; flex-shrink: 0;">
+                                <input type="text" id="input-text-color-hex" value="#ffffff" class="input-field" style="padding: 4px 6px; font-size: 10px; text-transform: uppercase; height: 28px; min-width: 0;">
+                            </div>
+                        </div>
+                        <div style="flex: 1; display: flex; flex-direction: column; gap: 4px;">
+                            <label class="control-label" style="font-size: 11px;">Viền chữ</label>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <input type="range" class="custom-range" id="input-text-stroke-width" min="0" max="10" value="0" style="flex: 1;">
+                                <span class="value-badge" id="lbl-text-stroke-width">0px</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Border (Stroke) Color -->
+                    <div class="control-group">
+                        <label class="control-label" style="font-size: 11px;">Màu viền</label>
+                        <div style="display: flex; align-items: center; gap: 6px;">
+                            <input type="color" id="input-text-stroke-color" value="#000000" style="width: 28px; height: 28px; padding: 0; border: none; border-radius: 4px; cursor: pointer; background: transparent; flex-shrink: 0;">
+                            <input type="text" id="input-text-stroke-color-hex" value="#000000" class="input-field" style="padding: 4px 6px; font-size: 10px; text-transform: uppercase; height: 28px; min-width: 0;">
+                        </div>
+                    </div>
+
+                    <!-- Manual Transform helpers -->
+                    <div style="display: flex; gap: 10px; margin-bottom: 12px; border-top: 1px solid var(--border-color); padding-top: 12px; margin-top: 12px;">
+                        <div style="flex: 1;">
+                            <label class="control-label" style="font-size: 11px;">Xoay <span class="value-badge" id="lbl-text-rotation">0°</span></label>
+                            <input type="range" class="custom-range" id="input-text-rotation" min="-180" max="180" value="0">
+                        </div>
+                        <div style="flex: 1;">
+                            <label class="control-label" style="font-size: 11px;">Tỉ lệ <span class="value-badge" id="lbl-text-scale">100%</span></label>
+                            <input type="range" class="custom-range" id="input-text-scale" min="50" max="300" value="100">
+                        </div>
+                    </div>
+
+                    <!-- Add & Delete buttons -->
+                    <div style="display: flex; gap: 10px; margin-top: 16px;">
+                        <button class="btn btn-primary" id="btn-add-text" style="flex: 1; padding: 8px 12px; background: var(--accent-gradient); font-weight: 600;">➕ Thêm chữ</button>
+                        <button class="btn btn-danger" id="btn-delete-text" style="flex: 1; padding: 8px 12px; display: none;">🗑 Xóa chữ</button>
+                    </div>
+
+                    <!-- List of Added Texts -->
+                    <div class="control-group" style="margin-top: 20px; border-top: 1px dashed var(--border-color); padding-top: 16px;">
+                        <label class="control-label" style="font-weight: 700; color: var(--accent-blue);">Danh Sách Chữ Đã Thêm</label>
+                        <div id="div-texts-list" style="display: flex; flex-direction: column; gap: 10px; margin-top: 8px;">
+                            <div class="text-muted" id="lbl-no-texts" style="font-size: 11px; font-style: italic; text-align: center; padding: 12px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px dashed var(--border-color);">
+                                Chưa có chữ trang trí nào được thêm. Nhấn "Thêm chữ" ở trên để bắt đầu!
                             </div>
                         </div>
                     </div>
