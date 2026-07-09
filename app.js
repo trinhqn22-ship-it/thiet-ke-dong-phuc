@@ -1211,8 +1211,8 @@
                 const thanLayer = activeLayers.find(l => l.id === 'than' || l.id.includes('than'));
                 const bodyImg = thanLayer ? imgCache[thanLayer.path] : null;
                 
-                // Render text with realistic fabric folds (reusing drawRealisticLogo)
-                drawRealisticLogo(ctx, text, text.x, text.y, textW, textH, bodyImg);
+                // Render text with realistic fabric folds (reusing drawRealisticLogo) and printed ink effect
+                applyPrintedTextEffect(ctx, text, text.x, text.y, textW, textH, bodyImg);
                 
                 // Active selection border and control handles
                 if (state.selectedTextId === text.id) {
@@ -2095,6 +2095,7 @@
                     // Invalidate caches before rendering new text canvas representation
                     text._shadeCache = null;
                     text._blurCache = null;
+                    text._printedCache = null;
                     text.imgElement = renderTextToCanvas(text);
                     // Reset cached diagonal length on size or font changes
                     if (propName === 'fontSize' || propName === 'letterSpacing' || propName === 'curveAmount' || propName === 'radius' || propName === 'content' || propName === 'type' || propName === 'fontFamily' || propName === 'fontWeight') {
@@ -4654,6 +4655,105 @@
         targetCtx.restore();
     }
 
+    // Helper to convert HEX to RGB
+    function hexToRgb(hex) {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
+    }
+
+    // Helper to add fine grain noise & subtle fiber variations to text ink
+    function addNoiseToCanvas(canvas, amount = 0.05) {
+        const ctx = canvas.getContext('2d');
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imgData.data;
+        for (let i = 0; i < data.length; i += 4) {
+            if (data[i + 3] > 0) { // Only apply to non-transparent parts
+                // Color variation noise
+                const noise = (Math.random() - 0.5) * amount * 255;
+                data[i] = Math.max(0, Math.min(255, data[i] + noise));     // R
+                data[i + 1] = Math.max(0, Math.min(255, data[i + 1] + noise)); // G
+                data[i + 2] = Math.max(0, Math.min(255, data[i + 2] + noise)); // B
+                
+                // Alpha variation noise (absorb fiber details)
+                if (Math.random() > 0.5) {
+                    data[i + 3] = Math.max(0, Math.min(255, data[i + 3] - Math.random() * 12));
+                }
+            }
+        }
+        ctx.putImageData(imgData, 0, 0);
+    }
+
+    // Automatically apply ink-in-fabric printed text effect
+    function applyPrintedTextEffect(targetCtx, text, posX, posY, textW, textH, bodyImg) {
+        if (!text.imgElement) return;
+
+        // 1. Build a unique printed effect key to cache processing results
+        const printedKey = text.content + '|' + text.fontFamily + '|' + text.fontSize + '|' + text.fontWeight + '|' + text.color + '|' + text.strokeColor + '|' + text.strokeWidth + '|' + text.letterSpacing + '|' + text.curveAmount + '|' + text.radius + '|' + text.circleDirection + '|' + (text.reverseCircle ? '1' : '0');
+        
+        if (!text._printedCache || text._printedCacheKey !== printedKey) {
+            const rawCanvas = text.imgElement;
+            const effCanvas = document.createElement('canvas');
+            effCanvas.width = rawCanvas.width;
+            effCanvas.height = rawCanvas.height;
+            const effCtx = effCanvas.getContext('2d');
+            
+            // Draw raw text
+            effCtx.drawImage(rawCanvas, 0, 0);
+            
+            // Apply inner shadow (subtle recessed ink/pressed feel)
+            effCtx.save();
+            effCtx.globalCompositeOperation = 'source-atop';
+            effCtx.shadowColor = 'rgba(0, 0, 0, 0.22)';
+            effCtx.shadowBlur = 1;
+            effCtx.shadowOffsetX = 0.5;
+            effCtx.shadowOffsetY = 0.5;
+            effCtx.drawImage(rawCanvas, 0, 0);
+            effCtx.restore();
+            
+            // Add subtle noise (3% - 6% alpha variation and grain)
+            addNoiseToCanvas(effCanvas, 0.04);
+            
+            text._printedCache = effCanvas;
+            text._printedCacheKey = printedKey;
+        }
+
+        // Temporarily swap to the printed cache canvas
+        const originalImgElement = text.imgElement;
+        text.imgElement = text._printedCache;
+
+        // 2. Check shirt color luminance to choose optimal blend mode
+        const shirtHex = state.colors.than || '#ffffff';
+        const rgb = hexToRgb(shirtHex) || { r: 255, g: 255, b: 255 };
+        const luminance = 0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b;
+        const isLightShirt = luminance > 130;
+        
+        targetCtx.save();
+        
+        // Render text with a natural print opacity of 94%
+        const originalOpacity = text.opacity;
+        text.opacity = Math.round(originalOpacity * 0.94);
+        
+        if (isLightShirt) {
+            // For light shirts, multiply blend mode blends text ink with fabric threads beautifully
+            targetCtx.globalCompositeOperation = 'multiply';
+        } else {
+            // For dark shirts, standard source-over is better, but creases show through
+            targetCtx.globalCompositeOperation = 'source-over';
+        }
+
+        // Render shaded logo / text onto shirt
+        drawRealisticLogo(targetCtx, text, posX, posY, textW, textH, bodyImg);
+        
+        // Restore properties
+        text.imgElement = originalImgElement;
+        text.opacity = originalOpacity;
+        targetCtx.restore();
+    }
+
     // Render decorative text to a transparent offscreen canvas based on options
     function renderTextToCanvas(text) {
         const canvas = document.createElement('canvas');
@@ -5976,7 +6076,7 @@
                 const thanLayer = activeLayers.find(l => l.id === 'than' || l.id.includes('than'));
                 const bodyImg = thanLayer ? imgCache[thanLayer.path] : null;
                 
-                drawRealisticLogo(tempCtx, text, text.x, text.y, textW, textH, bodyImg);
+                applyPrintedTextEffect(tempCtx, text, text.x, text.y, textW, textH, bodyImg);
             }
         });
         
@@ -6744,7 +6844,7 @@
                 const thanLayer = activeLayers.find(l => l.id === 'than' || l.id.includes('than'));
                 const bodyImg = thanLayer ? imgCache[thanLayer.path] : null;
                 
-                drawRealisticLogo(ctx, text, text.x, text.y, textW, textH, bodyImg);
+                applyPrintedTextEffect(ctx, text, text.x, text.y, textW, textH, bodyImg);
             }
         });
 
