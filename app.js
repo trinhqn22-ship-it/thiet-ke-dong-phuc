@@ -6982,23 +6982,31 @@
         // Show loading state or toast
         showToast('⏳ Đang tạo ảnh PNG trong suốt cho cả 2 mặt...', 'info', 3000);
 
-        // Detect if browser is iOS (iPhone/iPad/iPod)
-        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
-                      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+        // Detect if user is on a mobile device or screen is small
+        const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 768;
         
-        // Mobile Safari has strict popup blocker rules. We open a blank tab synchronously
-        // inside the click handler, then update its URL once rendering finishes.
-        let iosTab = null;
-        if (isIOS) {
-            iosTab = window.open('about:blank', '_blank');
-            if (iosTab) {
-                iosTab.document.write(`
-                    <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; margin:0; background:#0b0f19; color:#f8fafc; font-family:sans-serif;">
+        // Mobile browsers have strict popup blockers. We open a blank tab synchronously
+        // inside the click handler, then overwrite its document once rendering finishes.
+        let mobileTab = null;
+        if (isMobile) {
+            mobileTab = window.open('about:blank', '_blank');
+            if (mobileTab) {
+                mobileTab.document.write(`
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <meta charset="utf-8">
+                        <title>Đang xử lý...</title>
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                    </head>
+                    <body style="margin:0; background:#0b0f19; color:#f8fafc; font-family:sans-serif; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh;">
                         <div style="border: 4px solid rgba(255, 255, 255, 0.1); border-top-color: #38bdf8; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin-bottom: 20px;"></div>
                         <h2 style="font-size:16px;">Đang dựng hình ảnh thiết kế...</h2>
                         <style>@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }</style>
-                    </div>
+                    </body>
+                    </html>
                 `);
+                mobileTab.document.close();
             }
         }
 
@@ -7037,20 +7045,154 @@
                 
                 const dataURL = tempCanvas.toDataURL('image/png');
                 
-                if (isIOS && iosTab) {
-                    // Update iOS preview page with image and save instructions
-                    iosTab.document.title = filename;
-                    iosTab.document.body.innerHTML = `
-                        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; margin:0; padding:20px; background:#0b0f19; color:#f8fafc; font-family:-apple-system, BlinkMacSystemFont, sans-serif; box-sizing:border-box;">
-                            <img src="${dataURL}" style="max-width:100%; max-height:75vh; object-fit:contain; border-radius:12px; box-shadow:0 20px 40px rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.08); background: repeating-conic-gradient(#1e293b 0% 25%, #0f172a 0% 50%) 50% / 20px 20px;" />
-                            <h2 style="margin:24px 0 8px 0; font-size:18px; font-weight:600; text-align:center;">Thiết Kế Đã Sẵn Sàng!</h2>
-                            <p style="color:#94a3b8; font-size:13.5px; margin:0 0 24px 0; text-align:center; max-width:320px; line-height:1.5;">Chạm và giữ im vào hình ảnh ở trên để chọn <b>"Lưu vào Ảnh" (Save to Photos)</b>.</p>
-                            <button onclick="window.close()" style="padding:12px 28px; background:rgba(255,255,255,0.08); color:#f8fafc; border:1px solid rgba(255,255,255,0.12); border-radius:9999px; font-size:14px; font-weight:500; cursor:pointer; transition:background 0.2s;">Đóng Tab</button>
-                        </div>
-                    `;
+                if (isMobile && mobileTab) {
+                    // Update mobile preview page with touch-optimized instructions & 3x larger text for seniors/small viewports
+                    mobileTab.document.open();
+                    mobileTab.document.write(`
+                        <!DOCTYPE html>
+                        <html lang="vi">
+                        <head>
+                            <meta charset="UTF-8">
+                            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                            <title>${filename}</title>
+                            <style>
+                                * { box-sizing: border-box; }
+                                body {
+                                    display: flex;
+                                    flex-direction: column;
+                                    align-items: center;
+                                    justify-content: flex-start;
+                                    min-height: 100vh;
+                                    margin: 0;
+                                    padding: 24px 16px;
+                                    background: #0b0f19;
+                                    color: #f8fafc;
+                                    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+                                    overflow-x: hidden;
+                                }
+                                .img-container {
+                                    width: 100%;
+                                    display: flex;
+                                    justify-content: center;
+                                    margin-bottom: 28px;
+                                }
+                                .garment-img {
+                                    max-width: 100%;
+                                    max-height: 55vh;
+                                    object-fit: contain;
+                                    border-radius: 16px;
+                                    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6);
+                                    border: 1px solid rgba(255,255,255,0.08);
+                                    background: repeating-conic-gradient(#1e293b 0% 25%, #0f172a 0% 50%) 50% / 24px 24px;
+                                }
+                                .notice-container {
+                                    display: flex;
+                                    flex-direction: column;
+                                    align-items: center;
+                                    text-align: center;
+                                    width: 100%;
+                                    max-width: 650px;
+                                    padding: 0 12px;
+                                    opacity: 0;
+                                    animation: fadeIn 0.5s ease-out forwards;
+                                }
+                                .title {
+                                    margin: 0 0 16px 0;
+                                    font-size: 20px;
+                                    font-weight: 600;
+                                    color: #ffffff;
+                                    line-height: 1.4;
+                                }
+                                .desc {
+                                    color: #94a3b8;
+                                    font-size: 14px;
+                                    font-weight: 400;
+                                    margin: 0 0 32px 0;
+                                    line-height: 1.5;
+                                    max-width: 480px;
+                                }
+                                .brand-highlight {
+                                    color: #38bdf8;
+                                    font-weight: 700;
+                                }
+                                .btn-close {
+                                    padding: 14px 36px;
+                                    background: rgba(255,255,255,0.08);
+                                    color: #f8fafc;
+                                    border: 1px solid rgba(255,255,255,0.12);
+                                    border-radius: 9999px;
+                                    font-size: 15px;
+                                    font-weight: 600;
+                                    cursor: pointer;
+                                    width: 100%;
+                                    max-width: 280px;
+                                    transition: background 0.2s, transform 0.1s;
+                                    -webkit-tap-highlight-color: transparent;
+                                }
+                                .btn-close:active {
+                                    transform: scale(0.97);
+                                    background: rgba(255,255,255,0.15);
+                                }
+                                @keyframes fadeIn {
+                                    from { opacity: 0; transform: translateY(12px); }
+                                    to { opacity: 1; transform: translateY(0); }
+                                }
+                                @media (max-width: 767px) {
+                                    body {
+                                        padding: 20px 16px;
+                                    }
+                                    .img-container {
+                                        margin-bottom: 40px;
+                                    }
+                                    .garment-img {
+                                        max-height: 48vh;
+                                    }
+                                    .notice-container {
+                                        margin-top: 16px;
+                                    }
+                                    .title {
+                                        font-size: 38px;
+                                        font-weight: 700;
+                                        line-height: 1.3;
+                                        margin-bottom: 24px;
+                                    }
+                                    .desc {
+                                        font-size: 26px;
+                                        font-weight: 500;
+                                        line-height: 1.6;
+                                        margin-bottom: 44px;
+                                        max-width: 100%;
+                                    }
+                                    .btn-close {
+                                        height: 68px;
+                                        min-width: 260px;
+                                        max-width: 320px;
+                                        font-size: 26px;
+                                        border-radius: 34px;
+                                    }
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            <div class="img-container">
+                                <img class="garment-img" src="${dataURL}" alt="Shirt Design Preview" />
+                            </div>
+                            <div class="notice-container">
+                                <h2 class="title">✅ Thiết kế đã sẵn sàng!</h2>
+                                <p class="desc">
+                                    📱 Chạm và giữ vào hình ảnh phía trên
+                                    <br/>↓<br/>
+                                    Chọn <span class="brand-highlight">"Lưu vào Ảnh"</span> hoặc <span class="brand-highlight">"Save to Photos"</span>
+                                </p>
+                                <button class="btn-close" onclick="window.close()">Đóng Tab</button>
+                            </div>
+                        </body>
+                        </html>
+                    `);
+                    mobileTab.document.close();
                     showToast('🎉 Đã tạo ảnh PNG thành công! Vui lòng lưu ảnh ở tab mới mở.', 'success');
                 } else {
-                    // Standard desktop/Android download
+                    // Standard desktop download
                     const link = document.createElement('a');
                     link.download = filename;
                     link.href = dataURL;
@@ -7062,7 +7204,7 @@
             } catch (err) {
                 console.error('PNG export rendering failed:', err);
                 showToast('❌ Không thể tải ảnh, vui lòng thử lại', 'danger');
-                if (iosTab) iosTab.close();
+                if (isMobile && mobileTab) mobileTab.close();
             } finally {
                 // Ensure state is restored
                 state.angle = originalAngle;
