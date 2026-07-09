@@ -2824,11 +2824,11 @@
                     previewBox.classList.remove('hidden');
                     if (originalPreviewImg) originalPreviewImg.src = logo.originalSrc;
                     if (optimizedPreviewImg) optimizedPreviewImg.src = logo.imgElement.src;
-                    if (btnOptimize) btnOptimize.innerHTML = '<span>✨ Tối ưu lại Logo AI</span>';
+                    if (btnOptimize) btnOptimize.innerHTML = '<span>🪄 Xóa lại nền Logo</span>';
                 } else {
                     // Hide comparison if it is a fresh logo upload
                     previewBox.classList.add('hidden');
-                    if (btnOptimize) btnOptimize.innerHTML = '<span>✨ Tối ưu Logo AI</span>';
+                    if (btnOptimize) btnOptimize.innerHTML = '<span>🪄 Xóa nền Logo</span>';
                 }
             } else {
                 aiGroup.style.display = 'none';
@@ -5698,7 +5698,31 @@
             reader.readAsDataURL(file);
         });
 
-        // ✨ Tối ưu Logo AI Button click handler
+        // Helper to control fullscreen logo AI loader modal
+        const showLogoAILoader = () => {
+            const el = document.getElementById('logo-ai-modal-loader');
+            if (el) {
+                el.style.display = 'flex';
+                el.offsetHeight; // force reflow
+                el.style.opacity = '1';
+                el.style.pointerEvents = 'auto';
+            }
+        };
+
+        const hideLogoAILoader = () => {
+            const el = document.getElementById('logo-ai-modal-loader');
+            if (el) {
+                el.style.opacity = '0';
+                el.style.pointerEvents = 'none';
+                setTimeout(() => {
+                    if (el.style.opacity === '0') {
+                        el.style.display = 'none';
+                    }
+                }, 250);
+            }
+        };
+
+        // 🪄 Xóa nền Logo Button click handler
         const btnOptimizeAI = document.getElementById('btn-optimize-logo-ai');
         if (btnOptimizeAI) {
             btnOptimizeAI.addEventListener('click', () => {
@@ -5711,67 +5735,41 @@
                     return;
                 }
 
-                // Show loader, disable buttons
+                // Show modal loader and block interaction
+                showLogoAILoader();
                 btnOptimizeAI.disabled = true;
-                const loader = document.getElementById('logo-ai-loader');
-                const loaderText = document.getElementById('logo-ai-loader-text');
-                const progressBarContainer = document.getElementById('logo-ai-progress-bar-container');
-                const progressBar = document.getElementById('logo-ai-progress-bar');
-                const previewBox = document.getElementById('logo-ai-preview-box');
 
-                loader.classList.remove('hidden');
-                progressBarContainer.classList.remove('hidden');
-                previewBox.classList.add('hidden');
-                progressBar.style.width = '10%';
-                loaderText.innerText = 'Đang phân tích hình ảnh...';
-
-                // Stepwise progress and status updates
+                // Simulate steps and execute image processor
                 setTimeout(() => {
-                    progressBar.style.width = '35%';
-                    loaderText.innerText = 'Đang nhận diện vùng biên & tách nền...';
-                    
-                    setTimeout(() => {
-                        progressBar.style.width = '65%';
-                        loaderText.innerText = 'Đang khử nhiễu & làm sắc nét viền...';
+                    optimizeLogoImage(logo.imgElement, (optimizedDataUrl) => {
+                        const optimizedImg = new Image();
+                        optimizedImg.src = optimizedDataUrl;
                         
-                        setTimeout(() => {
-                            progressBar.style.width = '90%';
-                            loaderText.innerText = 'Đang khôi phục màu sắc & xuất định dạng PNG...';
-                            
-                            // Execute actual image processor
-                            optimizeLogoImage(logo.imgElement, (optimizedDataUrl) => {
-                                const optimizedImg = new Image();
-                                optimizedImg.src = optimizedDataUrl;
-                                optimizedImg.onload = () => {
-                                    progressBar.style.width = '100%';
-                                    
-                                    setTimeout(() => {
-                                        loader.classList.add('hidden');
-                                        btnOptimizeAI.disabled = false;
+                        optimizedImg.onload = () => {
+                            setTimeout(() => {
+                                // Store original image src to enable restore feature
+                                if (!logo.originalSrc) {
+                                    logo.originalSrc = logo.imgElement.src;
+                                }
 
-                                        // Store original image src to enable restore feature
-                                        if (!logo.originalSrc) {
-                                            logo.originalSrc = logo.imgElement.src;
-                                        }
+                                logo.imgElement = optimizedImg;
+                                logo._shadeCache = null;
+                                logo._blurCache = null;
 
-                                        logo.imgElement = optimizedImg;
-                                        logo._shadeCache = null;
-                                        logo._blurCache = null;
-
-                                        state.isDirty = true;
-                                        loadAndRender();
-                                        showToast('✨ Tối ưu Logo thành công bằng AI!', 'success');
-                                    }, 200);
-                                };
-                                optimizedImg.onerror = () => {
-                                    loader.classList.add('hidden');
-                                    btnOptimizeAI.disabled = false;
-                                    showToast('❌ Lỗi tải ảnh logo tối ưu!', 'danger');
-                                };
-                            });
-
-                        }, 400);
-                    }, 400);
+                                state.isDirty = true;
+                                loadAndRender();
+                                hideLogoAILoader();
+                                btnOptimizeAI.disabled = false;
+                                showToast('🪄 Đã xóa nền Logo thành công!', 'success');
+                            }, 500); // Small delay to guarantee visual feedback
+                        };
+                        
+                        optimizedImg.onerror = () => {
+                            hideLogoAILoader();
+                            btnOptimizeAI.disabled = false;
+                            showToast('❌ Không thể xóa nền Logo. Vui lòng thử lại.', 'danger');
+                        };
+                    });
                 }, 300);
             });
         }

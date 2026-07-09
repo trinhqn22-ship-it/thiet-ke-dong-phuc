@@ -321,22 +321,9 @@
                     <!-- AI Optimization controls -->
                     <div class="control-group" id="group-logo-ai-optimization" style="margin-top: 12px; display: none;">
                         <button class="btn btn-primary" id="btn-optimize-logo-ai" style="width: 100%; padding: 10px; background: linear-gradient(135deg, #a855f7 0%, #3b82f6 100%); font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                            <span>✨ Tối ưu Logo AI</span>
+                            <span>🪄 Xóa nền Logo</span>
                         </button>
                         
-                        <!-- AI Processing Loader -->
-                        <div id="logo-ai-loader" class="hidden" style="margin-top: 10px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--border-color);">
-                            <div style="display: flex; align-items: center; gap: 10px;">
-                                <div class="spinner-box" style="width: 20px; height: 20px; flex-shrink: 0;">
-                                    <div class="circle-border" style="width: 20px; height: 20px;"><div class="circle-core" style="width: 14px; height: 14px;"></div></div>
-                                </div>
-                                <span id="logo-ai-loader-text" style="font-size: 11px; font-weight: 600; color: var(--text-primary);">Đang phân tích hình ảnh...</span>
-                            </div>
-                            <!-- Progress Bar for large images -->
-                            <div id="logo-ai-progress-bar-container" class="hidden" style="width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 8px; overflow: hidden;">
-                                <div id="logo-ai-progress-bar" style="width: 0%; height: 100%; background: var(--accent-blue); transition: width 0.1s ease;"></div>
-                            </div>
-                        </div>
 
                         <!-- AI Comparison Preview -->
                         <div id="logo-ai-preview-box" class="hidden" style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px dashed var(--border-color);">
@@ -957,6 +944,18 @@
                 <button class="btn btn-secondary" id="btn-cancel-zalo">Hủy</button>
                 <button class="btn btn-primary" id="btn-submit-zalo" style="background: var(--accent-gradient);">Tải PDF & Gửi Zalo</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Full-screen Logo AI Background Remover Loader Overlay -->
+    <div class="canvas-loader" id="logo-ai-modal-loader" style="position: fixed; inset: 0; z-index: 9999; background: rgba(8, 12, 21, 0.85); backdrop-filter: blur(8px); display: none; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.25s ease;">
+        <div class="loader-content" style="background: rgba(19, 27, 46, 0.95); border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6); padding: 32px 40px; border-radius: 16px; text-align: center; max-width: 380px;">
+            <div class="spinner-box" style="width: 48px; height: 48px; margin: 0 auto 16px; flex-shrink: 0;">
+                <div class="circle-border" style="width: 48px; height: 48px;"><div class="circle-core" style="width: 38px; height: 38px;"></div></div>
+            </div>
+            <span style="font-size: 16px; font-weight: 700; color: #fff; display: block; margin-bottom: 8px;">🪄 Đang xóa nền Logo...</span>
+            <span style="font-size: 13px; color: var(--text-muted); display: block; line-height: 1.5;">Hệ thống AI đang xử lý hình ảnh.</span>
+            <span style="font-size: 13px; color: var(--text-muted); display: block; line-height: 1.5; margin-top: 2px;">Vui lòng chờ trong giây lát...</span>
         </div>
     </div>
 
