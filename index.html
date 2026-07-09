@@ -318,6 +318,46 @@
                         </div>
                     </div>
 
+                    <!-- AI Optimization controls -->
+                    <div class="control-group" id="group-logo-ai-optimization" style="margin-top: 12px; display: none;">
+                        <button class="btn btn-primary" id="btn-optimize-logo-ai" style="width: 100%; padding: 10px; background: linear-gradient(135deg, #a855f7 0%, #3b82f6 100%); font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                            <span>✨ Tối ưu Logo AI</span>
+                        </button>
+                        
+                        <!-- AI Processing Loader -->
+                        <div id="logo-ai-loader" class="hidden" style="margin-top: 10px; padding: 12px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid var(--border-color);">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <div class="spinner-box" style="width: 20px; height: 20px; flex-shrink: 0;">
+                                    <div class="circle-border" style="width: 20px; height: 20px;"><div class="circle-core" style="width: 14px; height: 14px;"></div></div>
+                                </div>
+                                <span id="logo-ai-loader-text" style="font-size: 11px; font-weight: 600; color: var(--text-primary);">Đang phân tích hình ảnh...</span>
+                            </div>
+                            <!-- Progress Bar for large images -->
+                            <div id="logo-ai-progress-bar-container" class="hidden" style="width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; margin-top: 8px; overflow: hidden;">
+                                <div id="logo-ai-progress-bar" style="width: 0%; height: 100%; background: var(--accent-blue); transition: width 0.1s ease;"></div>
+                            </div>
+                        </div>
+
+                        <!-- AI Comparison Preview -->
+                        <div id="logo-ai-preview-box" class="hidden" style="margin-top: 10px; padding: 10px; background: rgba(255,255,255,0.02); border-radius: 8px; border: 1px dashed var(--border-color);">
+                            <div style="display: flex; gap: 10px; justify-content: space-between; margin-bottom: 8px;">
+                                <div style="flex: 1; text-align: center;">
+                                    <span style="font-size: 9px; color: var(--text-muted); display: block; margin-bottom: 4px;">Ảnh gốc</span>
+                                    <div style="height: 60px; display: flex; align-items: center; justify-content: center; background: #fff; border-radius: 4px; padding: 4px;">
+                                        <img id="logo-ai-preview-original" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                                    </div>
+                                </div>
+                                <div style="flex: 1; text-align: center;">
+                                    <span style="font-size: 9px; color: var(--accent-blue); display: block; margin-bottom: 4px;">Ảnh sau AI</span>
+                                    <div style="height: 60px; display: flex; align-items: center; justify-content: center; background: #1a2333; border-radius: 4px; padding: 4px; border: 1px solid rgba(255,255,255,0.1);">
+                                        <img id="logo-ai-preview-optimized" style="max-height: 100%; max-width: 100%; object-fit: contain;">
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="btn btn-secondary" id="btn-logo-ai-restore" style="width: 100%; padding: 4px; font-size: 10px; font-weight: 600;">↩ Khôi phục ảnh gốc</button>
+                        </div>
+                    </div>
+
                     <!-- Container for Multi-Logos Management List -->
                     <div class="control-group" id="group-logos-manager" style="margin-top: 16px;">
                         <label class="control-label" style="font-weight: 700; color: var(--accent-blue);">Danh Sách Logo Đã Thêm</label>
