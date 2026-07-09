@@ -2092,9 +2092,12 @@
             text[propName] = value;
             if (rebuildCanvas) {
                 ensureFontLoaded(text.fontFamily, () => {
+                    // Invalidate caches before rendering new text canvas representation
+                    text._shadeCache = null;
+                    text._blurCache = null;
                     text.imgElement = renderTextToCanvas(text);
-                    // Reset cached diagonal length on size changes
-                    if (propName === 'fontSize' || propName === 'letterSpacing' || propName === 'curveAmount' || propName === 'radius' || propName === 'content' || propName === 'type') {
+                    // Reset cached diagonal length on size or font changes
+                    if (propName === 'fontSize' || propName === 'letterSpacing' || propName === 'curveAmount' || propName === 'radius' || propName === 'content' || propName === 'type' || propName === 'fontFamily' || propName === 'fontWeight') {
                         text.diagonal100 = null;
                     }
                     state.isDirty = true;
