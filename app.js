@@ -2238,6 +2238,7 @@
         const text = state.selectedTextId ? (state.texts || []).find(t => t.id === state.selectedTextId) : null;
         
         const typeSelect = document.getElementById('text-type-select');
+        if (!typeSelect) return;
         const curveGroup = document.getElementById('group-text-curve');
         const radiusGroup = document.getElementById('group-text-radius');
         const directionGroup = document.getElementById('group-text-circle-direction');
@@ -2521,10 +2522,10 @@
                     Chưa có logo nào được tải lên. Tải ảnh lên ở trên để bắt đầu!
                 </div>
             `;
-            return;
         }
         
-        state.logos.forEach(logo => {
+        if (state.logos.length > 0) {
+            state.logos.forEach(logo => {
             const card = document.createElement('div');
             card.className = 'uploaded-logo-preview';
             card.style.flexDirection = 'column';
@@ -2802,39 +2803,40 @@
             
             listEl.appendChild(card);
         });
+    }
 
-        // Sync visibility and comparison previews for "✨ Tối ưu Logo AI" group
-        const aiGroup = document.getElementById('group-logo-ai-optimization');
-        if (aiGroup) {
-            if (state.logos.length > 0) {
-                aiGroup.style.display = 'block';
-                
-                // Get selected or default logo
-                const logo = state.selectedLogoId 
-                    ? state.logos.find(l => l.id === state.selectedLogoId) 
-                    : state.logos[state.logos.length - 1];
-                
-                const btnOptimize = document.getElementById('btn-optimize-logo-ai');
-                const previewBox = document.getElementById('logo-ai-preview-box');
-                const originalPreviewImg = document.getElementById('logo-ai-preview-original');
-                const optimizedPreviewImg = document.getElementById('logo-ai-preview-optimized');
+    // Sync visibility and comparison previews for "✨ Tối ưu Logo AI" group
+    const aiGroup = document.getElementById('group-logo-ai-optimization');
+    if (aiGroup) {
+        if (state.logos.length > 0) {
+            aiGroup.style.display = 'block';
+            
+            // Get selected or default logo
+            const logo = state.selectedLogoId 
+                ? state.logos.find(l => l.id === state.selectedLogoId) 
+                : state.logos[state.logos.length - 1];
+            
+            const btnOptimize = document.getElementById('btn-optimize-logo-ai');
+            const previewBox = document.getElementById('logo-ai-preview-box');
+            const originalPreviewImg = document.getElementById('logo-ai-preview-original');
+            const optimizedPreviewImg = document.getElementById('logo-ai-preview-optimized');
 
-                if (logo && logo.originalSrc) {
-                    // Show comparison if this logo has already been optimized
-                    previewBox.classList.remove('hidden');
-                    if (originalPreviewImg) originalPreviewImg.src = logo.originalSrc;
-                    if (optimizedPreviewImg) optimizedPreviewImg.src = logo.imgElement.src;
-                    if (btnOptimize) btnOptimize.innerHTML = '<span>🪄 Xóa lại nền Logo</span>';
-                } else {
-                    // Hide comparison if it is a fresh logo upload
-                    previewBox.classList.add('hidden');
-                    if (btnOptimize) btnOptimize.innerHTML = '<span>🪄 Xóa nền Logo</span>';
-                }
+            if (logo && logo.originalSrc) {
+                // Show comparison if this logo has already been optimized
+                if (previewBox) previewBox.classList.remove('hidden');
+                if (originalPreviewImg) originalPreviewImg.src = logo.originalSrc;
+                if (optimizedPreviewImg) optimizedPreviewImg.src = logo.imgElement.src;
+                if (btnOptimize) btnOptimize.innerHTML = '<span>🪄 Xóa lại nền Logo</span>';
             } else {
-                aiGroup.style.display = 'none';
+                // Hide comparison if it is a fresh logo upload
+                if (previewBox) previewBox.classList.add('hidden');
+                if (btnOptimize) btnOptimize.innerHTML = '<span>🪄 Xóa nền Logo</span>';
             }
+        } else {
+            aiGroup.style.display = 'none';
         }
     }
+}
 
     // Dynamic UI builder for Multi-Patterns Management List
     function buildPatternListUI() {
