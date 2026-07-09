@@ -797,6 +797,7 @@ input:checked + .slider-toggle::before {
     z-index: 2;
     cursor: grab;
     transition: transform var(--transition-normal);
+    touch-action: none; /* Prevent scroll conflicts on mobile touch moves */
 }
 .canvas-wrapper:active {
     cursor: grabbing;
