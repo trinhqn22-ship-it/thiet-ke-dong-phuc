@@ -5,6 +5,29 @@
 
 (function () {
     'use strict';
+
+    const COMPANY_ZALO_PHONE = '0934975913';
+    const MAX_LOGO_FILE_SIZE = 5 * 1024 * 1024;
+    const MAX_PATTERN_FILE_SIZE = 10 * 1024 * 1024;
+    const MAX_IMAGE_DIMENSION = 8000;
+    const ALLOWED_IMAGE_TYPES = new Set(['image/png', 'image/jpeg']);
+
+    function normalizePhone(value) {
+        return String(value || '').replace(/[^0-9]/g, '').slice(0, 15);
+    }
+
+    function validateUploadedImage(file, maxBytes, label) {
+        if (!file) return false;
+        if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+            showToast(`${label} chỉ hỗ trợ tệp PNG hoặc JPG.`, 'warning');
+            return false;
+        }
+        if (file.size <= 0 || file.size > maxBytes) {
+            showToast(`${label} vượt quá dung lượng cho phép.`, 'warning');
+            return false;
+        }
+        return true;
+    }
     
     // Helper to encode design data into base64 URL
     function encodeDesignData(data) {
@@ -21,6 +44,7 @@
     // Helper to decode design data from base64 URL
     function decodeDesignData(base64) {
         try {
+            if (typeof base64 !== 'string' || base64.length > 100000) return null;
             const utf8 = atob(base64);
             const json = decodeURIComponent(escape(utf8));
             return JSON.parse(json);
@@ -28,6 +52,12 @@
             console.error('Failed to decode design data:', e);
             return null;
         }
+    }
+
+    function isSafeEmbeddedImageSource(value) {
+        return typeof value === 'string'
+            && value.length <= 50000
+            && /^data:image\/(?:png|jpeg|webp);base64,[a-z0-9+/=]+$/i.test(value);
     }
     
     // Default garment colors for each interface theme to optimize contrast
@@ -5401,8 +5431,16 @@
         const toast = document.createElement('div');
         toast.className = `toast-notification toast-${type}`;
         
-        const icons = { success: '✅', error: '⚠️', info: 'ℹ️', warning: '🔔' };
-        toast.innerHTML = `<span class="toast-icon">${icons[type] || 'ℹ️'}</span><span class="toast-msg">${message}</span>`;
+        const icons = { success: '✅', error: '⚠️', danger: '⚠️', info: 'ℹ️', warning: '🔔' };
+        const iconElement = document.createElement('span');
+        iconElement.className = 'toast-icon';
+        iconElement.textContent = icons[type] || 'ℹ️';
+
+        const messageElement = document.createElement('span');
+        messageElement.className = 'toast-msg';
+        messageElement.textContent = String(message || '');
+
+        toast.append(iconElement, messageElement);
         
         toastContainer.appendChild(toast);
         
@@ -5673,12 +5711,21 @@
         fileInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
+            if (!validateUploadedImage(file, MAX_LOGO_FILE_SIZE, 'Logo')) {
+                fileInput.value = '';
+                return;
+            }
 
             const reader = new FileReader();
             reader.onload = (event) => {
                 const img = new Image();
                 img.src = event.target.result;
                 img.onload = () => {
+                    if (img.naturalWidth > MAX_IMAGE_DIMENSION || img.naturalHeight > MAX_IMAGE_DIMENSION) {
+                        showToast(`Logo không được vượt quá ${MAX_IMAGE_DIMENSION} × ${MAX_IMAGE_DIMENSION} pixel.`, 'warning');
+                        fileInput.value = '';
+                        return;
+                    }
                     const logo = {
                         id: 'logo_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
                         imgElement: img,
@@ -5696,6 +5743,14 @@
                     loadAndRender();
                     fileInput.value = ''; // clear input
                 };
+                img.onerror = () => {
+                    fileInput.value = '';
+                    showToast('Không thể đọc tệp logo. Vui lòng chọn ảnh PNG hoặc JPG hợp lệ.', 'warning');
+                };
+            };
+            reader.onerror = () => {
+                fileInput.value = '';
+                showToast('Không thể đọc tệp logo trên thiết bị.', 'warning');
             };
             reader.readAsDataURL(file);
         });
@@ -5815,12 +5870,21 @@
         patternInput.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
+            if (!validateUploadedImage(file, MAX_PATTERN_FILE_SIZE, 'Họa tiết')) {
+                patternInput.value = '';
+                return;
+            }
 
             const reader = new FileReader();
             reader.onload = (event) => {
                 const img = new Image();
                 img.src = event.target.result;
                 img.onload = () => {
+                    if (img.naturalWidth > MAX_IMAGE_DIMENSION || img.naturalHeight > MAX_IMAGE_DIMENSION) {
+                        showToast(`Họa tiết không được vượt quá ${MAX_IMAGE_DIMENSION} × ${MAX_IMAGE_DIMENSION} pixel.`, 'warning');
+                        patternInput.value = '';
+                        return;
+                    }
                     const newPattern = {
                         id: 'pattern_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
                         file: file,
@@ -5850,6 +5914,14 @@
                     
                     patternInput.value = ''; // clear input
                 };
+                img.onerror = () => {
+                    patternInput.value = '';
+                    showToast('Không thể đọc tệp họa tiết. Vui lòng chọn ảnh PNG hoặc JPG hợp lệ.', 'warning');
+                };
+            };
+            reader.onerror = () => {
+                patternInput.value = '';
+                showToast('Không thể đọc tệp họa tiết trên thiết bị.', 'warning');
             };
             reader.readAsDataURL(file);
         });
@@ -6088,75 +6160,11 @@
             });
         }
 
-        // Lead quote modal forms toggles
-        const modal = document.getElementById('modal-lead-form');
-        
-        function openLeadForm() {
-            // Dynamic labels based on product type
-            const labelQty = document.getElementById('lbl-lead-quantity') || document.querySelector('#modal-lead-form label[for="form-quantity"]') || document.querySelectorAll('#modal-lead-form label.control-label')[2];
-            if (labelQty) {
-                if (state.product === 'quan-bao-ho') {
-                    labelQty.innerHTML = 'Số lượng quần dự kiến <span style="color: var(--accent-rose);">*</span>';
-                } else if (state.product === 'ao-bao-ho') {
-                    labelQty.innerHTML = 'Số lượng áo dự kiến <span style="color: var(--accent-rose);">*</span>';
-                } else {
-                    labelQty.innerHTML = 'Số lượng áo dự kiến <span style="color: var(--accent-rose);">*</span>';
-                }
-            }
-            
-            // Also update lead capture description dynamically
-            const leadDesc = document.querySelector('#modal-lead-form .modal-body p');
-            if (leadDesc) {
-                const productNamesDesc = {
-                    'ao-polo': 'bản thiết kế áo thun Polo',
-                    'ao-thun': 'bản thiết kế áo thun cổ tròn',
-                    'ao-bao-ho': 'bản thiết kế áo Bảo Hộ Lao Động',
-                    'quan-bao-ho': 'bản thiết kế quần Bảo Hộ Lao Động'
-                };
-                const pName = productNamesDesc[state.product] || 'bản thiết kế';
-                leadDesc.innerHTML = `Vui lòng điền thông tin của bạn. Xưởng may Mrs Linh Quy Nhơn sẽ nhận được toàn bộ ${pName} (phối màu, logo, túi) của bạn và liên hệ báo giá gốc tận xưởng trong vòng 10 phút.`;
-            }
-            
-            modal.classList.add('active');
-        }
-
         // Nút "Gửi Báo Giá" header → cùng chức năng với nút "Gửi mẫu thiết kế qua Zalo"
         document.getElementById('btn-open-quote')?.addEventListener('click', () => {
             document.getElementById('btn-zalo-share')?.click();
         });
         // btn-quick-order is now an <a> link → no JS listener needed
-
-        document.getElementById('btn-close-lead-modal').addEventListener('click', () => {
-            modal.classList.remove('active');
-        });
-        document.getElementById('btn-cancel-lead').addEventListener('click', () => {
-            modal.classList.remove('active');
-        });
-
-        // Submit form quote lead capture
-        document.getElementById('btn-submit-lead').addEventListener('click', () => {
-            const name = document.getElementById('form-fullname').value;
-            const phone = document.getElementById('form-phone').value;
-            const qty = document.getElementById('form-quantity').value;
-            const notes = document.getElementById('form-notes').value;
-
-            if (!name || !phone) {
-                showToast('Vui lòng điền họ tên và số điện thoại/Zalo để Mrs Linh liên hệ báo giá!', 'warning');
-                return;
-            }
-
-            // High end quote calculation feedback dynamically mapped to product
-            const productLabels = {
-                'ao-polo': 'áo thun Polo Premium',
-                'ao-thun': 'áo thun cổ tròn',
-                'ao-bao-ho': 'áo Bảo Hộ Lao Động',
-                'quan-bao-ho': 'quần Bảo Hộ Lao Động'
-            };
-            const productTxt = productLabels[state.product] || 'đồng phục';
-
-            showToast(`👍 Cảm ơn anh/chị ${name}! Mrs Linh Quy Nhơn sẽ liên hệ báo giá qua ${phone} trong giây lát!`, 'success', 6000);
-            modal.classList.remove('active');
-        });
 
         // Export PNG downloads
         const bindPngExport = (id) => {
@@ -6229,37 +6237,53 @@
 
         // Save Draft local storage
         document.getElementById('btn-save-draft').addEventListener('click', () => {
-            localStorage.setItem('mrs_linh_design_draft', JSON.stringify({
-                product: state.product,
-                form: state.form,
-                colors: state.colors,
-                pockets: state.pockets,
-                reflective: state.reflective,
-                size: state.size,
-                texts: (state.texts || []).map(t => ({
-                    id: t.id,
-                    content: t.content,
-                    type: t.type,
-                    fontFamily: t.fontFamily,
-                    fontSize: t.fontSize,
-                    fontWeight: t.fontWeight,
-                    color: t.color,
-                    strokeColor: t.strokeColor,
-                    strokeWidth: t.strokeWidth,
-                    letterSpacing: t.letterSpacing,
-                    curveAmount: t.curveAmount,
-                    radius: t.radius,
-                    circleDirection: t.circleDirection,
-                    reverseCircle: t.reverseCircle,
-                    x: t.x,
-                    y: t.y,
-                    rotation: t.rotation,
-                    scale: t.scale,
-                    opacity: t.opacity,
-                    view: t.view
-                }))
-            }));
-            showToast('💾 Đã lưu bản phác thảo thiết kế thành công!', 'success');
+            try {
+                localStorage.setItem('mrs_linh_design_draft', JSON.stringify({
+                    version: 1,
+                    product: state.product,
+                    form: state.form,
+                    colors: state.colors,
+                    pockets: state.pockets,
+                    reflective: state.reflective,
+                    size: state.size,
+                    texts: (state.texts || []).slice(0, 20).map(t => ({
+                        id: String(t.id || '').slice(0, 80),
+                        content: String(t.content || '').slice(0, 200),
+                        type: t.type,
+                        fontFamily: t.fontFamily,
+                        fontSize: t.fontSize,
+                        fontWeight: t.fontWeight,
+                        color: t.color,
+                        strokeColor: t.strokeColor,
+                        strokeWidth: t.strokeWidth,
+                        letterSpacing: t.letterSpacing,
+                        curveAmount: t.curveAmount,
+                        radius: t.radius,
+                        circleDirection: t.circleDirection,
+                        reverseCircle: t.reverseCircle,
+                        x: t.x,
+                        y: t.y,
+                        rotation: t.rotation,
+                        scale: t.scale,
+                        opacity: t.opacity,
+                        view: t.view
+                    }))
+                }));
+                showToast('💾 Bản nháp đã được lưu trên thiết bị này.', 'success');
+            } catch (error) {
+                console.error('Local draft save failed:', error);
+                showToast('Không thể lưu bản nháp. Bộ nhớ trình duyệt có thể đã đầy hoặc bị chặn.', 'warning');
+            }
+        });
+
+        document.getElementById('btn-clear-draft')?.addEventListener('click', () => {
+            try {
+                localStorage.removeItem('mrs_linh_design_draft');
+                showToast('Đã xóa bản nháp khỏi thiết bị này.', 'info');
+            } catch (error) {
+                console.error('Local draft removal failed:', error);
+                showToast('Không thể xóa bản nháp trên thiết bị.', 'warning');
+            }
         });
 
         // Accordions
@@ -6467,6 +6491,7 @@
                 input.className = 'zalo-size-input';
                 input.id = `input-zalo-qty-unisex-${size.name}`;
                 input.min = '0';
+                input.max = '10000';
                 input.value = (size.name === state.size) ? '20' : '0'; // default selected to 20
                 
                 item.appendChild(label);
@@ -6517,6 +6542,7 @@
                 input.className = 'zalo-size-input';
                 input.id = `input-zalo-qty-nam-${size.name}`;
                 input.min = '0';
+                input.max = '10000';
                 
                 // Auto-populate 20 if state.form is 'nam' and size name matches state.size
                 input.value = (state.form === 'nam' && size.name === state.size) ? '20' : '0';
@@ -6565,6 +6591,7 @@
                 input.className = 'zalo-size-input';
                 input.id = `input-zalo-qty-nu-${size.name}`;
                 input.min = '0';
+                input.max = '10000';
                 
                 // Auto-populate 20 if state.form is 'nu' and size name matches state.size
                 input.value = (state.form === 'nu' && size.name === state.size) ? '20' : '0';
@@ -6579,12 +6606,18 @@
     }
 
     function generateDesignPDF() {
-        const fullname = document.getElementById('zalo-fullname').value.trim();
-        const phone = document.getElementById('zalo-phone').value.trim();
-        const notes = document.getElementById('zalo-notes') ? document.getElementById('zalo-notes').value.trim() : '';
+        const fullname = document.getElementById('zalo-fullname').value.trim().slice(0, 100);
+        const phone = normalizePhone(document.getElementById('zalo-phone').value);
+        const notes = document.getElementById('zalo-notes')
+            ? document.getElementById('zalo-notes').value.trim().slice(0, 1000)
+            : '';
         
         if (!fullname || !phone) {
             showToast('Vui lòng nhập đầy đủ Họ tên và Số điện thoại/Zalo để tạo catalog PDF!', 'warning');
+            return;
+        }
+        if (phone.length < 8) {
+            showToast('Số điện thoại/Zalo chưa hợp lệ.', 'warning');
             return;
         }
 
@@ -6641,7 +6674,7 @@
             const sizesList = ['M', 'L', 'XL', 'XXL'];
             sizesList.forEach(sz => {
                 const input = document.getElementById(`input-zalo-qty-unisex-${sz}`);
-                const qty = input ? parseInt(input.value) || 0 : 0;
+                    const qty = input ? Math.min(10000, Math.max(0, parseInt(input.value, 10) || 0)) : 0;
                 if (qty > 0) {
                     totalQty += qty;
                     const guide = sizeGuides.unisex[sz];
@@ -6659,7 +6692,7 @@
             const menSizesList = ['S', 'M', 'L', 'XL', 'XXL', '3XL', '4XL', '5XL'];
             menSizesList.forEach(sz => {
                 const input = document.getElementById(`input-zalo-qty-nam-${sz}`);
-                const qty = input ? parseInt(input.value) || 0 : 0;
+                    const qty = input ? Math.min(10000, Math.max(0, parseInt(input.value, 10) || 0)) : 0;
                 if (qty > 0) {
                     totalQty += qty;
                     const guide = sizeGuides.nam[sz];
@@ -6677,7 +6710,7 @@
             const womenSizesList = ['S', 'M', 'L', 'XL', 'XXL', '3XL'];
             womenSizesList.forEach(sz => {
                 const input = document.getElementById(`input-zalo-qty-nu-${sz}`);
-                const qty = input ? parseInt(input.value) || 0 : 0;
+                    const qty = input ? Math.min(10000, Math.max(0, parseInt(input.value, 10) || 0)) : 0;
                 if (qty > 0) {
                     totalQty += qty;
                     const guide = sizeGuides.nu[sz];
@@ -6848,126 +6881,11 @@
             const zaloModal = document.getElementById('modal-zalo-share');
             if (zaloModal) zaloModal.classList.remove('active');
             
-            showToast('🎉 Tải file PDF catalog thiết kế thành công! Đang kết nối Zalo Mrs Linh...', 'success', 5000);
-            
-            // Prepare sharing data
-            const shareState = {
-                fullname,
-                phone,
-                notes,
-                date: designData.date,
-                product: state.product,
-                productName,
-                sizeQuantities: activeSizes,
-                totalQty,
-                colorSpecs: activeColors,
-                pocketSpecs,
-                reflectiveSpecs,
-                textSpecs,
-                recordCode: designData.recordCode,
-                state: {
-                    product: state.product,
-                    form: state.form,
-                    colors: state.colors,
-                    pockets: state.pockets,
-                    reflective: state.reflective,
-                    size: state.size,
-                    logos: state.logos.map(l => ({
-                        src: l.src.startsWith('data:') && l.src.length > 50000 ? '' : l.src, // Skip huge base64 logos to prevent URL length overflow
-                        position: l.position,
-                        scale: l.scale,
-                        x: l.x,
-                        y: l.y
-                    })),
-                    patterns: state.patterns ? Object.keys(state.patterns).reduce((acc, angle) => {
-                        acc[angle] = (state.patterns[angle] || []).map(p => ({
-                            scale: p.scale,
-                            rotate: p.rotate,
-                            opacity: p.opacity,
-                            x: p.x,
-                            y: p.y,
-                            blendMode: p.blendMode,
-                            printType: p.printType,
-                            realism: p.realism,
-                            src: p.src.startsWith('data:') && p.src.length > 50000 ? '' : p.src,
-                            coverage: p.coverage
-                        }));
-                        return acc;
-                    }, {}) : {},
-                    texts: (state.texts || []).map(t => ({
-                        id: t.id,
-                        content: t.content,
-                        type: t.type,
-                        fontFamily: t.fontFamily,
-                        fontSize: t.fontSize,
-                        fontWeight: t.fontWeight,
-                        color: t.color,
-                        strokeColor: t.strokeColor,
-                        strokeWidth: t.strokeWidth,
-                        letterSpacing: t.letterSpacing,
-                        curveAmount: t.curveAmount,
-                        radius: t.radius,
-                        circleDirection: t.circleDirection,
-                        reverseCircle: t.reverseCircle,
-                        x: t.x,
-                        y: t.y,
-                        rotation: t.rotation,
-                        scale: t.scale,
-                        opacity: t.opacity,
-                        view: t.view
-                    }))
-                }
-            };
+            showToast('PDF đã được tải xuống. Zalo Mrs Linh sẽ mở; vui lòng đính kèm file PDF vừa tải.', 'success', 8000);
 
-            const encoded = encodeDesignData(shareState);
-            let currentPath = window.location.pathname;
-            if (currentPath.endsWith('/') || currentPath.endsWith('\\')) {
-                currentPath += 'spec.html';
-            } else if (currentPath.includes('index.html')) {
-                currentPath = currentPath.replace('index.html', 'spec.html');
-            } else {
-                currentPath = currentPath + (currentPath.endsWith('/') ? '' : '/') + 'spec.html';
-            }
-            const shareUrl = `${window.location.origin}${currentPath}?data=${encodeURIComponent(encoded)}`;
-            const message = `Mrs Linh Uniform gửi anh/chị bảng mô tả sản phẩm 3D. Vui lòng kiểm tra và xác nhận thiết kế tại:\n${shareUrl}`;
-            
-            // Copy to clipboard
-            if (navigator.clipboard && navigator.clipboard.writeText) {
-                navigator.clipboard.writeText(message).then(() => {
-                    showToast('📋 Đã copy link và lời nhắn Zalo! Hãy dán (Ctrl+V) vào ô chat Zalo.', 'success', 8000);
-                }).catch(err => {
-                    console.error('Clipboard copy failed:', err);
-                    fallbackCopyText(message);
-                });
-            } else {
-                fallbackCopyText(message);
-            }
-
-            function fallbackCopyText(text) {
-                const textArea = document.createElement('textarea');
-                textArea.value = text;
-                document.body.appendChild(textArea);
-                textArea.select();
-                try {
-                    document.execCommand('copy');
-                    showToast('📋 Đã copy link và lời nhắn Zalo! Hãy dán vào ô chat Zalo.', 'success', 8000);
-                } catch (e) {
-                    console.error('Fallback copy failed:', e);
-                }
-                document.body.removeChild(textArea);
-            }
-
-            // Redirect to Zalo chat target phone
-            const targetPhone = phone.replace(/[^0-9]/g, '');
-            if (targetPhone) {
-                setTimeout(() => {
-                    window.open(`https://zalo.me/${targetPhone}`, '_blank');
-                }, 1200);
-            } else {
-                setTimeout(() => {
-                    window.open('https://zalo.me/0934975913', '_blank');
-                }, 1200);
-            }
+            setTimeout(() => {
+                window.open(`https://zalo.me/${COMPANY_ZALO_PHONE}`, '_blank', 'noopener,noreferrer');
+            }, 1200);
         }).catch(err => {
             console.error('PDF generation failed:', err);
             btn.innerText = originalText;
@@ -7583,16 +7501,9 @@
                     document.body.removeChild(textArea);
                 }
                 
-                const cleanPhone = decoded.phone ? decoded.phone.replace(/[^0-9]/g, '') : '';
-                if (cleanPhone) {
-                    setTimeout(() => {
-                        window.open(`https://zalo.me/${cleanPhone}`, '_blank');
-                    }, 1000);
-                } else {
-                    setTimeout(() => {
-                        window.open('https://zalo.me/share', '_blank');
-                    }, 1000);
-                }
+                setTimeout(() => {
+                    window.open(`https://zalo.me/${COMPANY_ZALO_PHONE}`, '_blank', 'noopener,noreferrer');
+                }, 1000);
             });
         }
         
@@ -7655,9 +7566,8 @@
                         
                         // Set image elements for logo list to render on canvas
                         state.logos.forEach(logo => {
-                            if (logo.src) {
+                            if (isSafeEmbeddedImageSource(logo.src)) {
                                 const img = new Image();
-                                img.crossOrigin = 'anonymous';
                                 img.src = logo.src;
                                 img.onload = () => {
                                     logo.imgElement = img;
@@ -7670,9 +7580,8 @@
                         if (state.patterns) {
                             Object.keys(state.patterns).forEach(angle => {
                                 (state.patterns[angle] || []).forEach(p => {
-                                    if (p.src) {
+                                    if (isSafeEmbeddedImageSource(p.src)) {
                                         const img = new Image();
-                                        img.crossOrigin = 'anonymous';
                                         img.src = p.src;
                                         img.onload = () => {
                                             p.imgElement = img;
@@ -7697,18 +7606,48 @@
             initSpecPopupEvents();
         } else {
             // LocalStorage loading of drafts if exists
-            const draft = localStorage.getItem('mrs_linh_design_draft');
+            let draft = null;
+            try {
+                draft = localStorage.getItem('mrs_linh_design_draft');
+            } catch (error) {
+                console.error('Local draft read failed:', error);
+            }
             if (draft) {
                 try {
+                    if (draft.length > 100000) throw new Error('Draft is too large');
                     const parsed = JSON.parse(draft);
-                    state.product = parsed.product || state.product;
-                    state.form = parsed.form || state.form;
-                    state.colors = { ...state.colors, ...parsed.colors };
+                    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
+                        throw new Error('Invalid draft structure');
+                    }
+                    const validProducts = ['ao-polo', 'ao-thun', 'ao-bao-ho', 'quan-bao-ho'];
+                    const validForms = ['nam', 'nu'];
+                    if (validProducts.includes(parsed.product)) state.product = parsed.product;
+                    if (validForms.includes(parsed.form)) state.form = parsed.form;
+                    if (parsed.colors && typeof parsed.colors === 'object' && !Array.isArray(parsed.colors)) {
+                        Object.keys(state.colors).forEach(key => {
+                            const value = parsed.colors[key];
+                            if (typeof value === 'string' && /^#[0-9a-f]{6}$/i.test(value)) state.colors[key] = value;
+                        });
+                    }
                     state.hasUserCustomizedColors = true;
-                    state.pockets = { ...state.pockets, ...parsed.pockets };
-                    state.reflective = { ...state.reflective, ...parsed.reflective };
-                    state.size = parsed.size || state.size;
-                    state.texts = parsed.texts || [];
+                    if (parsed.pockets && typeof parsed.pockets === 'object' && !Array.isArray(parsed.pockets)) {
+                        Object.keys(state.pockets).forEach(key => {
+                            if (typeof parsed.pockets[key] === 'boolean') state.pockets[key] = parsed.pockets[key];
+                        });
+                    }
+                    if (parsed.reflective && typeof parsed.reflective === 'object' && !Array.isArray(parsed.reflective)) {
+                        Object.keys(state.reflective).forEach(key => {
+                            if (typeof parsed.reflective[key] === 'boolean') state.reflective[key] = parsed.reflective[key];
+                        });
+                    }
+                    if (typeof parsed.size === 'string' && parsed.size.length <= 10) state.size = parsed.size;
+                    state.texts = Array.isArray(parsed.texts)
+                        ? parsed.texts.slice(0, 20).filter(text => text && typeof text === 'object').map(text => ({
+                            ...text,
+                            id: String(text.id || '').slice(0, 80),
+                            content: String(text.content || '').slice(0, 200)
+                        }))
+                        : [];
                     state.texts.forEach(text => {
                         ensureFontLoaded(text.fontFamily, () => {
                             text.imgElement = renderTextToCanvas(text);

@@ -58,7 +58,7 @@ Nền tảng hỗ trợ đắc lực cho các doanh nghiệp, đội nhóm, nhà
 ## 🛠 Hướng Dẫn Sử Dụng & Triển Khai
 
 1. Nền tảng được viết hoàn toàn bằng **HTML5, Vanilla CSS3 và Pure ES6 JavaScript**, không sử dụng framework nặng nề hay công cụ build trung gian, giúp ứng dụng có tốc độ tải trang gần như tức thì.
-2. Để chạy thử dự án locally, bạn chỉ cần click đúp vào file `index.html` hoặc chạy một máy chủ local server đơn giản (như **Live Server** trên VS Code hoặc lệnh `node server.js` trong terminal).
+2. Để chạy thử dự án locally, bạn chỉ cần click đúp vào file `index.html` hoặc chạy một máy chủ local server đơn giản (như **Live Server** trên VS Code hoặc lệnh `node _development/server.js` trong terminal).
 3. Khi tải logo lên, hãy ưu tiên các ảnh định dạng `.png` đã được xóa nền (trong suốt) để đảm bảo logo được thêu/in lên áo với thẩm mỹ cao nhất.
 4. Trình duyệt hỗ trợ: Chrome, Edge, Safari, Firefox, Opera trên cả nền tảng Desktop và Mobile Safari/Chrome.
 

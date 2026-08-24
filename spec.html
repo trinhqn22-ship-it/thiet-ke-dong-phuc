@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
     <title>Bảng Mô Tả Sản Phẩm 3D - MRS LINH UNIFORM</title>
     
     <!-- SEO & Icons -->
@@ -18,7 +20,7 @@
     <link rel="stylesheet" href="styles.css?v=1.1.5">
     
     <!-- Client-Side HTML to PDF Engine -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="lib/vendor/jspdf.umd.min.js?v=2.5.1"></script>
     <script src="lib/pdf/exportDesignPdf.js?v=1.2.3"></script>
 </head>
 <body class="main-app-body spec-view">

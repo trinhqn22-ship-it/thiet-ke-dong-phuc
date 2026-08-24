@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'none'; upgrade-insecure-requests">
     <title>Thiết Kế Đồng Phục 3D Online - MRS LINH | Studio May Đo Cao Cấp Quy Nhơn</title>
     
     <!-- SEO Metadata -->
@@ -24,7 +26,7 @@
     <link rel="stylesheet" href="styles.css?v=1.1.5">
     
     <!-- Client-Side HTML to PDF Engine -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="lib/vendor/jspdf.umd.min.js?v=2.5.1"></script>
     <script src="lib/pdf/exportDesignPdf.js?v=1.2.3"></script>
 </head>
 <body class="main-app-body">
@@ -45,7 +47,10 @@
             </button>
             <button class="btn btn-secondary" id="btn-save-draft" title="Lưu mẫu thiết kế hiện tại">
                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4"></path></svg>
-                Lưu Mẫu
+                Lưu bản nháp
+            </button>
+            <button class="btn btn-secondary" id="btn-clear-draft" title="Xóa bản nháp đã lưu trên thiết bị này">
+                Xóa bản nháp
             </button>
             <button class="btn btn-secondary" id="btn-download-png" title="Tải ảnh thiết kế độ phân giải cao">
                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
@@ -313,7 +318,7 @@
                         <div class="upload-zone" id="logo-upload-zone">
                             <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                             <span>Chọn tệp hoặc Kéo logo vào đây</span>
-                            <p>Định dạng hỗ trợ: PNG, JPG (Khuyến khích nền trong suốt)</p>
+                            <p>PNG/JPG, tối đa 5 MB (khuyến khích nền trong suốt)</p>
                             <input type="file" id="input-logo-file" accept="image/png, image/jpeg" style="display:none;">
                         </div>
                     </div>
@@ -361,7 +366,7 @@
                     <!-- Text Content Input -->
                     <div class="control-group">
                         <label class="control-label" style="font-weight: 700; color: var(--accent-blue);">Nội dung chữ</label>
-                        <input type="text" class="input-field" id="text-content-input" placeholder="Nhập chữ trang trí..." value="Đồng Phục Mrs Linh">
+                        <input type="text" class="input-field" id="text-content-input" maxlength="200" placeholder="Nhập chữ trang trí..." value="Đồng Phục Mrs Linh">
                     </div>
 
                     <!-- Layout Type Selection -->
@@ -507,8 +512,8 @@
                         <div class="upload-zone" id="pattern-upload-zone">
                             <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
                             <span>Tải hình in lớn lên áo</span>
-                            <p>Định dạng hỗ trợ: PNG, JPG, SVG</p>
-                            <input type="file" id="input-pattern-file" accept="image/png, image/jpeg, image/svg+xml" style="display:none;">
+                            <p>PNG/JPG, tối đa 10 MB</p>
+                            <input type="file" id="input-pattern-file" accept="image/png, image/jpeg" style="display:none;">
                         </div>
                     </div>
 
@@ -721,6 +726,7 @@
                     <div class="ai-prompt-area">
                         <textarea
                             id="ai-input-text"
+                            maxlength="1000"
                             class="ai-textarea"
                             placeholder="Mô tả thông tin của bạn, ví dụ:&#10;Nam, 1986, ngành xây dựng, màu chủ đạo xanh và đỏ..."
                             rows="3"
@@ -842,41 +848,6 @@
         </div>
     </footer>
 
-    <!-- Quotation / Lead capture Modal Window -->
-    <div class="modal-overlay" id="modal-lead-form">
-        <div class="modal-container">
-            <div class="modal-header">
-                <h3>Yêu Cầu Báo Giá Đồng Phục</h3>
-                <button class="panel-close" id="btn-close-lead-modal">✕</button>
-            </div>
-            <div class="modal-body">
-                <p style="font-size: 13px; color: var(--text-secondary);">
-                    Vui lòng điền thông tin của bạn. Xưởng may Mrs Linh Quy Nhơn sẽ nhận được toàn bộ bản thiết kế 3D (phối màu, logo, túi) của bạn và liên hệ báo giá gốc tận xưởng trong vòng 10 phút.
-                </p>
-                <div class="control-group">
-                    <label class="control-label" for="form-fullname" id="lbl-lead-fullname">Họ và Tên <span style="color: var(--accent-rose);">*</span></label>
-                    <input type="text" class="input-field" id="form-fullname" placeholder="Nguyễn Văn A" required>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" for="form-phone" id="lbl-lead-phone">Số điện thoại / Zalo <span style="color: var(--accent-rose);">*</span></label>
-                    <input type="tel" class="input-field" id="form-phone" placeholder="0905123456" required>
-                </div>
-                <div class="control-group">
-                    <label class="control-label" for="form-quantity" id="lbl-lead-quantity">Số lượng áo dự kiến <span style="color: var(--accent-rose);">*</span></label>
-                    <input type="number" class="input-field" id="form-quantity" min="10" value="30">
-                </div>
-                <div class="control-group">
-                    <label class="control-label">Yêu cầu đặc biệt về chất vải hoặc in ấn</label>
-                    <textarea class="input-field" id="form-notes" placeholder="Ví dụ: Vải thun cá sấu dày dặn, thêu logo trước ngực, in nổi sau lưng áo..."></textarea>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" id="btn-cancel-lead">Hủy</button>
-                <button class="btn btn-primary" id="btn-submit-lead">Gửi Yêu Cầu Cho Mrs Linh</button>
-            </div>
-        </div>
-    </div>
-
     <!-- Model Switch Confirmation Modal -->
     <div class="modal-overlay" id="modal-switch-confirm">
         <div class="modal-container" style="max-width: 450px; background: rgba(15, 23, 42, 0.95); border: 1px solid var(--border-color); backdrop-filter: blur(16px); border-radius: 16px; padding: 6px;">
@@ -923,11 +894,11 @@
                 </p>
                 <div class="control-group">
                     <label class="control-label">Họ và Tên Khách Hàng <span style="color: var(--accent-rose);">*</span></label>
-                    <input type="text" class="input-field" id="zalo-fullname" placeholder="Nguyễn Văn A" required>
+                    <input type="text" class="input-field" id="zalo-fullname" placeholder="Nguyễn Văn A" maxlength="100" autocomplete="name" required>
                 </div>
                 <div class="control-group">
                     <label class="control-label">Số điện thoại / Zalo nhận mẫu <span style="color: var(--accent-rose);">*</span></label>
-                    <input type="tel" class="input-field" id="zalo-phone" placeholder="0905123456" required>
+                    <input type="tel" class="input-field" id="zalo-phone" placeholder="0905123456" maxlength="20" inputmode="tel" autocomplete="tel" required>
                 </div>
                 <div class="control-group">
                     <label class="control-label">Số Lượng Đặt Hàng Chi Tiết Theo Size</label>
@@ -937,12 +908,12 @@
                 </div>
                 <div class="control-group" style="margin-top: 15px;">
                     <label class="control-label">Ghi Chú Đặc Biệt Cho Khách Hàng (Tạo Trang 3)</label>
-                    <textarea class="input-field" id="zalo-notes" placeholder="Nhập ghi chú đặc biệt cho đơn hàng (ví dụ: thêu tay tỉ mỉ bằng chỉ nổi chất lượng cao, thiết kế thêm khuy cổ dự phòng...). Nếu để trống sẽ không sinh Trang 3." style="min-height: 80px; resize: none;"></textarea>
+                    <textarea class="input-field" id="zalo-notes" maxlength="1000" placeholder="Nhập ghi chú đặc biệt cho đơn hàng (ví dụ: thêu tay tỉ mỉ bằng chỉ nổi chất lượng cao, thiết kế thêm khuy cổ dự phòng...). Nếu để trống sẽ không sinh Trang 3." style="min-height: 80px; resize: none;"></textarea>
                 </div>
             </div>
             <div class="modal-footer">
                 <button class="btn btn-secondary" id="btn-cancel-zalo">Hủy</button>
-                <button class="btn btn-primary" id="btn-submit-zalo" style="background: var(--accent-gradient);">Tải PDF & Gửi Zalo</button>
+                <button class="btn btn-primary" id="btn-submit-zalo" style="background: var(--accent-gradient);">Tải PDF và mở Zalo Mrs Linh</button>
             </div>
         </div>
     </div>

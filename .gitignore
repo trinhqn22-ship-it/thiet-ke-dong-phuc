@@ -30,3 +30,7 @@ Thumbs.db
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Source design files are backed up separately and must never be deployed.
+*.psd
+design-sources/
