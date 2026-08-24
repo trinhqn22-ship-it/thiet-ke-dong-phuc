@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://thietkeaothun3d.inaodongphucmrslinh.com/sitemap.xml

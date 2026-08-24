@@ -1456,18 +1456,23 @@ textarea.input-field {
     max-width: 1200px;
     margin: 0 auto;
     display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
+    grid-template-columns: 1.8fr 1fr 1.2fr;
     gap: 40px;
 }
 
-.seo-footer-brand h4 {
+.seo-footer-brand h2 {
     font-family: 'Outfit', sans-serif;
     font-size: 16px;
     color: var(--text-primary);
     margin-bottom: 12px;
 }
 
-.seo-footer-links h5 {
+.seo-footer-intro {
+    margin-bottom: 12px;
+    line-height: 1.7;
+}
+
+.seo-footer-links h3 {
     color: var(--text-primary);
     font-weight: 600;
     margin-bottom: 16px;
@@ -1488,6 +1493,37 @@ textarea.input-field {
 }
 .seo-footer-links a:hover {
     color: var(--accent-blue);
+}
+
+.seo-footer-links a:focus-visible,
+.seo-footer-guide summary:focus-visible {
+    outline: 2px solid var(--accent-blue);
+    outline-offset: 3px;
+    border-radius: 4px;
+}
+
+.seo-footer-guide {
+    align-self: start;
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    background: var(--bg-surface-opacity);
+}
+
+.seo-footer-guide summary {
+    cursor: pointer;
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 14px;
+    padding: 13px 14px;
+}
+
+.seo-footer-guide-content {
+    padding: 0 14px 14px;
+    line-height: 1.7;
+}
+
+.seo-footer-guide-content p + p {
+    margin-top: 10px;
 }
 
 .seo-footer-bottom {
